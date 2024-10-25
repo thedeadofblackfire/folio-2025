@@ -13,9 +13,10 @@ export class Vehicle
         this.setChassis()
 
         this.controller = this.game.physics.world.createVehicleController(this.chassis.physical.body)
-        // this.controller.setIndexForwardAxis = 2
 
-        this.up = new THREE.Vector3(0, 1, 0)
+        this.sideward = new THREE.Vector3(1, 0, 0)
+        this.upward = new THREE.Vector3(0, 1, 0)
+        this.forward = new THREE.Vector3(0, 0, 1)
         this.position = new THREE.Vector3()
         this.speed = 0
         this.absoluteSpeed = 0
@@ -56,14 +57,14 @@ export class Vehicle
         this.chassis = this.game.physics.addEntity(
             {
                 type: 'dynamic',
-                shape: 'cuboid',
-                position: { x: 0, y: 1, z: 0 },
-                rotation: new THREE.Quaternion().setFromAxisAngle(new THREE.Euler(1, 0, 0), Math.PI * 0.5),
+                position: { x: 0, y: 5, z: 0 },
+                // rotation: new THREE.Quaternion().setFromAxisAngle(new THREE.Euler(1, 0, 0.2), Math.PI * 0.5),
                 colliders: [ { shape: 'cuboid', parameters: [ 1.5, 0.5, 1 ] } ],
                 canSleep: false,
             },
             visual
         )
+        // this.chassis.physical.body.applyTorqueImpulse({ x: 0, y: 5, z: 0 })
     }
 
     setWheels()
@@ -190,7 +191,7 @@ export class Vehicle
         {
             if(this.wheels.inContact > 0)
             {
-                const impulse = this.up.clone().multiplyScalar(this.jump.force * this.chassis.physical.body.mass())
+                const impulse = this.upward.clone().multiplyScalar(this.jump.force * this.chassis.physical.body.mass())
                 this.chassis.physical.body.applyImpulse(impulse)
 
                 let torqueY = 0
@@ -266,7 +267,7 @@ export class Vehicle
         this.unstuck.duration = 3
         this.unstuck.timeout = null
         this.unstuck.force = 8
-        this.unstuck.torque = 4
+        this.unstuck.torque = 0.8
 
         this.unstuck.test = () =>
         {
@@ -283,11 +284,35 @@ export class Vehicle
 
         this.unstuck.activate = () =>
         {
+            const up = new THREE.Vector3(0, 1, 0)
+            const sidewardDot = up.dot(this.sideward)
+            const forwardDot = up.dot(this.forward)
+            const upwarddDot = up.dot(this.upward)
+            
+            const sidewardAbsolute = Math.abs(sidewardDot)
+            const forwardAbsolute = Math.abs(forwardDot)
+            const upwarddAbsolute = Math.abs(upwarddDot)
+
             const impulse = new THREE.Vector3(0, 1, 0).multiplyScalar(this.unstuck.force * this.chassis.physical.body.mass())
             this.chassis.physical.body.applyImpulse(impulse)
 
-            const torque = this.unstuck.torque * this.upsideDownRatio
-            this.chassis.physical.body.applyTorqueImpulse({ x: torque * 0.6, y: 0, z: torque })
+            // Upside down
+            if(upwarddAbsolute > sidewardAbsolute && upwarddAbsolute > forwardAbsolute)
+            {
+                const torqueX = this.unstuck.torque * this.chassis.physical.body.mass()
+                const torque = new THREE.Vector3(torqueX, 0, 0)
+                torque.applyQuaternion(this.chassis.physical.body.rotation())
+                this.chassis.physical.body.applyTorqueImpulse(torque)
+            }
+            // On the side
+            else
+            {
+                const torqueX = forwardDot * 0.4 * this.chassis.physical.body.mass()
+                const torqueZ = - sidewardDot * 0.8 * this.chassis.physical.body.mass()
+                const torque = new THREE.Vector3(torqueX, 0, torqueZ)
+                torque.applyQuaternion(this.chassis.physical.body.rotation())
+                this.chassis.physical.body.applyTorqueImpulse(torque)
+            }
         }
 
         this.events.on('flip', () =>
@@ -367,10 +392,12 @@ export class Vehicle
     {
         // Various measures
         this.position.copy(this.chassis.physical.body.translation())
-        this.up.set(0, 1, 0).applyQuaternion(this.chassis.physical.body.rotation())
+        this.sideward.set(1, 0, 0).applyQuaternion(this.chassis.physical.body.rotation())
+        this.upward.set(0, 1, 0).applyQuaternion(this.chassis.physical.body.rotation())
+        this.forward.set(0, 0, 1).applyQuaternion(this.chassis.physical.body.rotation())
         this.speed = this.controller.currentVehicleSpeed()
         this.absoluteSpeed = Math.abs(this.speed)
-        this.upsideDownRatio = this.up.dot(new THREE.Vector3(0, - 1, 0)) * 0.5 + 0.5
+        this.upsideDownRatio = this.upward.dot(new THREE.Vector3(0, - 1, 0)) * 0.5 + 0.5
         
         // Wheels
         this.wheels.visualSteering += (this.wheels.steering - this.wheels.visualSteering) * this.game.time.deltaScaled * 16
