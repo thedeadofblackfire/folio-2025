@@ -6,7 +6,7 @@ export class PhysicsDebug
     constructor()
     {
         this.game = new Game()
-        this.active = false
+        this.active = true
 
         this.geometry = new THREE.BufferGeometry()
         this.geometry.setAttribute('position', new THREE.Float32BufferAttribute([], 3))
