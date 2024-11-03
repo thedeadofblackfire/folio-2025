@@ -53,7 +53,7 @@ export class Vehicle
             new THREE.BoxGeometry(1.5 * 2, 0.5 * 2, 1 * 2),
             new THREE.MeshNormalNodeMaterial({ wireframe: true })
         )
-        this.game.world.scene.add(visual)
+        this.game.scene.add(visual)
         this.chassis = this.game.physics.addEntity(
             {
                 type: 'dynamic',

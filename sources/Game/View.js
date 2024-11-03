@@ -27,7 +27,7 @@ export class View
         this.radius.speedHigh = 40
 
         this.camera = new THREE.PerspectiveCamera(25, this.game.viewport.ratio, 0.1, 1000)
-        this.game.world.scene.add(this.camera)
+        this.game.scene.add(this.camera)
 
         this.cameraControls = new CameraControls(this.camera, this.game.domElement)
         this.cameraControls.enabled = this.mode === 'controls'

@@ -1,7 +1,7 @@
 import { Game } from '../Game.js'
 import * as THREE from 'three'
 
-export class PhysicsDebug
+export class PhysicsWireframe
 {
     constructor()
     {
@@ -17,7 +17,7 @@ export class PhysicsDebug
         this.lineSegments = new THREE.LineSegments(this.geometry, this.material)
 
         if(this.active)
-            this.game.world.scene.add(this.lineSegments)
+            this.game.scene.add(this.lineSegments)
 
         this.game.time.events.on('tick', () =>
         {
@@ -26,12 +26,16 @@ export class PhysicsDebug
 
         if(this.game.debug.active)
         {
-            this.game.physics.debugPanel.addBinding(this, 'active', { label: 'debug' }).on('change', () =>
+            this.debugPanel = this.game.debug.panel.addFolder({
+                title: '⬇️ Physics Wireframe',
+                expanded: false,
+            })
+            this.debugPanel.addBinding(this, 'active', { label: 'debug' }).on('change', () =>
             {
                 if(this.active)
-                    this.game.world.scene.add(this.lineSegments)
+                    this.game.scene.add(this.lineSegments)
                 else
-                    this.game.world.scene.remove(this.lineSegments)
+                    this.game.scene.remove(this.lineSegments)
             })
         }
     }

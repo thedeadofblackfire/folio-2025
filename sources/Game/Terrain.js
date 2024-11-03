@@ -62,7 +62,7 @@ export class Terrain
         const factor = terrainData.r.add(noiseVariation).clamp(0, 1)
         material.colorNode = mix(grassColor, dirtColor, factor)
         this.floor = new THREE.Mesh(geometry, material)
-        this.game.world.scene.add(this.floor)
+        this.game.scene.add(this.floor)
 
         // Debug
         if(this.game.debug.active)

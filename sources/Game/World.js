@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { uniform, color, rangeFog } from 'three'
 import { Game } from './Game.js'
 import MeshGridMaterial, { MeshGridMaterialLine } from './Materials/MeshGridMaterial.js'
 import { Terrain } from './Terrain.js'
@@ -11,16 +10,13 @@ export class World
     {
         this.game = new Game()
 
-        this.scene = new THREE.Scene()
-        this.scene.fogNode = rangeFog(color(0x1b191f), 20, 100)
-
         this.bush = new Bush()
         this.setGround()
         // this.setTestCube()
 
         const axesHelper = new THREE.AxesHelper()
         axesHelper.position.y = 2
-        this.scene.add(axesHelper)
+        this.game.scene.add(axesHelper)
 
         this.game.time.events.on('tick', () =>
         {
@@ -50,7 +46,7 @@ export class World
             uvGridMaterial
         )
         ground.rotation.x = - Math.PI * 0.5
-        this.scene.add(ground)
+        this.game.scene.add(ground)
 
         // Physical ground
         this.game.physics.addEntity({
@@ -89,7 +85,7 @@ export class World
             new THREE.BoxGeometry(1, 1, 1),
             new THREE.MeshNormalNodeMaterial()
         )
-        this.scene.add(visualCube)
+        this.game.scene.add(visualCube)
 
         this.game.physics.addEntity(
             {

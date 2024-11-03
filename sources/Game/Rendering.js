@@ -7,7 +7,7 @@ export class Rendering
     {
         this.game = new Game()
 
-        this.renderer = new THREE.WebGPURenderer({ antialias: true })
+        this.renderer = new THREE.WebGPURenderer()
         this.renderer.setSize(this.game.viewport.width, this.game.viewport.height)
         this.renderer.domElement.classList.add('experience')
         this.renderer.setClearColor(0x1b191f)
@@ -31,6 +31,6 @@ export class Rendering
 
     render()
     {
-        this.renderer.renderAsync(this.game.world.scene, this.game.view.camera)
+        this.renderer.renderAsync(this.game.scene, this.game.view.camera)
     }
 }

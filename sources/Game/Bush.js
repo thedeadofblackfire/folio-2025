@@ -71,13 +71,13 @@ export class Bush
         const mesh = new THREE.Mesh(geometry, material)
         mesh.position.set(2, 1, 2)
         mesh.scale.setScalar(1.5)
-        this.game.world.scene.add(mesh)
+        this.game.scene.add(mesh)
 
         // const testSphere = new THREE.Mesh(
         //     new THREE.IcosahedronGeometry(1, 3),
         //     material
         // )
         // testSphere.position.set(2, 1, - 2)
-        // this.game.world.scene.add(testSphere)
+        // this.game.scene.add(testSphere)
     }
 }

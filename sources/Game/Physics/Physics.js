@@ -1,5 +1,6 @@
 import { Game } from '../Game.js'
 import RAPIER from '@dimforge/rapier3d-compat'
+import { PhysicsWireframe } from './PhysicsWireframe.js'
 
 export class Physics
 {
@@ -15,6 +16,8 @@ export class Physics
         {
             this.update()
         }, 2)
+
+        this.wireframe = new PhysicsWireframe()
 
         if(this.game.debug.active)
         {
