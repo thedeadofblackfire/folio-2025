@@ -9,8 +9,8 @@ export class Grass
     {
         this.game = new Game()
 
-        this.details = 600
-        this.size = 80
+        this.details = 400
+        this.size = 60
         this.count = this.details * this.details
         this.fragmentSize = this.size / this.details
         this.bladeWidthRatio = 1.5
@@ -99,21 +99,21 @@ export class Grass
         const wind = varying(vec2())
         const bladePosition = varying(vec2())
 
-        const bladeWidth = this.fragmentSize * this.bladeWidthRatio
-        const bladeHalfWidth = bladeWidth * 0.5
-        const bladeHeight = this.fragmentSize * this.bladeHeightRatio
-        const shapeUniform = uniformArray([
+        const bladeWidth = uniform(0.1)
+        const bladeHeight = uniform(0.6)
+        const bladeHeightRandomness = uniform(0.6)
+        const bladeShape = uniformArray([
 
                 // Tip
                 0,
-                bladeHeight,
+                1,
 
                 // Left side
-                bladeHalfWidth,
+                1,
                 0,
 
                 // Right side
-                - bladeHalfWidth,
+                - 1,
                 0,
         ])
 
@@ -136,15 +136,18 @@ export class Grass
                 this.game.vehicle.wheelTracks.renderTarget.texture,
                 worldPosition.xz.sub(- this.game.vehicle.wheelTracks.halfSize).sub(this.playerPosition).div(this.game.vehicle.wheelTracks.size)
             )
-            const flatness = wheelTracksColor.a.oneMinus().toVar()
+            const wheelsTracksHeight = wheelTracksColor.a.oneMinus().toVar()
 
             // Height
-            const height = attribute('randomness').mul(0.4).add(0.6).mul(flatness)
+            const height = bladeHeight
+                .mul(bladeHeightRandomness.mul(attribute('randomness')).add(bladeHeightRandomness.oneMinus()))
+                .mul(wheelsTracksHeight)
+                
 
             // Shape
             const shape = vec3(
-                shapeUniform.element(vertexLoopIndex.mod(3).mul(2)),
-                shapeUniform.element(vertexLoopIndex.mod(3).mul(2).add(1)).mul(height),
+                bladeShape.element(vertexLoopIndex.mod(3).mul(2)).mul(bladeWidth),
+                bladeShape.element(vertexLoopIndex.mod(3).mul(2).add(1)).mul(height),
                 0
             )
 
@@ -152,7 +155,7 @@ export class Grass
             const vertexPosition = position3.add(shape)
 
             // Wind
-            wind.assign(getWind([this.resources.noisesTexture, worldPosition.xz]).mul(tipness).mul(flatness))
+            wind.assign(getWind([this.resources.noisesTexture, worldPosition.xz]).mul(tipness).mul(height))
             vertexPosition.addAssign(vec3(wind.x, 0, wind.y))
 
             // Vertex rotation
@@ -196,6 +199,19 @@ export class Grass
         // const testMaterial = new THREE.MeshMatcapNodeMaterial({ depthTest: false, matcap: this.resources.matcapGrassOnGreen })
         // this.testPlane = new THREE.Mesh(testGeometry, testMaterial)
         // this.game.scene.add(this.testPlane)
+        
+        // Debug
+        if(this.game.debug.active)
+        {
+            const debugPanel = this.game.debug.panel.addFolder({
+                title: '🌱 Grass',
+                expanded: true,
+            })
+
+            debugPanel.addBinding(bladeWidth, 'value', { label: 'bladeWidth', min: 0, max: 1, step: 0.001 })
+            debugPanel.addBinding(bladeHeight, 'value', { label: 'bladeHeight', min: 0, max: 2, step: 0.001 })
+            debugPanel.addBinding(bladeHeightRandomness, 'value', { label: 'bladeHeightRandomness', min: 0, max: 1, step: 0.001 })
+        }
     }
 
     setMesh()

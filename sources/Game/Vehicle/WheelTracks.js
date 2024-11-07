@@ -7,8 +7,8 @@ export class WheelTracks
     constructor()
     {
         this.game = new Game()
-        this.resolution = 1024
-        this.size = 30
+        this.resolution = 512
+        this.size = 20
         this.halfSize = this.size / 2
         this.tracks = []
         

@@ -69,7 +69,7 @@ export class WheelTrack
             const testPosition = vec2(
                 cos(angle.add(sideSign.mul(Math.PI * 0.5))),
                 sin(angle.add(sideSign.mul(Math.PI * 0.5)))
-            ).mul(0.3)
+            ).mul(0.35)
             
             const newPosition = vec3(
                 trackData.x.add(testPosition.x),

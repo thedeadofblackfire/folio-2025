@@ -49,12 +49,12 @@ export class View
 
         if(this.game.debug.active)
         {
-            this.debugFolder = this.game.debug.panel.addFolder({
+            this.debugPanel = this.game.debug.panel.addFolder({
                 title: '📷 View',
                 expanded: true,
             })
 
-            this.debugFolder.addBinding(
+            this.debugPanel.addBinding(
                 this,
                 'mode',
                 {
@@ -72,10 +72,10 @@ export class View
                 this.cameraControls.setTarget(this.target.x, this.target.y, this.target.z)
                 this.cameraControls.setPosition(this.camera.position.x, this.camera.position.y, this.camera.position.z)
             })
-            this.debugFolder.addBinding(this, 'phi', { min: 0, max: Math.PI * 0.5, step: 0.001 })
-            this.debugFolder.addBinding(this, 'theta', { min: - Math.PI, max: Math.PI, step: 0.001 })
+            this.debugPanel.addBinding(this, 'phi', { min: 0, max: Math.PI * 0.5, step: 0.001 })
+            this.debugPanel.addBinding(this, 'theta', { min: - Math.PI, max: Math.PI, step: 0.001 })
 
-            const radiusFolder = this.debugFolder.addFolder({
+            const radiusFolder = this.debugPanel.addFolder({
                 title: 'Radius',
                 expanded: true,
             })
@@ -168,7 +168,7 @@ export class View
         // Debug
         if(this.game.debug.active)
         {
-            const folder = this.debugFolder.addFolder({
+            const folder = this.debugPanel.addFolder({
                 title: 'Speed lines',
                 expanded: true,
             })

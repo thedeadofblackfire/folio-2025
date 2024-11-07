@@ -40,24 +40,24 @@ export class Floor
         // Debug
         if(this.game.debug.active)
         {
-            const gridFolder = this.game.debug.panel.addFolder({
+            const debugPanel = this.game.debug.panel.addFolder({
                 title: '🌐 Grid Floor',
                 expanded: false,
             })
 
-            gridFolder.addBinding(uvGridMaterial, 'scale', { min: 0, max: 0.002, step: 0.0001 })
+            debugPanel.addBinding(uvGridMaterial, 'scale', { min: 0, max: 0.002, step: 0.0001 })
 
             for(const line of lines)
             {
-                const lineFolder = gridFolder.addFolder({
+                const lineDebugPanel = debugPanel.addFolder({
                     title: 'Line',
                     expanded: true,
                 })
-                lineFolder.addBinding(line.scale, 'value', { label: 'scale', min: 0, max: 1, step: 0.001 })
-                lineFolder.addBinding(line.thickness, 'value', { label: 'thickness', min: 0, max: 1, step: 0.001 })
-                lineFolder.addBinding(line.offset, 'value', { label: 'offset', min: 0, max: 1, step: 0.001 })
-                lineFolder.addBinding(line.cross, 'value', { label: 'cross', min: 0, max: 1, step: 0.001 })
-                lineFolder.addBinding({ color: '#' + line.color.value.getHexString(THREE.SRGBColorSpace) }, 'color').on('change', tweak => line.color.value.set(tweak.value))
+                lineDebugPanel.addBinding(line.scale, 'value', { label: 'scale', min: 0, max: 1, step: 0.001 })
+                lineDebugPanel.addBinding(line.thickness, 'value', { label: 'thickness', min: 0, max: 1, step: 0.001 })
+                lineDebugPanel.addBinding(line.offset, 'value', { label: 'offset', min: 0, max: 1, step: 0.001 })
+                lineDebugPanel.addBinding(line.cross, 'value', { label: 'cross', min: 0, max: 1, step: 0.001 })
+                lineDebugPanel.addBinding({ color: '#' + line.color.value.getHexString(THREE.SRGBColorSpace) }, 'color').on('change', tweak => line.color.value.set(tweak.value))
             }
         }
     }

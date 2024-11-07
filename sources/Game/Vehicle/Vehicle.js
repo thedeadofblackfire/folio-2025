@@ -169,26 +169,26 @@ export class Vehicle
         // Debug
         if(this.game.debug.active)
         {
-            const panel = this.debugPanel.addFolder({
+            const debugPanel = this.debugPanel.addFolder({
                 title: '🛞 Wheels',
                 expanded: true,
             })
 
-            panel.addBinding(this.wheels.settings, 'offset', { min: -1, max: 1, step: 0.01 }).on('change', this.wheels.updateSettings)
-            panel.addBinding(this.wheels.settings, 'radius', { min: 0, max: 1, step: 0.01 }).on('change', this.wheels.updateSettings)
-            panel.addBinding(this.wheels.settings, 'frictionSlip', { min: 0, max: 1, step: 0.01 }).on('change', this.wheels.updateSettings)
-            panel.addBinding(this.wheels.settings, 'maxSuspensionForce', { min: 0, max: 1000, step: 1 }).on('change', this.wheels.updateSettings)
-            panel.addBinding(this.wheels.settings, 'maxSuspensionTravel', { min: 0, max: 2, step: 0.01 }).on('change', this.wheels.updateSettings)
-            panel.addBinding(this.wheels.settings, 'sideFrictionStiffness', { min: 0, max: 1, step: 0.01 }).on('change', this.wheels.updateSettings)
-            panel.addBinding(this.wheels.settings, 'suspensionCompression', { min: 0, max: 10, step: 0.01 }).on('change', this.wheels.updateSettings)
-            panel.addBinding(this.wheels.settings, 'suspensionRelaxation', { min: 0, max: 10, step: 0.01 }).on('change', this.wheels.updateSettings)
-            panel.addBinding(this.wheels.settings, 'suspensionStiffness', { min: 0, max: 100, step: 0.1 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'offset', { min: -1, max: 1, step: 0.01 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'radius', { min: 0, max: 1, step: 0.01 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'frictionSlip', { min: 0, max: 1, step: 0.01 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'maxSuspensionForce', { min: 0, max: 1000, step: 1 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'maxSuspensionTravel', { min: 0, max: 2, step: 0.01 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'sideFrictionStiffness', { min: 0, max: 1, step: 0.01 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'suspensionCompression', { min: 0, max: 10, step: 0.01 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'suspensionRelaxation', { min: 0, max: 10, step: 0.01 }).on('change', this.wheels.updateSettings)
+            debugPanel.addBinding(this.wheels.settings, 'suspensionStiffness', { min: 0, max: 100, step: 0.1 }).on('change', this.wheels.updateSettings)
             
-            panel.addBinding(this.wheels, 'steeringMax', { min: 0, max: Math.PI * 0.5, step: 0.01 })
-            panel.addBinding(this.wheels, 'brakeStrength', { min: 0, max: 1, step: 0.01 })
-            panel.addBinding(this.wheels, 'brakePerpetualStrength', { min: 0, max: 0.2, step: 0.01 })
-            panel.addBinding(this.wheels, 'engineForceMax', { min: 0, max: 10, step: 0.01 })
-            panel.addBinding(this.wheels, 'engineBoostMultiplier', { min: 0, max: 5, step: 0.01 })
+            debugPanel.addBinding(this.wheels, 'steeringMax', { min: 0, max: Math.PI * 0.5, step: 0.01 })
+            debugPanel.addBinding(this.wheels, 'brakeStrength', { min: 0, max: 1, step: 0.01 })
+            debugPanel.addBinding(this.wheels, 'brakePerpetualStrength', { min: 0, max: 0.2, step: 0.01 })
+            debugPanel.addBinding(this.wheels, 'engineForceMax', { min: 0, max: 10, step: 0.01 })
+            debugPanel.addBinding(this.wheels, 'engineBoostMultiplier', { min: 0, max: 5, step: 0.01 })
         }
     }
 
@@ -296,12 +296,12 @@ export class Vehicle
 
         if(this.game.debug.active)
         {
-            const panel = this.debugPanel.addFolder({
+            const debugPanel = this.debugPanel.addFolder({
                 title: '🔄 Unstuck',
                 expanded: true,
             })
 
-            panel.addBinding(this.unstuck, 'force', { min: 0, max: 20, step: 0.01 })
+            debugPanel.addBinding(this.unstuck, 'force', { min: 0, max: 20, step: 0.01 })
         }
     }
 
@@ -377,14 +377,14 @@ export class Vehicle
         // Debug
         if(this.game.debug.active)
         {
-            const panel = this.debugPanel.addFolder({
+            const debugPanel = this.debugPanel.addFolder({
                 title: '⬆️ Hydraulics',
                 expanded: true,
             })
 
-            panel.addBinding(this.hydraulics, 'low', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
-            panel.addBinding(this.hydraulics, 'mid', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
-            panel.addBinding(this.hydraulics, 'high', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
+            debugPanel.addBinding(this.hydraulics, 'low', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
+            debugPanel.addBinding(this.hydraulics, 'mid', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
+            debugPanel.addBinding(this.hydraulics, 'high', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
         }
     }
 

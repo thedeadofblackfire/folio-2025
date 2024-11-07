@@ -65,6 +65,14 @@ export class Game
         this.world = new World()
         this.view = new View()
         this.rendering = new Rendering()
+
+        if(this.debug.active)
+        {
+            this.time.events.on('tick', () =>
+            {
+                this.debug.stats.update()
+            })
+        }
     }
 }
 

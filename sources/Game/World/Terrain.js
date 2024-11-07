@@ -67,13 +67,13 @@ export class Terrain
         // Debug
         if(this.game.debug.active)
         {
-            const folder = this.game.debug.panel.addFolder({
+            const debugPanel = this.game.debug.panel.addFolder({
                 title: '🏔️ Terrain',
                 expanded: false,
             })
 
-            folder.addBinding({ color: '#' + grassColor.value.getHexString(THREE.SRGBColorSpace) }, 'color', { label: 'grassColor' }).on('change', tweak => grassColor.value.set(tweak.value))
-            folder.addBinding({ color: '#' + dirtColor.value.getHexString(THREE.SRGBColorSpace) }, 'color', { label: 'dirtColor' }).on('change', tweak => dirtColor.value.set(tweak.value))
+            debugPanel.addBinding({ color: '#' + grassColor.value.getHexString(THREE.SRGBColorSpace) }, 'color', { label: 'grassColor' }).on('change', tweak => grassColor.value.set(tweak.value))
+            debugPanel.addBinding({ color: '#' + dirtColor.value.getHexString(THREE.SRGBColorSpace) }, 'color', { label: 'dirtColor' }).on('change', tweak => dirtColor.value.set(tweak.value))
         }
     }
 }
