@@ -43,7 +43,7 @@ export class Resources
         }
 
         // Error callback
-        const error = () =>
+        const error = (_file) =>
         {
             console.log(`Resources > Couldn't load file ${_file.path}`)
         }
@@ -65,7 +65,7 @@ export class Resources
                     _file.path,
                     resource => { success(_file, resource) },
                     undefined,
-                    error
+                    resource => { error(_file, resource) },
                 )
             }
         }
