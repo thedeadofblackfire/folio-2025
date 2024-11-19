@@ -81,8 +81,10 @@ export class Vehicle
         this.wheels.steeringMax = 0.5
         this.wheels.visualSteering = 0
         this.wheels.inContact = 0
-        this.wheels.brakeStrength = 15
-        this.wheels.brakePerpetualStrength = 2.88
+        this.wheels.brakeStrength = 42
+        this.wheels.brakePerpetualStrength = 3
+        this.wheels.maxSpeed = 5
+        this.wheels.maxSpeedBoost = 12
 
         // Geometry
         const wheelGeometry = new THREE.CylinderGeometry(1, 1, 0.5, 8)
@@ -189,6 +191,8 @@ export class Vehicle
             debugPanel.addBinding(this.wheels, 'brakePerpetualStrength', { min: 0, max: 0.2, step: 0.01 })
             debugPanel.addBinding(this.wheels, 'engineForceMax', { min: 0, max: 10, step: 0.01 })
             debugPanel.addBinding(this.wheels, 'engineBoostMultiplier', { min: 0, max: 5, step: 0.01 })
+            debugPanel.addBinding(this.wheels, 'maxSpeed', { min: 1, max: 40, step: 0.01 })
+            debugPanel.addBinding(this.wheels, 'maxSpeedBoost', { min: 1, max: 40, step: 0.01 })
         }
     }
 
@@ -396,19 +400,19 @@ export class Vehicle
         // Forward
         if(this.game.inputs.keys.forward)
         {
-            if(!this.goingForward && !this.stop.active)
+            if(!this.goingForward && this.absoluteSpeed > 3)
                 reverseBrake = true
-            else
-                this.wheels.engineForce += this.wheels.engineForceMax
+
+            this.wheels.engineForce += this.wheels.engineForceMax
         }
 
         // Backward
         if(this.game.inputs.keys.backward)
         {
-            if(this.goingForward && !this.stop.active)
+            if(this.goingForward && this.absoluteSpeed > 3)
                 reverseBrake = true
-            else
-                this.wheels.engineForce -= this.wheels.engineForceMax
+                
+            this.wheels.engineForce -= this.wheels.engineForceMax
         }
 
         if(this.game.inputs.keys.boost)
@@ -423,16 +427,21 @@ export class Vehicle
         this.controller.setWheelSteering(1, this.wheels.steering)
 
         let brake = this.wheels.brakePerpetualStrength
+
         if(this.game.inputs.keys.brake || reverseBrake)
         {
-            this.wheels.engineForce *= 0.5
+            this.wheels.engineForce = 0
             brake = this.wheels.brakeStrength
         }
 
+        const maxSpeed = this.game.inputs.keys.boost ? this.wheels.maxSpeedBoost : this.wheels.maxSpeed
+        const overflowSpeed = Math.max(0, this.absoluteSpeed - maxSpeed)
+        this.wheels.engineForce /= (1 + overflowSpeed)
+
         for(let i = 0; i < 4; i++)
         {
-            this.controller.setWheelBrake(i, brake * this.game.time.deltaScaled)
-            this.controller.setWheelEngineForce(i, this.wheels.engineForce * this.game.time.deltaScaled)
+            this.controller.setWheelBrake(i, brake * 0.2 * this.game.time.deltaScaled)
+            this.controller.setWheelEngineForce(i, this.wheels.engineForce * 0.01)
         }
     }
 
