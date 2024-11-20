@@ -29,8 +29,8 @@ export class Game
         RAPIER.init().then(() =>
         {
             // Load resources
-            this.resources = new ResourcesLoader()
-            this.resources.load(
+            this.resourcesLoader = new ResourcesLoader()
+            this.resourcesLoader.load(
                 [
                     { path: 'matcaps/grassOnGreen.png', type: 'texture', name: 'matcapGrassOnGreen' },
                     { path: 'bush/bush-leaves-3.png', type: 'texture', name: 'bushLeaves' },
