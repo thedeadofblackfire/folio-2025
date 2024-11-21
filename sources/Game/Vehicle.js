@@ -60,13 +60,13 @@ export class Vehicle
                 child.castShadow = true
                 child.material.shadowSide = THREE.BackSide
 
-                if(child.material.name === 'carEmissiveNormal' || child.material.name === 'carEmissiveRed')
-                {
-                    const luminanceCoefficients = new THREE.Vector3()
-                    THREE.ColorManagement.getLuminanceCoefficients(luminanceCoefficients)
-                    const luminance = child.material.color.r * luminanceCoefficients.x + child.material.color.g * luminanceCoefficients.y + child.material.color.b * luminanceCoefficients.z
-                    child.material.color.multiplyScalar(1.1 / luminance)
-                }
+                // if(child.material.name === 'emissiveWarmWhite' || child.material.name === 'emissiveRed')
+                // {
+                //     const luminanceCoefficients = new THREE.Vector3()
+                //     THREE.ColorManagement.getLuminanceCoefficients(luminanceCoefficients)
+                //     const luminance = child.material.color.r * luminanceCoefficients.x + child.material.color.g * luminanceCoefficients.y + child.material.color.b * luminanceCoefficients.z
+                //     child.material.color.multiplyScalar(1.1 / luminance)
+                // }
             }
         })
         this.game.materials.updateObject(model)

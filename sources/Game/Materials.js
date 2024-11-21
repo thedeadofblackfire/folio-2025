@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { max, positionWorld, float, Fn, uniform, color, mix, vec3, vec4, normalWorld } from 'three'
+import { positionLocal, varying, max, positionWorld, float, Fn, uniform, color, mix, vec3, vec4, normalWorld } from 'three'
 import { Game } from './Game.js'
 
 export class Materials
@@ -17,11 +17,52 @@ export class Materials
             })
         }
 
-        this.setLightOutputNode()
         this.setTest()
+        this.setNodes()
+        this.setPremades()
     }
 
-    setLightOutputNode()
+    setPremades()
+    {
+        const luminanceCoefficients = new THREE.Vector3()
+        THREE.ColorManagement.getLuminanceCoefficients(luminanceCoefficients)
+
+        const getLuminance = (color) =>
+        {
+            return color.r * luminanceCoefficients.x + color.g * luminanceCoefficients.y + color.b * luminanceCoefficients.z
+        }
+
+        const createEmissiveTweak = (material) =>
+        {
+            const update = () =>
+            {
+                material.color.set(dummy.color)
+                material.color.multiplyScalar(material.userData.intensity / getLuminance(material.color))
+            }
+            const dummy = { color: material.color.getHex(THREE.SRGBColorSpace) }
+            this.debugPanel.addBinding(material.userData, 'intensity', { min: 0, max: 300, step: 1 }).on('change', update)
+            this.debugPanel.addBinding(dummy, 'color', { color: { type: 'float' } }).on('change', update)
+        }
+    
+        // Emissive headlight
+        const emissiveWarnWhite = new THREE.MeshBasicNodeMaterial({ color: '#fba866' })
+        emissiveWarnWhite.name = 'emissiveWarnWhite'
+        emissiveWarnWhite.userData.intensity = 100
+        emissiveWarnWhite.color.multiplyScalar(emissiveWarnWhite.userData.intensity / getLuminance(emissiveWarnWhite.color))
+        createEmissiveTweak(emissiveWarnWhite)
+        this.save('emissiveWarnWhite', emissiveWarnWhite)
+    
+        // Emissive red
+        const emissiveRed = new THREE.MeshBasicNodeMaterial({ color: '#ff3131' })
+        emissiveRed.name = 'emissiveRed'
+        emissiveRed.userData.intensity = 100
+        emissiveRed.color.multiplyScalar(emissiveRed.userData.intensity / getLuminance(emissiveRed.color))
+        createEmissiveTweak(emissiveRed)
+        this.save('emissiveRed', emissiveRed)
+
+    }
+
+    setNodes()
     {
         this.lightBounceColor = uniform(color('#4c4700'))
         this.lightBounceEdgeLow = uniform(float(0))
@@ -31,9 +72,10 @@ export class Materials
         this.coreShadowEdgeLow = uniform(float(-0.25))
         this.coreShadowEdgeHigh = uniform(float(1))
 
-        this.lightOutputNode = Fn(([colorBase, totalShadows]) =>
+        const finalColor = varying(vec3())
+        this.lightPositionNode = Fn(([colorBase, totalShadows]) =>
         {
-            const finalColor = vec3(colorBase).toVar()
+            finalColor.assign(colorBase)
 
             // Light
             finalColor.assign(finalColor.mul(this.game.lighting.colorUniform.mul(this.game.lighting.intensityUniform)))
@@ -54,8 +96,13 @@ export class Materials
             const shadowColor = colorBase.rgb.mul(this.shadowColorMultiplier).rgb
             finalColor.assign(mix(finalColor, shadowColor, combinedShadowMix))
 
-            // return vec4(vec3(combinedShadowMix), 1)
-            return vec4(finalColor, 1)
+            // finalColor.assign(combinedShadowMix)
+            return positionLocal
+        })
+
+        this.lightOutputNode = Fn(() =>
+        {
+            return vec4(finalColor.rgb, 1)
         })
         
         // Debug
@@ -136,6 +183,12 @@ export class Materials
         }
     }
 
+    save(name, material)
+    {
+        this.list.set(name, material)
+        this.tests.update()
+    }
+
     getFromName(name, baseMaterial)
     {
         // Return existing material
@@ -146,20 +199,19 @@ export class Materials
         const material = this.createFromMaterial(baseMaterial)
 
         // Save
-        this.list.set(name, material)
+        this.save(name, material)
         return material
     }
 
     createFromMaterial(baseMaterial)
     {
-        let material = null
+        let material = baseMaterial
 
-        if(baseMaterial.isMeshBasicMaterial)
-            material = new THREE.MeshBasicNodeMaterial()
-        else
+        if(baseMaterial.isMeshStandardMaterial)
+        {
             material = new THREE.MeshLambertNodeMaterial()
-
-        this.copy(baseMaterial, material)
+            this.copy(baseMaterial, material)
+        }
         
         if(material.isMeshLambertNodeMaterial)
         {
@@ -171,17 +223,15 @@ export class Materials
             material.receivedShadowNode = Fn(([ shadow ]) => 
             {
                 totalShadows.mulAssign(shadow)
-
                 return float(1)
             })
 
             // Output
-            material.outputNode = this.lightOutputNode(baseMaterial.color, totalShadows)
+            material.positionNode = this.lightPositionNode(baseMaterial.color, totalShadows)
+            material.outputNode = this.lightOutputNode()
         }
 
         material.name = baseMaterial.name
-
-        this.tests.update()
 
         return material
     }

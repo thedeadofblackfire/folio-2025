@@ -77,7 +77,7 @@ export class View
     setZoom()
     {
         this.zoom = {}
-        this.zoom.baseRatio = 0.25
+        this.zoom.baseRatio = 0
         this.zoom.ratio = this.zoom.baseRatio
         this.zoom.smoothedRatio = this.zoom.baseRatio
         this.zoom.speedAmplitude = - 0.4
