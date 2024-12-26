@@ -23,15 +23,6 @@ export class Cycles
 
         this.setDay()
 
-        // const test = this.createInterpolated(
-        //     [
-        //         { color: new THREE.Color('#ff0000'), test: 3, stop: 0.3 },
-        //         { color: new THREE.Color('#00ff00'), test: 2, stop: 0.5 },
-        //     ],
-        //     this.day,
-        //     'smoothstep'
-        // )
-
         this.game.time.events.on('tick', () =>
         {
             this.update()
@@ -41,7 +32,7 @@ export class Cycles
     setDay()
     {
         this.day = {}
-        this.day.progress = 0
+        this.day.progress = 0.25
         this.day.speed = 0.01
         this.day.auto = true
 

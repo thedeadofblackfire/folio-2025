@@ -65,7 +65,7 @@ export class Materials
                     title: _name,
                     expanded: true
                 })
-                debugPanel.addBinding(dummy, 'intensity', { min: 0, max: 300, step: 1 }).on('change', update)
+                debugPanel.addBinding(dummy, 'intensity', { min: 0, max: 10, step: 0.01 }).on('change', update)
                 debugPanel.addBinding(dummy, 'color', { view: 'color' }).on('change', update)
             }
         }

@@ -61,6 +61,7 @@ export class Rendering
         const bloomPass = bloom(scenePassColor)
         bloomPass.threshold.value = 1
         bloomPass.strength.value = 0.25
+        bloomPass.smoothWidth.value = 1
 
         this.postProcessing.outputNode = scenePassColor.add(bloomPass)
 
@@ -75,6 +76,7 @@ export class Rendering
             debugPanel.addBinding(bloomPass.threshold, 'value', { label: 'threshold', min: 0, max: 2, step: 0.01 })
             debugPanel.addBinding(bloomPass.strength, 'value', { label: 'strength', min: 0, max: 3, step: 0.01 })
             debugPanel.addBinding(bloomPass.radius, 'value', { label: 'radius', min: 0, max: 1, step: 0.01 })
+            debugPanel.addBinding(bloomPass.smoothWidth, 'value', { label: 'smoothWidth', min: 0, max: 1, step: 0.01 })
         }
     }
 
