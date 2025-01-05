@@ -8,11 +8,14 @@ CameraControls.install( { THREE: THREE } )
 
 export class View
 {
+    static DEFAULT_MODE = 1
+    static FREE_MODE = 2
+
     constructor()
     {
         this.game = Game.getInstance()
-
-        this.mode = 'default'
+        
+        this.mode = View.DEFAULT_MODE
         this.position = new THREE.Vector3()
 
         if(this.game.debug.active)
@@ -28,17 +31,17 @@ export class View
                 {
                     options:
                     {
-                        default: 'default',
-                        debugControls: 'debugControls',
+                        default: View.DEFAULT_MODE,
+                        free: View.FREE_MODE,
                     }
                 }
             ).on('change', () => 
             {
                 this.focusPoint.smoothedPosition.copy(this.focusPoint.position)
 
-                this.debugControls.enabled = this.mode === 'debugControls'
-                this.debugControls.setTarget(this.focusPoint.position.x, this.focusPoint.position.y, this.focusPoint.position.z)
-                this.debugControls.setPosition(this.camera.position.x, this.camera.position.y, this.camera.position.z)
+                this.freeMode.enabled = this.mode === View.FREE_MODE
+                this.freeMode.setTarget(this.focusPoint.position.x, this.focusPoint.position.y, this.focusPoint.position.z)
+                this.freeMode.setPosition(this.camera.position.x, this.camera.position.y, this.camera.position.z)
             })
         }
 
@@ -46,7 +49,7 @@ export class View
         this.setZoom()
         this.setSpherical()
         this.setCamera()
-        this.setDebugControls()
+        this.setFree()
         this.setSpeedLines()
 
         this.game.time.events.on('tick', () =>
@@ -138,13 +141,13 @@ export class View
         this.game.scene.add(this.camera)
     }
 
-    setDebugControls()
+    setFree()
     {
-        this.debugControls = new CameraControls(this.camera, this.game.domElement)
-        this.debugControls.enabled = this.mode === 'debugControls'
-        this.debugControls.smoothTime = 0.075
-        this.debugControls.draggingSmoothTime = 0.075
-        this.debugControls.dollySpeed = 0.2
+        this.freeMode = new CameraControls(this.camera, this.game.domElement)
+        this.freeMode.enabled = this.mode === View.FREE_MODE
+        this.freeMode.smoothTime = 0.075
+        this.freeMode.draggingSmoothTime = 0.075
+        this.freeMode.dollySpeed = 0.2
     }
 
     setSpeedLines()
@@ -259,7 +262,7 @@ export class View
     update()
     {
         // Default mode
-        if(this.mode === 'default')
+        if(this.mode === View.DEFAULT_MODE)
         {
             // Focus point
             if(this.game.inputs.pointer.isDown)
@@ -284,7 +287,7 @@ export class View
         this.focusPoint.smoothedPosition.copy(newSmoothFocusPoint)
         
         // Default mode
-        if(this.mode === 'default')
+        if(this.mode === View.DEFAULT_MODE)
         {
             // Zoom
             const zoomSpeedRatio = smoothstep(focusPointSpeed, this.zoom.speedEdgeLow, this.zoom.speedEdgeHigh)
@@ -304,7 +307,7 @@ export class View
         this.position.copy(this.focusPoint.smoothedPosition).add(this.spherical.offset)
 
         // Default mode
-        if(this.mode === 'default')
+        if(this.mode === View.DEFAULT_MODE)
         {
             this.camera.position.copy(this.position)
 
@@ -315,7 +318,7 @@ export class View
         // Controls mode
         else
         {
-            this.debugControls.update(this.game.time.delta)
+            this.freeMode.update(this.game.time.delta)
         }
 
         // Speed lines
