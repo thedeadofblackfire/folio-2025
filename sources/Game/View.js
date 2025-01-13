@@ -170,8 +170,7 @@ export class View
         this.zoom.ratio = this.zoom.baseRatio
         this.zoom.smoothedRatio = this.zoom.baseRatio
         this.zoom.speedAmplitude = - 0.4
-        this.zoom.speedEdgeLow = 5
-        this.zoom.speedEdgeHigh = 40
+        this.zoom.speedEdge = { min: 5, max: 40 }
         this.zoom.sensitivity = 0.05
 
         this.game.inputs.events.on('zoom', (zoomValue) =>
@@ -187,8 +186,7 @@ export class View
                 expanded: false,
             })
             zoomDebugPanel.addBinding(this.zoom, 'speedAmplitude', { min: 0, max: 1, step: 0.001 })
-            zoomDebugPanel.addBinding(this.zoom, 'speedEdgeLow', { min: 0, max: 100, step: 0.001 })
-            zoomDebugPanel.addBinding(this.zoom, 'speedEdgeHigh', { min: 0, max: 100, step: 0.001 })
+            zoomDebugPanel.addBinding(this.zoom, 'speedEdge', { min: 0, max: 100, step: 0.001 })
             zoomDebugPanel.addBinding(this.zoom, 'sensitivity', { min: 0, max: 0.5, step: 0.0001 })
         }
     }
@@ -200,9 +198,8 @@ export class View
         this.spherical.theta = Math.PI * 0.25
 
         this.spherical.radius = {}
-        this.spherical.radius.min = 15
-        this.spherical.radius.max = 30
-        this.spherical.radius.current = lerp(this.spherical.radius.min, this.spherical.radius.max, 1 - this.zoom.smoothedRatio)
+        this.spherical.radius.edges = { min: 15, max: 30 }
+        this.spherical.radius.current = lerp(this.spherical.radius.edges.min, this.spherical.radius.edges.max, 1 - this.zoom.smoothedRatio)
 
         this.spherical.offset = new THREE.Vector3()
         this.spherical.offset.setFromSphericalCoords(this.spherical.radius.current, this.spherical.phi, this.spherical.theta)
@@ -215,8 +212,7 @@ export class View
             })
             sphericalDebugPanel.addBinding(this.spherical, 'phi', { min: 0, max: Math.PI * 0.5, step: 0.001 })
             sphericalDebugPanel.addBinding(this.spherical, 'theta', { min: - Math.PI, max: Math.PI, step: 0.001 })
-            sphericalDebugPanel.addBinding(this.spherical.radius, 'min', { label: 'zoomMin', min: 0, max: 100, step: 0.001 })
-            sphericalDebugPanel.addBinding(this.spherical.radius, 'max', { label: 'zoomMax', min: 0, max: 100, step: 0.001 })
+            sphericalDebugPanel.addBinding(this.spherical.radius, 'edges', { min: 0, max: 100, step: 0.001 })
         }
     }
 
@@ -390,7 +386,7 @@ export class View
         if(this.mode === View.DEFAULT_MODE)
         {
             // Zoom
-            const zoomSpeedRatio = smoothstep(focusPointSpeed, this.zoom.speedEdgeLow, this.zoom.speedEdgeHigh)
+            const zoomSpeedRatio = smoothstep(focusPointSpeed, this.zoom.speedEdge.min, this.zoom.speedEdge.max)
             this.zoom.ratio = this.zoom.baseRatio
 
             if(this.focusPoint.isTracking)
@@ -400,7 +396,7 @@ export class View
         }
 
         // Radius
-        this.spherical.radius.current = lerp(this.spherical.radius.min, this.spherical.radius.max, 1 - this.zoom.smoothedRatio)
+        this.spherical.radius.current = lerp(this.spherical.radius.edges.min, this.spherical.radius.edges.max, 1 - this.zoom.smoothedRatio)
         this.spherical.offset.setFromSphericalCoords(this.spherical.radius.current, this.spherical.phi, this.spherical.theta)
 
         // Position

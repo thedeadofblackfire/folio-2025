@@ -67,10 +67,30 @@ export class Cycles
             this.debugsToRefresh.push(debugPanel.addBinding(this.day, 'progress', { min: 0, max: 1, step: 0.001 }))
             debugPanel.addBinding(this.day, 'speed', { min: 0, max: 1, step: 0.001 })
             debugPanel.addBinding(this.day, 'auto')
-            debugPanel.addButton({ title: 'day' }).on('click', () => { this.day.progress = 0 })
-            debugPanel.addButton({ title: 'dusk' }).on('click', () => { this.day.progress = 0.25 })
-            debugPanel.addButton({ title: 'night' }).on('click', () => { this.day.progress = 0.35 })
-            debugPanel.addButton({ title: 'dawn' }).on('click', () => { this.day.progress = 0.8 })
+
+            const progresses = {
+                day: 0,
+                dusk: 0.25,
+                night: 0.35,
+                dawn: 0.8
+            }
+            const progressesKeys = Object.keys(progresses)
+
+            debugPanel
+                .addBlade({
+                    view: 'buttongrid',
+                    size: [progressesKeys.length, 1],
+                    cells: (x, y) => ({
+                        title: [
+                            progressesKeys,
+                        ][y][x],
+                    }),
+                    label: 'jump',
+                })
+                .on('click', (event) =>
+                {
+                    this.day.progress = progresses[event.cell.title]
+                })
 
             for(const presetKey in presets)
             {

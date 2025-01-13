@@ -172,7 +172,7 @@ export class WindLines
         {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '⌇ Wind lines',
-                expanded: true,
+                expanded: false,
             })
 
             this.debugPanel.addBinding(this, 'intervalRange', {
