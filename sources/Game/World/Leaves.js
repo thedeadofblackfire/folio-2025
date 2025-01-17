@@ -24,6 +24,7 @@ export class Leaves
         this.setGeometry()
         this.setMaterial()
         this.setMesh()
+        this.setExplosions()
 
         this.game.time.events.on('tick', () =>
         {
@@ -56,14 +57,15 @@ export class Leaves
         this.scale = uniform(0.25)
         this.rotationFrequency = uniform(3)
         this.rotationElevationMultiplier = uniform(1)
-        this.pushOutMultiplier = uniform(0.1)
-        this.pushMultiplier = uniform(0.4)
+        this.pushOutMultiplier = uniform(0.15)
+        this.pushMultiplier = uniform(1)
         this.windFrequency = uniform(0.005)
-        this.windMultiplier = uniform(0.002)
-        this.upwardMultiplier = uniform(0.2)
+        this.windMultiplier = uniform(0.003)
+        this.upwardMultiplier = uniform(0.4)
         this.defaultDamping = uniform(0.02)
         this.waterDamping = uniform(0.01)
         this.gravity = uniform(0.01)
+        this.explosion = uniform(vec4(0))
 
         // Buffers
         this.positionBuffer = instancedArray(this.count, 'vec3')
@@ -84,7 +86,7 @@ export class Leaves
         // Weight
         const weightArray = new Float32Array(this.count)
         for(let i = 0; i < this.count; i++)
-            weightArray[i] = Math.random() * 0.75 + 0.25
+            weightArray[i] = Math.random() * 0.5 + 0.5
         const weightBuffer = storage(new THREE.StorageInstancedBufferAttribute(weightArray, 1), 'float', this.count)
 
         // Color buffer
@@ -164,6 +166,7 @@ export class Leaves
             const position = this.positionBuffer.element(instanceIndex)
             const velocity = this.velocityBuffer.element(instanceIndex)
             const weight = weightBuffer.element(instanceIndex)
+            const inverseWeight = weight.oneMinus().toVar()
 
             // Terrain
             const terrainUv = this.game.terrainData.worldPositionToUvNode(position.xz)
@@ -177,20 +180,29 @@ export class Leaves
             const pushVelocity = vec3(this.vehicleVelocity.x, 0, this.vehicleVelocity.z).mul(this.pushMultiplier)
 
             const distanceToVehicle = vehicleDelta.length()
-            const distanceMultiplier = distanceToVehicle.remapClamp(0.5, 2, 1, 0)
+            const vehicleMultiplier = distanceToVehicle.remapClamp(0.5, 2, 1, 0)
             const speedMultiplier = this.vehicleVelocity.length()
-            const finalPush = pushVelocity.add(pushOut).mul(speedMultiplier).mul(distanceMultiplier)
+            const vehiclePush = pushVelocity.add(pushOut).mul(speedMultiplier).mul(vehicleMultiplier).mul(inverseWeight)
 
-            velocity.addAssign(finalPush)
+            velocity.addAssign(vehiclePush)
 
             // Wind
             const noiseUv = position.xz.mul(this.windFrequency).add(this.game.wind.direction.mul(this.game.wind.localTime)).xy
             const noise = smoothstep(0.4, 1, texture(this.game.noises.texture, noiseUv).r)
 
-            const windStrength = this.game.wind.strength.sub(float(weight)).max(0).mul(noise).mul(this.windMultiplier).toVar()
+            const windStrength = this.game.wind.strength.sub(weight).max(0).mul(noise).mul(this.windMultiplier).toVar()
             velocity.x.addAssign(this.game.wind.direction.x.mul(windStrength))
             velocity.z.addAssign(this.game.wind.direction.y.mul(windStrength))
+
+            // Explosion
+            const explosionDelta = position.sub(this.explosion.xyz)
+            const distanceToExplosion = explosionDelta.length()
+            const explosionMultiplier = distanceToExplosion.remapClamp(2, 4, 0.2, 0)
+            const explosionDirection = vec3(explosionDelta.x, 0, explosionDelta.z)
+            const explosionPush = explosionDirection.mul(explosionMultiplier).mul(this.explosion.a).mul(inverseWeight)
             
+            velocity.addAssign(explosionPush)
+
             // Upward fly
             velocity.y = velocity.xz.length().mul(this.upwardMultiplier)
 
@@ -244,6 +256,34 @@ export class Leaves
         this.game.scene.add(this.mesh)
     }
 
+    setExplosions()
+    {
+        this.game.explosions.events.on('explosion', (coordinates) =>
+        {
+            this.explosion.value.x = coordinates.x
+            this.explosion.value.y = coordinates.y
+            this.explosion.value.z = coordinates.z
+            this.explosion.value.w = 1
+            // const direction = this.position.clone().sub(coordinates)
+            // direction.y = 0
+            // const distance = Math.hypot(direction.x, direction.z)
+
+            // const strength = remapClamp(distance, 1, 7, 1, 0)
+            // const impulse = direction.clone().normalize()
+            // impulse.y = 1
+            // impulse.setLength(strength * this.chassisMass * 4)
+
+            // if(strength > 0)
+            // {
+            //     const point = direction.negate().setLength(0).add(this.position)
+            //     requestAnimationFrame(() =>
+            //     {
+            //         this.chassis.physical.body.applyImpulseAtPoint(impulse, point)
+            //     })
+            // }
+        })
+    }
+
     update()
     {
         this.focusPoint.value.set(this.game.view.optimalArea.position.x, this.game.view.optimalArea.position.z)
@@ -251,5 +291,7 @@ export class Leaves
         this.vehicleVelocity.value.copy(this.game.vehicle.velocity)
         this.vehiclePosition.value.copy(this.game.vehicle.position)
         this.game.rendering.renderer.computeAsync(this.updateCompute)
+
+        this.explosion.value.w = 0 // Reset potential explosion
     }
 }
