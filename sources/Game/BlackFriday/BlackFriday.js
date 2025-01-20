@@ -15,7 +15,7 @@ export class BlackFriday
         this.setFragments()
         this.setMobile()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 10)

@@ -19,7 +19,7 @@ export class PhysicsWireframe
         if(this.active)
             this.game.scene.add(this.lineSegments)
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 6)

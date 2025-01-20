@@ -57,11 +57,11 @@ export class Vehicle
         this.setAntenna()
         this.setExplosions()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.updatePrePhysics()
         }, 1)
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.updatePostPhysics()
         }, 5)
@@ -603,7 +603,7 @@ export class Vehicle
 
         for(let i = 0; i < 4; i++)
         {
-            this.controller.setWheelBrake(i, brake * 0.2 * this.game.time.deltaScaled)
+            this.controller.setWheelBrake(i, brake * 0.2 * this.game.ticker.deltaScaled)
             this.controller.setWheelEngineForce(i, this.wheels.engineForce * 0.01)
         }
     }
@@ -646,7 +646,7 @@ export class Vehicle
         //     this.inWater.deactivate()
         
         // Wheels
-        this.wheels.visualSteering += (this.wheels.steering - this.wheels.visualSteering) * this.game.time.deltaScaled * 16
+        this.wheels.visualSteering += (this.wheels.steering - this.wheels.visualSteering) * this.game.ticker.deltaScaled * 16
 
         this.wheels.inContact = 0
 
@@ -657,14 +657,14 @@ export class Vehicle
             if(!this.game.inputs.keys.brake || this.game.inputs.keys.forward || this.game.inputs.keys.backward)
             {
                 if(!this.stop.active)
-                    wheel.visual.rotation.z -= (this.speed * this.game.time.deltaScaled) / this.wheels.settings.radius
+                    wheel.visual.rotation.z -= (this.speed * this.game.ticker.deltaScaled) / this.wheels.settings.radius
             }
 
             if(i === 0 || i === 1)
                 wheel.visual.rotation.y = this.wheels.visualSteering
 
             const suspensionY = wheel.basePosition.y - this.controller.wheelSuspensionLength(i)
-            wheel.visual.position.y += (suspensionY - wheel.visual.position.y) * 25 * this.game.time.deltaScaled
+            wheel.visual.position.y += (suspensionY - wheel.visual.position.y) * 25 * this.game.ticker.deltaScaled
 
             const inContact = this.controller.wheelIsInContact(i)
             if(inContact)
@@ -698,7 +698,7 @@ export class Vehicle
             const antennaTargetDistance = this.antenna.target.distanceTo(this.position)
             
             const antennaRotationSpeed = remapClamp(antennaTargetDistance, 50, 5, 1, 10)
-            this.antenna.headAxle.rotation.z += this.game.time.deltaScaled * antennaRotationSpeed
+            this.antenna.headAxle.rotation.z += this.game.ticker.deltaScaled * antennaRotationSpeed
         }
     }
 }

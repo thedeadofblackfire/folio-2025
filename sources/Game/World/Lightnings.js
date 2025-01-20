@@ -12,7 +12,7 @@ export class Lightnings
 
         this.nightChances = 0.25
         this.hitChances = 0
-        this.frequency = 10
+        this.frequency = 2
 
         // Debug
         if(this.game.debug.active)
@@ -35,9 +35,9 @@ export class Lightnings
                     {
                         const angle = Math.random() * Math.PI * 2
                         const position = new THREE.Vector3(
-                            Math.cos(angle) + Math.cos(angle) * 2,
+                            this.game.vehicle.position.x + Math.cos(angle) * 2,
                             0,
-                            Math.sin(angle) + Math.sin(angle) * 2
+                            this.game.vehicle.position.z + Math.sin(angle) * 2
                         )
                         this.create(position)
                     },
@@ -94,7 +94,7 @@ export class Lightnings
         // Position node
         this.anticipationParticles.positionNode = Fn(([_startTime]) =>
         {
-            const localTime = this.game.time.elapsedScaledUniform.sub(_startTime)
+            const localTime = this.game.ticker.elapsedScaledUniform.sub(_startTime)
             finalPosition.assign(this.anticipationParticles.positionAttribute)
             const timeProgress = min(localTime.div(this.anticipationParticles.duration), 1)
             
@@ -106,7 +106,7 @@ export class Lightnings
         // Scale node
         this.anticipationParticles.scaleNode = Fn(([_startTime]) =>
         {
-            const localTime = this.game.time.elapsedScaledUniform.sub(_startTime)
+            const localTime = this.game.ticker.elapsedScaledUniform.sub(_startTime)
             const duration = float(this.anticipationParticles.duration)
             const timeScale = localTime.remapClamp(duration.mul(0.5), duration, 1, 0)
             const elevationScale = finalPosition.y.remapClamp(0, 0.2, 0, 1)
@@ -118,7 +118,7 @@ export class Lightnings
         this.anticipationParticles.create = (coordinates) =>
         {
             // Uniforms
-            const startTime = uniform(this.game.time.elapsedScaled)
+            const startTime = uniform(this.game.ticker.elapsedScaled)
             
             // Material
             const material = new THREE.SpriteNodeMaterial()
@@ -179,7 +179,7 @@ export class Lightnings
         {
             const ratio = attribute('ratio')
             const tipness = ratio.step(0.01)
-            const localTime = this.game.time.elapsedScaledUniform.sub(_startTime)
+            const localTime = this.game.ticker.elapsedScaledUniform.sub(_startTime)
             const timeProgress = min(localTime.div(this.arc.duration), 1)
             
             const newPosition = positionGeometry.toVar()
@@ -210,7 +210,7 @@ export class Lightnings
         this.arc.create = (coordinates) =>
         {
             // Uniforms
-            const startTime = uniform(this.game.time.elapsedScaled)
+            const startTime = uniform(this.game.ticker.elapsedScaled)
 
             // Material
             const material = new THREE.MeshBasicNodeMaterial({ wireframe: false })
@@ -276,7 +276,7 @@ export class Lightnings
         // Position node
         this.explosionParticles.positionNode = Fn(([_startTime]) =>
         {
-            const localTime = this.game.time.elapsedScaledUniform.sub(_startTime)
+            const localTime = this.game.ticker.elapsedScaledUniform.sub(_startTime)
             const timeProgress = min(localTime.div(float(this.explosionParticles.duration).mul(0.75)), 1)
             
             const newPosition = this.explosionParticles.positionAttribute.toVar()
@@ -288,7 +288,7 @@ export class Lightnings
         // Scale node
         this.explosionParticles.scaleNode = Fn(([_startTime]) =>
         {
-            const localTime = this.game.time.elapsedScaledUniform.sub(_startTime)
+            const localTime = this.game.ticker.elapsedScaledUniform.sub(_startTime)
             const timeScale = localTime.div(this.explosionParticles.duration).oneMinus().max(0)
             const finalScale = this.explosionParticles.scaleAttribute.mul(scaleUniform).mul(timeScale)
             return finalScale
@@ -297,7 +297,7 @@ export class Lightnings
         // Create
         this.explosionParticles.create = (coordinates) =>
         {
-            const startTime = uniform(this.game.time.elapsedScaled)
+            const startTime = uniform(this.game.ticker.elapsedScaled)
         
             const material = new THREE.SpriteNodeMaterial()
             material.color = this.materialReference.color
@@ -370,13 +370,17 @@ export class Lightnings
     start()
     {
         this.hitChances = Math.random()
-        this.hitChancesTweak.refresh()
+
+        if(this.hitChancesTweak)
+            this.hitChancesTweak.refresh()
     }
 
     stop()
     {
         this.hitChances = 0
-        this.hitChancesTweak.refresh()
+
+        if(this.hitChancesTweak)
+            this.hitChancesTweak.refresh()
     }
 
     setInterval()

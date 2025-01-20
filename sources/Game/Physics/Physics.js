@@ -40,7 +40,7 @@ export class Physics
         // this.world.lengthUnit = 1 // 1
         // this.world.integrationParameters.lengthUnit = 1 // 1
         
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 2)
@@ -153,10 +153,10 @@ export class Physics
 
     update()
     {
-        this.world.timestep = this.game.time.deltaScaled
+        this.world.timestep = this.game.ticker.deltaScaled
         this.world.vehicleControllers.forEach((_vehicleController) =>
         {
-            _vehicleController.updateVehicle(this.game.time.delta)
+            _vehicleController.updateVehicle(this.game.ticker.delta)
         })
     
         for(const physical of this.physicals)

@@ -18,7 +18,7 @@ export class Grass
         this.setMaterial()
         this.setMesh()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 9)

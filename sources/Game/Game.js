@@ -6,6 +6,7 @@ import { Inputs } from './Inputs.js'
 import { Physics } from './Physics/Physics.js'
 import { Rendering } from './Rendering.js'
 import { ResourcesLoader } from './ResourcesLoader.js'
+import { Ticker } from './Ticker.js'
 import { Time } from './Time.js'
 import { Vehicle } from './Vehicle.js'
 import { View } from './View.js'
@@ -96,8 +97,7 @@ export class Game
 
         this.scene = new THREE.Scene()
 
-        this.debug = new Debug()
-        this.time = new Time()
+        this.ticker = new Ticker()
         this.inputs = new Inputs([
             { name: 'forward', keys: [ 'ArrowUp', 'KeyW' ] },
             { name: 'right', keys: [ 'ArrowRight', 'KeyD' ] },
@@ -117,7 +117,10 @@ export class Game
             { name: 'hydraulicsBackLeft', keys: [ 'Numpad1' ] },
             { name: 'close', keys: [ 'Escape' ] },
             { name: 'viewToggle', keys: [ 'KeyV' ] },
+            { name: 'debugToggle', keys: [ 'KeyH' ] },
         ])
+        this.debug = new Debug()
+        this.time = new Time()
         this.viewport = new Viewport(this.domElement)
         this.view = new View()
         this.rendering = new Rendering()
@@ -137,7 +140,7 @@ export class Game
         this.world = new World()
         // this.monitoring = new Monitoring()
 
-        this.rendering.renderer.setAnimationLoop((elapsedTime) => { this.time.update(elapsedTime) })
+        this.rendering.renderer.setAnimationLoop((elapsedTime) => { this.ticker.update(elapsedTime) })
     }
 }
 

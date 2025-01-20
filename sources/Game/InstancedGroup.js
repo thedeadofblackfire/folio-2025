@@ -15,7 +15,7 @@ export class InstancedGroup
 
         if(autoUpdate)
         {
-            this.game.time.events.on('tick', () =>
+            this.game.ticker.events.on('tick', () =>
             {
                 this.update()
             }, 11)

@@ -12,7 +12,7 @@ export class Sounds
         this.setFragments()
         this.setMuteToggle()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 12)

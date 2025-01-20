@@ -73,7 +73,7 @@ export class WaterSurface
             debugPanel.addBinding(noiseOffset, 'value', { label: 'noiseOffset', min: 0, max: 1, step: 0.001 })
         }
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 9)
@@ -81,7 +81,7 @@ export class WaterSurface
 
     update()
     {
-        this.localTime.value += this.game.time.deltaScaled * this.timeFrequency
+        this.localTime.value += this.game.ticker.deltaScaled * this.timeFrequency
 
         this.mesh.position.x = this.game.view.optimalArea.position.x
         this.mesh.position.z = this.game.view.optimalArea.position.z

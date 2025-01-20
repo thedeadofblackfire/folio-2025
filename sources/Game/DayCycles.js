@@ -26,7 +26,7 @@ export class DayCycles
 
         this.setDay()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         })
@@ -34,7 +34,7 @@ export class DayCycles
 
     setDay()
     {
-        this.progress = 0.38
+        this.progress = 0.3
         this.manualProgress = this.progress
         this.manualProgressChanged = true
         this.speed = 0.005
@@ -179,7 +179,7 @@ export class DayCycles
         // New progress
         let newProgress = this.progress
         if(this.auto)
-            newProgress += this.game.time.deltaScaled * this.speed
+            newProgress += this.game.ticker.deltaScaled * this.speed
 
         if(this.manualProgressChanged)
         {

@@ -1,5 +1,3 @@
-import { uniform } from 'three/tsl'
-import { Events } from './Events.js'
 import { Game } from './Game.js'
 import gsap from 'gsap'
 
@@ -9,22 +7,9 @@ export class Time
     {
         this.game = Game.getInstance()
 
-        this.elapsed = 0
-        this.delta = 1 / 60
-        this.maxDelta = 1 / 30
-        this.scale = 2
-        this.deltaScaled = this.delta * this.scale
-        this.elapsedScaled = 0
-
+        this._scale = 2
+        this.game.ticker.scale = this.scale
         gsap.globalTimeline.timeScale(this.scale)
-
-        this.elapsedUniform = uniform(this.elapsed)
-        this.deltaUniform = uniform(this.delta)
-        this.elapsedScaledUniform = uniform(this.elapsedScaled)
-        this.deltaScaledUniform = uniform(this.deltaScaled)
-
-        this.events = new Events()
-        // this.setTick()
 
         if(this.game.debug.active)
         {
@@ -32,34 +17,20 @@ export class Time
                 title: '⏱️ Time',
                 expanded: false,
             })
-            this.debugPanel.addBinding(this, 'scale', { min: 0, max: 5, step: 0.01 })
+            this.debugPanel
+                .addBinding(this, 'scale', { min: 0, max: 5, step: 0.01 })
         }
     }
 
-    setTick()
+    set scale(value)
     {
-        const tick = (elapsed) =>
-        {
-            this.update(elapsed)
-
-            requestAnimationFrame(tick)
-        }
-        requestAnimationFrame(tick)
+        this._scale = value
+        this.game.ticker.scale = this.scale
+        gsap.globalTimeline.timeScale(value)
     }
 
-    update(elapsed)
+    get scale()
     {
-        const elapsedSeconds = elapsed / 1000
-        this.delta = Math.min(elapsedSeconds - this.elapsed, this.maxDelta)
-        this.elapsed = elapsedSeconds
-        this.deltaScaled = this.delta * this.scale
-        this.elapsedScaled += this.deltaScaled
-
-        this.elapsedUniform.value = this.elapsed
-        this.deltaUniform.value = this.delta
-        this.elapsedScaledUniform.value = this.elapsedScaled
-        this.deltaScaledUniform.value = this.deltaScaled
-
-        this.events.trigger('tick')
+        return this._scale
     }
 }

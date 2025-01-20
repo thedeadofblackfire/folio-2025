@@ -26,7 +26,7 @@ export class Leaves
         this.setMesh()
         this.setExplosions()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         })

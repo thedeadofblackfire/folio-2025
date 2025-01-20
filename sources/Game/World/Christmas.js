@@ -14,7 +14,7 @@ export class Christmas
         this.setGifts()
         this.setEmissiveMaterial()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         })

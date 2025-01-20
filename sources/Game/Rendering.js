@@ -20,7 +20,7 @@ export class Rendering
         this.setRenderer()
         this.setPostprocessing()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.render()
         }, 998)

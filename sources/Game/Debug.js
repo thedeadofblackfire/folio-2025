@@ -15,6 +15,12 @@ export class Debug
         {
             this.panel = new Pane()
             this.panel.registerPlugin(EssentialsPlugin)
+
+            this.game.inputs.events.on('debugToggle', (event) =>
+            {
+                if(event.down)
+                    this.panel.hidden = !this.panel.hidden
+            })
         }
     }
 

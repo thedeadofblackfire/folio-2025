@@ -43,7 +43,7 @@ export class FragmentObject
 
         this.game.materials.updateObject(this.group1)
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 9)
@@ -73,10 +73,10 @@ export class FragmentObject
     update()
     {
         if(this.caught)
-            this.timeMultiplier += this.game.time.deltaScaled * 8
+            this.timeMultiplier += this.game.ticker.deltaScaled * 8
 
-        this.elapsedTime += this.game.time.deltaScaled * this.timeMultiplier
-        this.group1.y = Math.sin(this.game.time.elapsedScaled * 0.5) * 0.3
+        this.elapsedTime += this.game.ticker.deltaScaled * this.timeMultiplier
+        this.group1.y = Math.sin(this.game.ticker.elapsedScaled * 0.5) * 0.3
 
         this.group1.scale.setScalar(this.scale)
         

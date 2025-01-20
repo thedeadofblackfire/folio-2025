@@ -50,7 +50,7 @@ export class Inputs
             this.pointer.isDown = false
         })
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.pointer.delta.copy(this.pointer.upcoming).sub(this.pointer.current)
             this.pointer.current.copy(this.pointer.upcoming)

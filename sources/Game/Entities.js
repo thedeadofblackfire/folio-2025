@@ -9,7 +9,7 @@ export class Entities
         this.list = new Map()
         this.key = 0
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 3)

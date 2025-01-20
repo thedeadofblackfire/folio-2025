@@ -40,7 +40,7 @@ export class Lighting
         this.setHelper()
         this.updateShadow()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 7)

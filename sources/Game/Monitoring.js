@@ -30,7 +30,7 @@ export class Monitoring
         document.body.append(this.stats.dom)
 
         // Update
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.stats.update()
         }, 999)

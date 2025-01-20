@@ -25,7 +25,7 @@ export class Fog
         this.strength = rangeFogFactor(this.near, this.far)
         // this.strength = float(1)
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 9)

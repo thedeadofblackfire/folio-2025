@@ -118,7 +118,7 @@ export class Track
         const data = this.dataTexture.source.data.data
 
         // Throttle by time
-        const lastTimeDelta = this.game.time.elapsed - this.lastTime
+        const lastTimeDelta = this.game.ticker.elapsed - this.lastTime
         if(lastTimeDelta > this.timeThrottle)
         {
             // Throttle by distance
@@ -138,7 +138,7 @@ export class Track
                 }
 
                 // Save time and position
-                this.lastTime = this.game.time.elapsed
+                this.lastTime = this.game.ticker.elapsed
                 this.lastPosition.copy(_position)
             }
         }

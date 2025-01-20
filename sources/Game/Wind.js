@@ -33,7 +33,7 @@ export class Wind
             return vec2(this.direction.mul(intensity).mul(this.strength))
         })
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 2)
@@ -57,6 +57,6 @@ export class Wind
 
     update()
     {
-        this.localTime.value += this.game.time.deltaScaled * this.timeFrequency
+        this.localTime.value += this.game.ticker.deltaScaled * this.timeFrequency
     }
 }

@@ -26,7 +26,7 @@ export class PoleLights
         this.setFireflies()
         this.setSwitchInterval()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         })
@@ -88,7 +88,7 @@ export class PoleLights
 
         const material = new THREE.SpriteNodeMaterial({ color: this.emissives.onMaterial.color })
 
-        const baseTime = this.game.time.elapsedScaledUniform.add(hash(instanceIndex).mul(999))
+        const baseTime = this.game.ticker.elapsedScaledUniform.add(hash(instanceIndex).mul(999))
         const flyOffset = vec3(
             sin(baseTime.mul(0.4)).mul(0.5),
             sin(baseTime).mul(0.2),

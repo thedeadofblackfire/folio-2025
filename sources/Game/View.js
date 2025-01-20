@@ -37,6 +37,7 @@ export class View
                 }
             ).on('change', () => 
             {
+                this.setMode(this.mode)
             })
         }
 
@@ -49,7 +50,7 @@ export class View
         this.setFree()
         this.setSpeedLines()
 
-        this.game.time.events.on('tick', () =>
+        this.game.ticker.events.on('tick', () =>
         {
             this.update()
         }, 4)
@@ -369,7 +370,7 @@ export class View
             const distance = attribute('distance')
             const tipness = attribute('tipness')
             
-            const osciliation = this.game.time.elapsedScaledUniform.mul(this.speedLines.speed).add(timeRandomness).sin().div(2).add(0.5)
+            const osciliation = this.game.ticker.elapsedScaledUniform.mul(this.speedLines.speed).add(timeRandomness).sin().div(2).add(0.5)
             const newPosition = mix(positionGeometry.xy, this.speedLines.clipSpaceTarget.xy, tipness.mul(osciliation).mul(distance).mul(this.speedLines.smoothedStrength))
             
             return vec4(newPosition, 0, 1)
@@ -431,9 +432,9 @@ export class View
             this.focusPoint.position.z = this.focusPoint.trackedPosition.z
         }
 
-        const newSmoothFocusPoint = this.focusPoint.smoothedPosition.clone().lerp(this.focusPoint.position, this.game.time.delta * 10)
+        const newSmoothFocusPoint = this.focusPoint.smoothedPosition.clone().lerp(this.focusPoint.position, this.game.ticker.delta * 10)
         const smoothFocusPointDelta = newSmoothFocusPoint.clone().sub(this.focusPoint.smoothedPosition)
-        const focusPointSpeed = Math.hypot(smoothFocusPointDelta.x, smoothFocusPointDelta.z) / this.game.time.delta
+        const focusPointSpeed = Math.hypot(smoothFocusPointDelta.x, smoothFocusPointDelta.z) / this.game.ticker.delta
         this.focusPoint.smoothedPosition.copy(newSmoothFocusPoint)
         
         // Default mode
@@ -446,7 +447,7 @@ export class View
             if(this.focusPoint.isTracking)
                 this.zoom.ratio += this.zoom.speedAmplitude * zoomSpeedRatio
 
-            this.zoom.smoothedRatio = lerp(this.zoom.smoothedRatio, this.zoom.ratio, this.game.time.delta * 10)
+            this.zoom.smoothedRatio = lerp(this.zoom.smoothedRatio, this.zoom.ratio, this.game.ticker.delta * 10)
         }
 
         // Radius
@@ -463,10 +464,10 @@ export class View
         this.defaultCamera.rotation.set(0, 0, 0)
         this.defaultCamera.lookAt(this.focusPoint.smoothedPosition)
 
-        this.roll.velocity = - this.roll.value * this.roll.pullStrength * this.game.time.deltaScaled
+        this.roll.velocity = - this.roll.value * this.roll.pullStrength * this.game.ticker.deltaScaled
         this.roll.speed += this.roll.velocity
-        this.roll.value += this.roll.speed * this.game.time.deltaScaled
-        this.roll.speed *= 1 - this.roll.damping * this.game.time.deltaScaled
+        this.roll.value += this.roll.speed * this.game.ticker.deltaScaled
+        this.roll.speed *= 1 - this.roll.damping * this.game.ticker.deltaScaled
         this.defaultCamera.rotation.z += this.roll.value
 
         // Apply to final camera
@@ -477,7 +478,7 @@ export class View
         }
         else if(this.mode === View.FREE_MODE)
         {
-            this.freeMode.update(this.game.time.delta)
+            this.freeMode.update(this.game.ticker.delta)
             this.camera.position.copy(this.freeCamera.position)
             this.camera.quaternion.copy(this.freeCamera.quaternion)
         }
@@ -494,6 +495,6 @@ export class View
         this.speedLines.clipSpaceTarget.value.copy(this.speedLines.worldTarget)
         this.speedLines.clipSpaceTarget.value.project(this.camera)
 
-        this.speedLines.smoothedStrength.value = lerp(this.speedLines.smoothedStrength.value, this.speedLines.strength, this.game.time.delta * 2)
+        this.speedLines.smoothedStrength.value = lerp(this.speedLines.smoothedStrength.value, this.speedLines.strength, this.game.ticker.delta * 2)
     }
 }
