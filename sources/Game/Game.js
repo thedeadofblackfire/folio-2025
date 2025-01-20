@@ -116,6 +116,7 @@ export class Game
             { name: 'hydraulicsBackRight', keys: [ 'Numpad3' ] },
             { name: 'hydraulicsBackLeft', keys: [ 'Numpad1' ] },
             { name: 'close', keys: [ 'Escape' ] },
+            { name: 'viewToggle', keys: [ 'KeyV' ] },
         ])
         this.viewport = new Viewport(this.domElement)
         this.view = new View()

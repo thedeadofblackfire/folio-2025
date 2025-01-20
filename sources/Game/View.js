@@ -37,11 +37,6 @@ export class View
                 }
             ).on('change', () => 
             {
-                this.focusPoint.smoothedPosition.copy(this.focusPoint.position)
-
-                this.freeMode.enabled = this.mode === View.FREE_MODE
-                this.freeMode.setTarget(this.focusPoint.position.x, this.focusPoint.position.y, this.focusPoint.position.z)
-                this.freeMode.setPosition(this.camera.position.x, this.camera.position.y, this.camera.position.z)
             })
         }
 
@@ -64,6 +59,30 @@ export class View
         {
             this.resize()
         })
+
+        this.game.inputs.events.on('viewToggle', (event) =>
+        {
+            if(event.down)
+            {
+                this.toggleMode()
+            }
+        })
+    }
+
+    toggleMode()
+    {
+        this.setMode(this.mode === View.FREE_MODE ? View.DEFAULT_MODE : View.FREE_MODE)
+    }
+
+    setMode(mode)
+    {
+        this.mode = mode
+
+        this.focusPoint.smoothedPosition.copy(this.focusPoint.position)
+
+        this.freeMode.enabled = this.mode === View.FREE_MODE
+        this.freeMode.setTarget(this.focusPoint.position.x, this.focusPoint.position.y, this.focusPoint.position.z)
+        this.freeMode.setPosition(this.camera.position.x, this.camera.position.y, this.camera.position.z)
     }
 
     setFocusPoint()
