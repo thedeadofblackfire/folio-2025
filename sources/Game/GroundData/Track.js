@@ -4,7 +4,7 @@ import { screenUV, mul, cos, sin, sign, atan, varying, float, uv, texture, Fn, v
 
 export class Track
 {
-    constructor()
+    constructor(thickness = 1, channel = 'r')
     {
         this.game = Game.getInstance()
 
@@ -12,6 +12,14 @@ export class Track
 
         this.timeThrottle = 1 / 30
         this.lastTime = 0
+        this.thickness = thickness
+
+        const channels = {
+            r: vec3(1, 0, 0),
+            g: vec3(0, 1, 0),
+            b: vec3(0, 0, 1),
+        }
+        this.channelVec3 = channels[channel]
 
         this.positionThrottle = 0.1
         this.lastPosition = new THREE.Vector3(Infinity, Infinity, Infinity)
@@ -38,7 +46,7 @@ export class Track
         this.trail.geometry = new THREE.PlaneGeometry(1, 1, this.subdivisions, 1)
         this.trail.geometry.translate(0.5, 0, 0)
         
-        this.trail.material = new THREE.MeshBasicNodeMaterial({ wireframe: false, depthTest: false, transparent: true })
+        this.trail.material = new THREE.MeshBasicNodeMaterial({ wireframe: false, depthTest: false, transparent: true, blending: THREE.AdditiveBlending })
 
         const trackData = varying(vec4())
 
@@ -68,7 +76,7 @@ export class Track
             const trailPosition = vec2(
                 cos(angle.add(sideSign.mul(Math.PI * 0.5))),
                 sin(angle.add(sideSign.mul(Math.PI * 0.5)))
-            ).mul(0.35)
+            ).mul(this.thickness)
             
             const newPosition = vec3(
                 trackData.x.add(trailPosition.x),
@@ -82,11 +90,8 @@ export class Track
         this.trail.material.outputNode = Fn(() =>
         {
             const endAlpha = uv().x.smoothstep(0.5, 1).oneMinus()
+            const startAlpha = uv().x.smoothstep(0, 0.05)
             const contactAlpha = trackData.a
-            const trackEdgeAlpha = mul(
-                uv().y.remapClamp(0, 0.2, 0, 1),
-                uv().y.remapClamp(0.8, 1, 1, 0)
-            )
             const renderEdgeAlpha = mul(
                 screenUV.x.remapClamp(0, 0.2, 0, 1),
                 screenUV.x.remapClamp(0.8, 1, 1, 0),
@@ -94,8 +99,10 @@ export class Track
                 screenUV.y.remapClamp(0.8, 1, 1, 0),
             )
 
-            const alpha = endAlpha.mul(contactAlpha).mul(trackEdgeAlpha).mul(renderEdgeAlpha)
-            return vec4(uv(), 1, alpha)
+            const trackEdgeAlpha = uv().y.sub(0.5).abs().mul(2).oneMinus()
+
+            const alpha = endAlpha.mul(startAlpha).mul(contactAlpha).mul(trackEdgeAlpha).mul(renderEdgeAlpha)
+            return vec4(this.channelVec3, alpha)
         })()
         
         this.trail.mesh = new THREE.Mesh(this.trail.geometry, this.trail.material)

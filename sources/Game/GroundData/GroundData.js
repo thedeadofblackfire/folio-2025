@@ -62,9 +62,8 @@ export class GroundData
         this.game.scene.add(mesh)
     }
 
-    createTrack()
+    addTrack(track)
     {
-        const track = new Track()
         this.tracks.push(track)
         this.scene.add(track.trail.mesh)
         return track

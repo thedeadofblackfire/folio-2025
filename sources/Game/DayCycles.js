@@ -34,11 +34,11 @@ export class DayCycles
 
     setDay()
     {
-        this.progress = 0
+        this.progress = 0.5
         this.manualProgress = this.progress
         this.manualProgressChanged = true
         this.speed = 0.005
-        this.auto = true
+        this.auto = false
 
         const presets = {
             day: { lightColor: new THREE.Color('#ffffff'), lightIntensity: 1.2, shadowColor: new THREE.Color('#0085db'), fogColorA: new THREE.Color('#00ffff'), fogColorB: new THREE.Color('#ffdf89'), fogNearRatio: 0.315, fogFarRatio: 1.25 },

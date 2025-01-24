@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { cameraNormalMatrix, color, cross, float, Fn, materialNormal, min, mix, modelNormalMatrix, modelViewMatrix, positionGeometry, positionWorld, texture, uniform, varying, vec2, vec3, vec4 } from 'three/tsl'
+import { attribute, cameraNormalMatrix, color, cross, dot, float, Fn, If, materialNormal, min, mix, modelNormalMatrix, modelViewMatrix, PI, positionGeometry, positionLocal, positionWorld, rotateUV, texture, time, uniform, varying, vec2, vec3, vec4 } from 'three/tsl'
 
 export class Snow
 {
@@ -9,8 +9,11 @@ export class Snow
         this.game = Game.getInstance()
 
         this.size = this.game.view.optimalArea.radius * 2
-        this.subdivisions = 128
-        this.subdivisionSpan = this.game.view.optimalArea.radius * 2 / this.subdivisions
+        this.subdivisions = 256
+        // this.size = 10
+        // this.subdivisions = 3
+        
+        this.subdivisionSize = this.size / this.subdivisions
 
         // Debug
         if(this.game.debug.active)
@@ -33,8 +36,90 @@ export class Snow
 
     setGeometry()
     {
-        this.geometry = new THREE.PlaneGeometry(this.size, this.size, this.subdivisions, this.subdivisions)
+        this.geometry = new THREE.PlaneGeometry(this.size, this.size, this.subdivisions, this.subdivisions).toNonIndexed()
         this.geometry.rotateX(- Math.PI * 0.5)
+        this.geometry.deleteAttribute('normal')
+        this.geometry.deleteAttribute('uv')
+
+        const positionArray = new Float32Array(this.subdivisions * this.subdivisions * 3 * 3 * 2)
+        const pivotArray = new Float32Array(this.subdivisions * this.subdivisions * 2 * 3 * 2)
+
+        const halfSubdivisionSize = this.subdivisionSize * 0.5
+        const quad = [
+            // Triangle 1
+            halfSubdivisionSize,
+            - halfSubdivisionSize,
+
+            - halfSubdivisionSize,
+            - halfSubdivisionSize,
+
+            - halfSubdivisionSize,
+            halfSubdivisionSize,
+
+            // Triangle 2
+            - halfSubdivisionSize,
+            halfSubdivisionSize,
+
+            halfSubdivisionSize,
+            halfSubdivisionSize,
+
+            halfSubdivisionSize,
+            - halfSubdivisionSize,
+        ]
+
+        let i = 0
+        for(let xIndex = 0; xIndex < this.subdivisions; xIndex++)
+        {
+            for(let zIndex = 0; zIndex < this.subdivisions; zIndex++)
+            {
+                const iPosition = i * 3 * 3 * 2
+                const iPivot = i * 2 * 3 * 2
+
+                const pivotX = (xIndex / (this.subdivisions - 1) - 0.5) * (this.size - this.subdivisionSize)
+                const pivotZ = (zIndex / (this.subdivisions - 1) - 0.5) * (this.size - this.subdivisionSize)
+
+                positionArray[iPosition + 0] = pivotX + quad[0]
+                positionArray[iPosition + 1] = 0
+                positionArray[iPosition + 2] = pivotZ + quad[1]
+                positionArray[iPosition + 3] = pivotX + quad[2]
+                positionArray[iPosition + 4] = 0
+                positionArray[iPosition + 5] = pivotZ + quad[3]
+                positionArray[iPosition + 6] = pivotX + quad[4]
+                positionArray[iPosition + 7] = 0
+                positionArray[iPosition + 8] = pivotZ + quad[5]
+
+                positionArray[iPosition + 9 ] = pivotX + quad[6]
+                positionArray[iPosition + 10] = 0
+                positionArray[iPosition + 11] = pivotZ + quad[7]
+                positionArray[iPosition + 12] = pivotX + quad[8]
+                positionArray[iPosition + 13] = 0
+                positionArray[iPosition + 14] = pivotZ + quad[9]
+                positionArray[iPosition + 15] = pivotX + quad[10]
+                positionArray[iPosition + 16] = 0
+                positionArray[iPosition + 17] = pivotZ + quad[11]
+
+                // pivotArray
+                pivotArray[iPivot + 0] = pivotX
+                pivotArray[iPivot + 1] = pivotZ
+                pivotArray[iPivot + 2] = pivotX
+                pivotArray[iPivot + 3] = pivotZ
+                pivotArray[iPivot + 4] = pivotX
+                pivotArray[iPivot + 5] = pivotZ
+
+                pivotArray[iPivot + 6] = pivotX
+                pivotArray[iPivot + 7] = pivotZ
+                pivotArray[iPivot + 8] = pivotX
+                pivotArray[iPivot + 9] = pivotZ
+                pivotArray[iPivot + 10] = pivotX
+                pivotArray[iPivot + 11] = pivotZ
+                
+                i++
+            }
+        }
+
+        this.geometry = new THREE.BufferGeometry()
+        this.geometry.setAttribute('position', new THREE.BufferAttribute(positionArray, 3))
+        this.geometry.setAttribute('pivot', new THREE.BufferAttribute(pivotArray, 2))
     }
 
     setMaterial()
@@ -43,15 +128,14 @@ export class Snow
 
         this.roundedPosition = uniform(vec2(0))
         this.groundDataDelta = uniform(vec2(0))
-        this.colorTop = uniform(color('#ffffff'))
-        this.colorBottom = uniform(color('#bceeff'))
-        this.colorEdgeTop = uniform(0.292)
+        this.color = uniform(color('#ffffff'))
+        this.colorEdgeTop = uniform(0.5)
         this.colorEdgeBottom = uniform(0.022)
-        this.normalNeighbourShift = uniform(this.subdivisionSpan)
-        this.elevation = uniform(0)
+        this.normalNeighbourShift = uniform(this.subdivisionSize)
+        this.elevation = uniform(0.5)
         this.noiseMultiplier = uniform(1)
-        this.noise1Frequency = uniform(0.11)
-        this.noise2Frequency = uniform(0.075)
+        this.noise1Frequency = uniform(0.1)
+        this.noise2Frequency = uniform(0.07)
 
         const baseColor = varying(color())
         const deltaY = varying(float())
@@ -81,20 +165,56 @@ export class Snow
                 position.xy.sub(- this.game.groundData.halfSize).sub(this.roundedPosition).add(this.groundDataDelta).div(this.game.groundData.size)
             )
 
-            const wheelsTracksHeight = groundDataColor.a.oneMinus().add(0.1).toVar()
-            elevation.assign(min(wheelsTracksHeight, elevation))
-
+            const wheelsTracksHeight = groundDataColor.r.oneMinus().toVar()
+            const chassisTracksHeight = groundDataColor.g.oneMinus().toVar().remapClamp(0.5, 1, 0.25, 1)
+            const tracksHeight = min(wheelsTracksHeight, chassisTracksHeight)
+            elevation.mulAssign(tracksHeight)
 
             return elevation
         })
 
+        const pivot = attribute('pivot')
+        const debugColor = varying(color('red'))
+
+        const flipRotation = Math.PI * 0.5
+
         this.material.positionNode = Fn(() =>
         {
-            // Position / Normal
-            const positionA = positionGeometry.toVar()
-            positionA.x.addAssign(this.roundedPosition.x)
-            positionA.z.addAssign(this.roundedPosition.y)
+            const pivotCenter = vec3(pivot.x, 0, pivot.y).toVar()
+            pivotCenter.x.addAssign(this.roundedPosition.x)
+            pivotCenter.z.addAssign(this.roundedPosition.y)
 
+            const pivotA = pivotCenter.add(vec3(-this.subdivisionSize, 0, -this.subdivisionSize)).toVar()
+            const pivotB = pivotCenter.add(vec3(this.subdivisionSize, 0, -this.subdivisionSize)).toVar()
+            const pivotC = pivotCenter.add(vec3(this.subdivisionSize, 0, this.subdivisionSize)).toVar()
+            const pivotD = pivotCenter.add(vec3(-this.subdivisionSize, 0, this.subdivisionSize)).toVar()
+
+            pivotA.y.assign(elevationNode(pivotA.xz))
+            pivotB.y.assign(elevationNode(pivotB.xz))
+            pivotC.y.assign(elevationNode(pivotC.xz))
+            pivotD.y.assign(elevationNode(pivotD.xz))
+
+            const acDelta = pivotA.y.sub(pivotC.y).abs()
+            const bdDelta = pivotB.y.sub(pivotD.y).abs()
+            
+            const rotation = float(0).toVar()
+            If(acDelta.lessThan(bdDelta), () =>
+            {
+                debugColor.assign(color('cyan'))
+                rotation.assign(flipRotation)
+            })
+            // const rotation = pivotCDelta.step(pivotBDelta).mul(flipRotation)
+            
+            // positionGeometry.add(vec3(this.normalNeighbourShift, 0, this.normalNeighbourShift.negate()))
+
+            const newPosition = positionGeometry.toVar()
+            newPosition.x.addAssign(this.roundedPosition.x)
+            newPosition.z.addAssign(this.roundedPosition.y)
+
+            newPosition.xz.assign(rotateUV(newPosition.xz, rotation, pivotCenter.xz))
+
+            // Position / Normal
+            const positionA = newPosition.toVar()
             const positionB = positionA.toVar().add(vec3(this.normalNeighbourShift, 0, 0))
             const positionC = positionA.toVar().add(vec3(0, 0, this.normalNeighbourShift.negate()))
 
@@ -109,10 +229,8 @@ export class Snow
 
             // Normal
             const newNormal = cross(positionA.sub(positionB), positionA.sub(positionC)).normalize()
-
             // const normalMixStrength = terrainData.b.remapClamp(0, 0.2, 0, 1)
             // newNormal.assign(mix(newNormal, vec3(0, 1, 0), normalMixStrength))
-
             materialNormal.assign(modelViewMatrix.mul(vec4(newNormal, 0)))
 
             // Push down further more in water (after calculating normal)
@@ -126,24 +244,30 @@ export class Snow
             deltaY.assign(positionA.y.sub(terrainData.b.mul(-2)))
             
             return positionA
+            // return rotatedPosition
         })()
 
         const totalShadow = this.game.lighting.addTotalShadowToMaterial(this.material)
 
         this.material.outputNode = Fn(() =>
         {
-            const lightOutput = this.game.lighting.lightOutputNodeBuilder(this.colorTop, totalShadow, false, false).rgb
+            const lightOutput = this.game.lighting.lightOutputNodeBuilder(this.color, totalShadow, false, false).rgb
             const alpha = deltaY.smoothstep(this.colorEdgeBottom, this.colorEdgeTop)
 
             return vec4(lightOutput, alpha)
         })()
 
+        // this.material.outputNode = vec4(debugColor, 1)
+
+        // this.shadowOffset = uniform(0.1)
+        // this.material.shadowPositionNode = positionLocal.add(this.game.lighting.directionUniform.mul(this.shadowOffset))
+
         // Debug
         if(this.game.debug.active)
         {
-            this.game.debug.addThreeColorBinding(this.debugPanel, this.colorTop.value, 'colorTop')
+            this.debugPanel.addBinding(this.material, 'wireframe')
+            this.game.debug.addThreeColorBinding(this.debugPanel, this.color.value, 'color')
             this.debugPanel.addBinding(this.colorEdgeTop, 'value', { label: 'colorEdgeTop', min: - 2, max: 2, step: 0.001 })
-            this.game.debug.addThreeColorBinding(this.debugPanel, this.colorBottom.value, 'colorBottom')
             this.debugPanel.addBinding(this.colorEdgeBottom, 'value', { label: 'colorEdgeBottom', min: - 2, max: 2, step: 0.001 })
             this.debugPanel.addBinding(this.normalNeighbourShift, 'value', { label: 'normalNeighbourShift', min: 0, max: 0.4, step: 0.001 })
             this.debugPanel.addBinding(this.elevation, 'value', { label: 'elevation', min: -1, max: 1, step: 0.001 })
@@ -156,7 +280,7 @@ export class Snow
     setMesh()
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.position.y = 0
+        // this.mesh.position.y = 0.2
         this.mesh.castShadow = false
         this.mesh.receiveShadow = true
         this.mesh.frustumCulled = false
@@ -166,8 +290,8 @@ export class Snow
     update()
     {
         // Rounded position
-        this.roundedPosition.value.x = Math.round(this.game.view.optimalArea.position.x / this.subdivisionSpan) * this.subdivisionSpan
-        this.roundedPosition.value.y = Math.round(this.game.view.optimalArea.position.z / this.subdivisionSpan) * this.subdivisionSpan
+        this.roundedPosition.value.x = Math.round(this.game.view.optimalArea.position.x / this.subdivisionSize) * this.subdivisionSize
+        this.roundedPosition.value.y = Math.round(this.game.view.optimalArea.position.z / this.subdivisionSize) * this.subdivisionSize
 
         // Ground data delta
         this.groundDataDelta.value.set(
