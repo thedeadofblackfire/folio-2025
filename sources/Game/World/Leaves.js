@@ -151,7 +151,7 @@ export class Leaves
             ))
 
             const noiseUv = position.xz.mul(0.02)
-            const noise = texture(this.game.noises.texture, noiseUv).r
+            const noise = texture(this.game.noises.others, noiseUv).r
             position.x.addAssign(noise.mul(15))
         })()
         const initCompute = init.compute(this.count)
@@ -186,7 +186,7 @@ export class Leaves
 
             // Wind
             const noiseUv = position.xz.mul(this.windFrequency).add(this.game.wind.direction.mul(this.game.wind.localTime)).xy
-            const noise = smoothstep(0.4, 1, texture(this.game.noises.texture, noiseUv).r)
+            const noise = smoothstep(0.4, 1, texture(this.game.noises.others, noiseUv).r)
 
             const windStrength = this.game.wind.strength.sub(weight).max(0).mul(noise).mul(this.windMultiplier).toVar()
             velocity.x.addAssign(this.game.wind.direction.x.mul(windStrength))

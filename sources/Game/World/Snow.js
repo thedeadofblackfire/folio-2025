@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { attribute, cameraNormalMatrix, color, cross, dot, float, Fn, If, materialNormal, min, mix, modelNormalMatrix, modelViewMatrix, PI, positionGeometry, positionLocal, positionWorld, rotateUV, texture, time, uniform, uv, varying, vec2, vec3, vec4, viewportSize } from 'three/tsl'
+import { attribute, cameraNormalMatrix, color, cross, dot, float, Fn, hash, If, materialNormal, min, mix, modelNormalMatrix, modelViewMatrix, PI, positionGeometry, positionLocal, positionWorld, rotateUV, texture, time, uniform, uv, uvec4, varying, vec2, vec3, vec4, viewportSize } from 'three/tsl'
 
 export class Snow
 {
@@ -59,10 +59,10 @@ export class Snow
 
             // Noise
             const noiseUv1 = position.mul(this.noise1Frequency).xy
-            const noise1 = texture(this.game.noises.texture, noiseUv1).r
+            const noise1 = texture(this.game.noises.others, noiseUv1).r
 
             const noiseUv2 = position.mul(this.noise2Frequency).xy
-            const noise2 = texture(this.game.noises.texture, noiseUv2).r
+            const noise2 = texture(this.game.noises.others, noiseUv2).r
 
             elevation.addAssign(noise1.mul(noise2).smoothstep(0, 1).mul(this.noiseMultiplier))
 
@@ -75,9 +75,9 @@ export class Snow
             const wheelsTracksHeight = groundDataColor.r.oneMinus().toVar()
             const chassisTracksHeight = groundDataColor.g.oneMinus().toVar().remapClamp(0.5, 1, 0.25, 1)
             const tracksHeight = min(wheelsTracksHeight, chassisTracksHeight)
-            // elevation.assign(min(elevation, tracksHeight))
             elevation.mulAssign(tracksHeight)
 
+            // Water elevation
             elevation.addAssign(terrainData.b.remap(0, 1, 0, -2))
 
             return elevation
@@ -105,6 +105,7 @@ export class Snow
             {
                 depthBuffer: false,
                 type: THREE.HalfFloatType,
+                format: THREE.RedFormat,
                 minFilter: THREE.LinearFilter,
                 magFilter: THREE.LinearFilter,
                 wrapS: THREE.ClampToEdgeWrapping,
@@ -136,11 +137,6 @@ export class Snow
 
     setGeometry()
     {
-        this.geometry = new THREE.PlaneGeometry(this.size, this.size, this.subdivisions, this.subdivisions).toNonIndexed()
-        this.geometry.rotateX(- Math.PI * 0.5)
-        this.geometry.deleteAttribute('normal')
-        this.geometry.deleteAttribute('uv')
-
         const positionArray = new Float32Array(this.subdivisions * this.subdivisions * 3 * 3 * 2)
         const pivotArray = new Float32Array(this.subdivisions * this.subdivisions * 2 * 3 * 2)
 
@@ -230,31 +226,42 @@ export class Snow
         this.fadeEdgeHigh = uniform(0.5)
         this.fadeEdgeLow = uniform(0.022)
         this.normalNeighbourShift = uniform(0.2)
+        this.twinkleProgress = uniform(0)
+        this.twinklePositionFrequency = uniform(20)
+        this.twinkleVariationFrequency = uniform(0.0001)
+        this.twinkleScarcity = uniform(0.0004)
+        this.twinkleStrength = uniform(3)
 
-        const baseColor = varying(color())
         const deltaY = varying(float())
+        const worldUv = varying(vec2())
 
         const pivot = attribute('pivot')
-        const debugColor = varying(color('red'))
+        // const debugColor = varying(color('red'))
 
         const flipRotation = Math.PI * 0.5
 
         const elevationFromTexture = Fn(([position]) =>
         {
             const newUv = position.sub(this.roundedPosition).div(this.size).add(0.5)
-            return texture(this.snowElevation.texture, newUv)
+            return texture(this.snowElevation.texture, newUv).r
         })
 
         this.material.positionNode = Fn(() =>
         {
+            // Offset position
+            const newPosition = positionGeometry.toVar()
+            newPosition.x.addAssign(this.roundedPosition.x)
+            newPosition.z.addAssign(this.roundedPosition.y)
+
+            // Rotate quad
             const pivotCenter = vec3(pivot.x, 0, pivot.y).toVar()
             pivotCenter.x.addAssign(this.roundedPosition.x)
             pivotCenter.z.addAssign(this.roundedPosition.y)
 
-            const pivotA = pivotCenter.add(vec3(-this.subdivisionSize, 0, -this.subdivisionSize)).toVar()
-            const pivotB = pivotCenter.add(vec3(this.subdivisionSize, 0, -this.subdivisionSize)).toVar()
-            const pivotC = pivotCenter.add(vec3(this.subdivisionSize, 0, this.subdivisionSize)).toVar()
-            const pivotD = pivotCenter.add(vec3(-this.subdivisionSize, 0, this.subdivisionSize)).toVar()
+            const pivotA = pivotCenter.add(vec3(- this.subdivisionSize, 0, - this.subdivisionSize)).toVar()
+            const pivotB = pivotCenter.add(vec3(  this.subdivisionSize, 0, - this.subdivisionSize)).toVar()
+            const pivotC = pivotCenter.add(vec3(  this.subdivisionSize, 0,   this.subdivisionSize)).toVar()
+            const pivotD = pivotCenter.add(vec3(- this.subdivisionSize, 0,   this.subdivisionSize)).toVar()
 
             pivotA.y.assign(elevationFromTexture(pivotA.xz))
             pivotB.y.assign(elevationFromTexture(pivotB.xz))
@@ -263,17 +270,13 @@ export class Snow
 
             const acDelta = pivotA.y.sub(pivotC.y).abs()
             const bdDelta = pivotB.y.sub(pivotD.y).abs()
-            
+
             const rotation = float(0).toVar()
             If(acDelta.lessThan(bdDelta), () =>
             {
-                debugColor.assign(color('cyan'))
+                // debugColor.assign(color('cyan'))
                 rotation.assign(flipRotation)
             })
-
-            const newPosition = positionGeometry.toVar()
-            newPosition.x.addAssign(this.roundedPosition.x)
-            newPosition.z.addAssign(this.roundedPosition.y)
 
             newPosition.xz.assign(rotateUV(newPosition.xz, rotation, pivotCenter.xz))
 
@@ -293,22 +296,19 @@ export class Snow
 
             // Normal
             const newNormal = cross(positionA.sub(positionB), positionA.sub(positionC)).normalize()
-            // const normalMixStrength = terrainData.b.remapClamp(0, 0.2, 0, 1)
-            // newNormal.assign(mix(newNormal, vec3(0, 1, 0), normalMixStrength))
             materialNormal.assign(modelViewMatrix.mul(vec4(newNormal, 0)))
 
             // Push down further more in water (after calculating normal)
             const waterDrop = terrainData.b.remapClamp(this.waterDropEdgeLow, this.waterDropEdgeHigh, 0, this.waterDropAmplitude.negate())
             positionA.y.addAssign(waterDrop)
 
-            // Color
-            baseColor.assign(terrainColor)
-
             // Delta to floor
             deltaY.assign(positionA.y.sub(terrainData.b.mul(-2)))
+
+            // World UV
+            worldUv.assign(positionA.xz)
             
             return positionA
-            // return rotatedPosition
         })()
 
         const totalShadow = this.game.lighting.addTotalShadowToMaterial(this.material)
@@ -318,7 +318,22 @@ export class Snow
             const lightOutput = this.game.lighting.lightOutputNodeBuilder(this.color, totalShadow, false, false).rgb
             const alpha = deltaY.smoothstep(this.fadeEdgeLow, this.fadeEdgeHigh)
 
-            return vec4(lightOutput, alpha)
+            // Twinkle
+            const twinkleUv = worldUv.mul(this.twinklePositionFrequency)
+            const twinkleUvLoop = twinkleUv.fract()
+
+            const noiseSubdivisions = 128
+            const noiseUv = worldUv.div(noiseSubdivisions).mul(this.twinklePositionFrequency)
+            const twinkleRandom1 = texture(this.game.noises.others, noiseUv.mul(noiseSubdivisions).floor().div(noiseSubdivisions)).g
+            const twinkleRandom2 = texture(this.game.noises.others, noiseUv.add(0.5).mul(noiseSubdivisions).floor().div(noiseSubdivisions)).g
+            const twinkleProgress = this.twinkleProgress.mul(this.twinkleVariationFrequency)
+            const twinkleStrength = twinkleProgress.sub(twinkleRandom1).fract().sub(0.5).abs().remapClamp(0, this.twinkleScarcity, 1, 0).toVar()
+
+            const twinkleShape = twinkleUvLoop.sub(0.5).length().step(twinkleRandom2.mul(0.5))
+            twinkleStrength.mulAssign(twinkleShape)
+
+            // return vec4(vec3(twinkleStrength), 1)
+            return vec4(lightOutput.add(twinkleStrength), alpha)
         })()
 
         // this.material.outputNode = vec4(debugColor, 1)
@@ -344,13 +359,17 @@ export class Snow
             this.debugPanel.addBinding(this.waterDropEdgeLow, 'value', { label: 'waterDropEdgeLow', min: 0, max: 1, step: 0.001 })
             this.debugPanel.addBinding(this.waterDropEdgeHigh, 'value', { label: 'waterDropEdgeHigh', min: 0, max: 1, step: 0.001 })
             this.debugPanel.addBinding(this.waterDropAmplitude, 'value', { label: 'waterDropAmplitude', min: 0, max: 5, step: 0.001 })
+            this.debugPanel.addBlade({ view: 'separator' })
+            this.debugPanel.addBinding(this.twinklePositionFrequency, 'value', { label: 'twinklePositionFrequency', min: 1, max: 100, step: 1 })
+            this.debugPanel.addBinding(this.twinkleVariationFrequency, 'value', { label: 'twinkleVariationFrequency', min: 0, max: 0.001, step: 0.000001 })
+            this.debugPanel.addBinding(this.twinkleScarcity, 'value', { label: 'twinkleScarcity', min: 0, max: 0.01, step: 0.000001 })
+            this.debugPanel.addBinding(this.twinkleStrength, 'value', { label: 'twinkleStrength', min: 0, max: 10, step: 0.001 })
         }
     }
 
     setMesh()
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
-        // this.mesh.position.y = 0.2
         this.mesh.castShadow = false
         this.mesh.receiveShadow = true
         this.mesh.frustumCulled = false
@@ -359,6 +378,9 @@ export class Snow
 
     update()
     {
+        // Optiml position
+        this.twinkleProgress.value = 1 + this.game.view.camera.position.x + this.game.view.camera.position.y + this.game.ticker.elapsedScaled * 0.4
+        
         // Rounded position
         this.roundedPosition.value.x = Math.round(this.game.view.optimalArea.position.x / this.subdivisionSize) * this.subdivisionSize
         this.roundedPosition.value.y = Math.round(this.game.view.optimalArea.position.z / this.subdivisionSize) * this.subdivisionSize
@@ -370,7 +392,7 @@ export class Snow
         )
 
         this.game.rendering.renderer.setRenderTarget(this.snowElevation.renderTarget)
-        this.snowElevation.quadMesh.renderAsync(this.game.rendering.renderer)
+        this.snowElevation.quadMesh.render(this.game.rendering.renderer)
         this.game.rendering.renderer.setRenderTarget(null)
     }
 }

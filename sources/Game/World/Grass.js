@@ -122,7 +122,7 @@ export class Grass
             const wheelsTracksHeight = groundDataColor.a.oneMinus().toVar()
 
             // Height
-            const heightVariation = texture(this.game.noises.texture, bladePosition.mul(0.0321)).r.add(0.5)
+            const heightVariation = texture(this.game.noises.others, bladePosition.mul(0.0321)).r.add(0.5)
             const height = bladeHeight
                 .mul(bladeHeightRandomness.mul(attribute('heightRandomness')).add(bladeHeightRandomness.oneMinus()))
                 .mul(heightVariation)

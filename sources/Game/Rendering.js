@@ -5,9 +5,11 @@ import { Game } from './Game.js'
 
 export class Rendering
 {
-    constructor()
+    constructor(readyCallback)
     {
         this.game = Game.getInstance()
+
+        this.readyCallback = readyCallback
 
         if(this.game.debug.active)
         {
@@ -33,22 +35,17 @@ export class Rendering
 
     setRenderer()
     {
-        const clearColor = { value: '#191613' }
-        this.renderer = new THREE.WebGPURenderer({ forceWebGL: false })
+        this.renderer = new THREE.WebGPURenderer({ forceWebGL: true })
         this.renderer.setSize(this.game.viewport.width, this.game.viewport.height)
         this.renderer.setPixelRatio(this.game.viewport.pixelRatio)
-        this.renderer.setClearColor(clearColor.value)
+        // this.renderer.sortObjects = false
         this.renderer.domElement.classList.add('experience')
         this.renderer.shadowMap.enabled = true
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
         this.game.domElement.append(this.renderer.domElement)
 
-        // Debug
-        if(this.game.debug.active)
-        {
-            this.debugPanel.addBinding(clearColor, 'value', { label: 'clearColor', view: 'color' })
-                .on('change', tweak => { this.renderer.setClearColor(tweak.value) })
-        }
+        const test = this.renderer.init()
+        test.then(this.readyCallback)
     }
 
     setPostprocessing()

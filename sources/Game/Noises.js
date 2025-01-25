@@ -138,51 +138,87 @@ export class Noises
     constructor()
     {
         this.game = Game.getInstance()
+        this.quadMesh = new THREE.QuadMesh()
 
-        // Render target
-        this.resolution = 128
-        this.renderTarget = new THREE.RenderTarget(
-            this.resolution,
-            this.resolution,
-            {
-                depthBuffer: false,
-                type: THREE.HalfFloatType
-            }
-        )
-        this.texture = this.renderTarget.texture
-        this.texture.wrapS = THREE.RepeatWrapping
-        this.texture.wrapT = THREE.RepeatWrapping
-
-        // Material
-        this.material = new THREE.MeshBasicNodeMaterial({ color: 'red', wireframe: false })
-
-		const perlin = perlinNode(uv(), 6.0, 6.0).remap(0.1, 0.9, 0.0, 1.0)
-		const voronoi = voronoiNode(uv(), 8)
-		
-        this.material.outputNode = vec4(
-            perlin,
-            voronoi.xyz
-        )
-
-        // Quad mesh
-        const quadMesh = new THREE.QuadMesh(this.material)
-        this.game.rendering.renderer.setRenderTarget(this.renderTarget)
-        quadMesh.renderAsync(this.game.rendering.renderer)
+		this.setVoronoi()
+		this.setOthers()
 
         // // Tests
         // const testMesh1 = new THREE.Mesh(
         //     new THREE.BoxGeometry(5, 5, 5),
-        //     new THREE.MeshBasicMaterial({ map: this.texture })
+        //     new THREE.MeshBasicMaterial({ map: this.others })
         // )
         // testMesh1.position.y = 5
 
         // const testMesh2 = new THREE.Mesh(
         //     new THREE.BoxGeometry(5, 5, 5),
-        //     new THREE.MeshBasicMaterial({ map: this.texture })
+        //     new THREE.MeshBasicMaterial({ map: this.others })
         // )
         // testMesh2.position.x = 5
         // testMesh2.position.y = 5
 
         // this.game.scene.add(testMesh1, testMesh2)
     }
+
+	setVoronoi()
+	{
+		// Render target
+        const resolution = 128
+        const renderTarget = new THREE.RenderTarget(
+            resolution,
+            resolution,
+            {
+                depthBuffer: false,
+                type: THREE.HalfFloatType
+            }
+        )
+        this.voronoi = renderTarget.texture
+        this.voronoi.wrapS = THREE.RepeatWrapping
+        this.voronoi.wrapT = THREE.RepeatWrapping
+
+        // Material
+        const material = new THREE.MeshBasicNodeMaterial({ color: 'red', wireframe: false })
+
+        material.outputNode = vec4(
+            voronoiNode(uv(), 8),
+            0
+        )
+
+		// Render
+		this.game.rendering.renderer.setRenderTarget(renderTarget)
+		this.quadMesh.material = material
+		this.quadMesh.render(this.game.rendering.renderer)
+	}
+
+	setOthers()
+	{
+		// Render target
+        const resolution = 128
+        const renderTarget = new THREE.RenderTarget(
+            resolution,
+            resolution,
+            {
+                depthBuffer: false,
+                type: THREE.HalfFloatType
+            }
+        )
+        this.others = renderTarget.texture
+        this.others.wrapS = THREE.RepeatWrapping
+        this.others.wrapT = THREE.RepeatWrapping
+
+        // Material
+        const material = new THREE.MeshBasicNodeMaterial()
+
+        material.outputNode = vec4(
+            perlinNode(uv(), 6.0, 6.0).remap(0.1, 0.9, 0.0, 1.0),
+            hash(uv().mul(128).floor().div(128)).x,
+			0,
+			0
+        )
+
+		// Render
+		this.game.rendering.renderer.setRenderTarget(renderTarget)
+		this.quadMesh.material = material
+		this.quadMesh.render(this.game.rendering.renderer)
+	}
 }

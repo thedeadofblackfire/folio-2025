@@ -80,7 +80,7 @@ export class GroundData
         this.game.rendering.renderer.setClearAlpha(0)
         this.game.rendering.renderer.setRenderTarget(this.renderTarget)
 
-        this.game.rendering.renderer.renderAsync(this.scene, this.camera)
+        this.game.rendering.renderer.render(this.scene, this.camera)
 
         this.game.rendering.renderer.setRenderTarget(null)
         this.game.rendering.renderer.setClearAlpha(clearAlpha)

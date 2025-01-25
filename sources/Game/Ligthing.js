@@ -96,7 +96,7 @@ export class Lighting
         this.addTotalShadowToMaterial = (material) =>
         {
             // const cloudsUv = positionWorld.xz.add(vec2(time.mul(this.cloudsSpeed.negate()), time.mul(this.cloudsSpeed))).mul(this.cloudsFrequency)
-            // const clouds = texture(this.game.noises.texture, cloudsUv).r.smoothstep(this.cloudsEdgeLow, this.cloudsEdgeHigh).mul(this.cloudsMultiplier).add(this.cloudsMultiplier.oneMinus())
+            // const clouds = texture(this.game.noises.others, cloudsUv).r.smoothstep(this.cloudsEdgeLow, this.cloudsEdgeHigh).mul(this.cloudsMultiplier).add(this.cloudsMultiplier.oneMinus())
 
             const totalShadows = float(1).toVar()
 
