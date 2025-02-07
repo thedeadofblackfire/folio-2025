@@ -1,7 +1,7 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import MeshGridMaterial, { MeshGridMaterialLine } from '../Materials/MeshGridMaterial.js'
-import { uv, vec4 } from 'three/tsl'
+import { positionWorld, uv, vec4 } from 'three/tsl'
 
 export class Floor
 {
@@ -40,7 +40,7 @@ export class Floor
     {
         const material = new THREE.MeshLambertNodeMaterial({ color: '#000000', wireframe: false })
 
-        const terrainData = this.game.terrainData.terrainDataNode(uv())
+        const terrainData = this.game.terrainData.terrainDataNode(positionWorld.xz)
         const terrainDataGrass = terrainData.g.smoothstep(0.4, 0.6)
         const baseColor = this.game.terrainData.colorNode(terrainData)
 

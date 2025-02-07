@@ -108,8 +108,8 @@ export class Lighting
 
                 if(withBounce)
                 {
-                    const terrainUv = this.game.terrainData.worldPositionToUvNode(positionWorld.xz)
-                    const terrainData = this.game.terrainData.terrainDataNode(terrainUv)
+                    // const terrainUv = this.game.terrainData.worldPositionToUvNode(positionWorld.xz)
+                    const terrainData = this.game.terrainData.terrainDataNode(positionWorld.xz)
 
                     // Bounce color
                     const bounceOrientation = normalWorld.dot(vec3(0, - 1, 0)).smoothstep(this.lightBounceEdgeLow, this.lightBounceEdgeHigh)

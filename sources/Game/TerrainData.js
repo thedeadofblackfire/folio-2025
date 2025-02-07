@@ -1,7 +1,7 @@
 import * as THREE from 'three/webgpu'
 import { Game } from './Game.js'
 import MeshGridMaterial, { MeshGridMaterialLine } from './Materials/MeshGridMaterial.js'
-import { color, Fn, mix, smoothstep, texture, uniform, uv } from 'three/tsl'
+import { color, Fn, mix, smoothstep, texture, uniform, uv, vec2 } from 'three/tsl'
 
 export class TerrainData
 {
@@ -14,6 +14,11 @@ export class TerrainData
         // this.geometry = new THREE.PlaneGeometry(this.subdivision, this.subdivision).rotateX(-Math.PI * 0.5)
 
         this.setNodes()
+
+        this.game.ticker.events.on('tick', () =>
+        {
+            this.update()
+        }, 9)
     }
 
     setNodes()
@@ -22,6 +27,7 @@ export class TerrainData
         this.dirtColorUniform = uniform(color('#ffb869'))
         this.waterSurfaceColorUniform = uniform(color('#5dc278'))
         this.waterDepthColorUniform = uniform(color('#1b3e52'))
+        this.groundDataDelta = uniform(vec2(0))
 
         this.worldPositionToUvNode = Fn(([position]) =>
         {
@@ -29,9 +35,19 @@ export class TerrainData
             return terrainUv
         })
 
-        this.terrainDataNode = Fn(([_uv]) =>
+        this.terrainDataNode = Fn(([position]) =>
         {
-            return texture(this.game.resources.terrainTexture, _uv)
+            const textureUv = this.worldPositionToUvNode(position)
+            const data = texture(this.game.resources.terrainTexture, textureUv)
+
+            // Wheel tracks
+            const groundDataColor = texture(
+                this.game.groundData.renderTarget.texture,
+                position.sub(- this.game.groundData.halfSize).sub(this.groundDataDelta).div(this.game.groundData.size)
+            )
+            data.g.mulAssign(groundDataColor.r.oneMinus())
+
+            return data
         })
         
         this.colorNode = Fn(([terrainData]) =>
@@ -61,5 +77,14 @@ export class TerrainData
             this.game.debug.addThreeColorBinding(debugPanel, this.waterSurfaceColorUniform.value, 'waterSurfaceColorUniform')
             this.game.debug.addThreeColorBinding(debugPanel, this.waterDepthColorUniform.value, 'waterDepthColorUniform')
         }
+    }
+    
+    update()
+    {
+        // Ground data delta
+        this.groundDataDelta.value.set(
+            this.game.groundData.focusPoint.x,
+            this.game.groundData.focusPoint.y
+        )
     }
 }

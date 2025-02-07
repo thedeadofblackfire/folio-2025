@@ -21,7 +21,7 @@ export class Track
         }
         this.channelVec3 = channels[channel]
 
-        this.positionThrottle = 0.1
+        this.distanceThrottle = 0.2
         this.lastPosition = new THREE.Vector3(Infinity, Infinity, Infinity)
         
         this.setDataTexture()
@@ -132,7 +132,7 @@ export class Track
             const positionDelta = this.lastPosition.clone().sub(_position)
             const distance = positionDelta.length()
             
-            if(distance > this.positionThrottle)
+            if(distance > this.distanceThrottle)
             {
                 // Move data one "pixel"
                 for(let i = this.subdivisions - 1; i >= 0; i--)

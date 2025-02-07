@@ -172,8 +172,8 @@ export class Leaves
             const inverseWeight = weight.oneMinus().toVar()
 
             // Terrain
-            const terrainUv = this.game.terrainData.worldPositionToUvNode(position.xz)
-            const terrainData = this.game.terrainData.terrainDataNode(terrainUv)
+            // const terrainUv = this.game.terrainData.worldPositionToUvNode(position.xz)
+            const terrainData = this.game.terrainData.terrainDataNode(position.xz)
             
             // Push from vehicle
             const vehicleDelta = position.sub(this.vehiclePosition).toVar()

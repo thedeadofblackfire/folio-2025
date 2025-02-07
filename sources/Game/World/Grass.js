@@ -96,8 +96,8 @@ export class Grass
                 0,
         ])
 
-        const terrainUv = this.game.terrainData.worldPositionToUvNode(bladePosition)
-        const terrainData = this.game.terrainData.terrainDataNode(terrainUv)
+        // const terrainUv = this.game.terrainData.worldPositionToUvNode(bladePosition)
+        const terrainData = this.game.terrainData.terrainDataNode(bladePosition)
         const terrainDataGrass = terrainData.g.smoothstep(0.4, 0.6)
 
         this.material.positionNode = Fn(() =>
@@ -114,19 +114,19 @@ export class Grass
             const worldPosition = modelWorldMatrix.mul(position3).toVar()
             bladePosition.assign(worldPosition.xz)
 
-            // Wheel tracks
-            const groundDataColor = texture(
-                this.game.groundData.renderTarget.texture,
-                worldPosition.xz.sub(- this.game.groundData.halfSize).sub(this.center).add(this.groundDataDelta).div(this.game.groundData.size)
-            )
-            const wheelsTracksHeight = groundDataColor.a.oneMinus().toVar()
+            // // Wheel tracks
+            // const groundDataColor = texture(
+            //     this.game.groundData.renderTarget.texture,
+            //     worldPosition.xz.sub(- this.game.groundData.halfSize).sub(this.center).add(this.groundDataDelta).div(this.game.groundData.size)
+            // )
+            // const wheelsTracksHeight = groundDataColor.a.oneMinus().toVar()
 
             // Height
             const heightVariation = texture(this.game.noises.others, bladePosition.mul(0.0321)).r.add(0.5)
             const height = bladeHeight
                 .mul(bladeHeightRandomness.mul(attribute('heightRandomness')).add(bladeHeightRandomness.oneMinus()))
                 .mul(heightVariation)
-                .mul(wheelsTracksHeight)
+                // .mul(wheelsTracksHeight)
                 .mul(terrainDataGrass)
 
             // Shape

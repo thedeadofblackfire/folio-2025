@@ -61,8 +61,8 @@ export class Snow
             const elevation = this.elevation.toVar()
 
             // Terrain
-            const terrainUv = this.game.terrainData.worldPositionToUvNode(position.xy)
-            const terrainData = this.game.terrainData.terrainDataNode(terrainUv)
+            // const terrainUv = this.game.terrainData.worldPositionToUvNode(position.xy)
+            const terrainData = this.game.terrainData.terrainDataNode(position.xy)
 
             // Noise
             const noiseUv1 = position.mul(this.noise1Frequency).xy
@@ -298,8 +298,8 @@ export class Snow
             positionC.y.assign(elevationFromTexture(positionC.xz))
 
             // Terrain data
-            const terrainUv = this.game.terrainData.worldPositionToUvNode(positionA.xz)
-            const terrainData = this.game.terrainData.terrainDataNode(terrainUv)
+            // const terrainUv = this.game.terrainData.worldPositionToUvNode(positionA.xz)
+            const terrainData = this.game.terrainData.terrainDataNode(positionA.xz)
             const terrainColor = this.game.terrainData.colorNode(terrainData)
 
             // Normal
@@ -392,7 +392,7 @@ export class Snow
         this.elevation.value += elevationStrength
         this.elevation.value = clamp(this.elevation.value, -1, 0.5)
 
-        // Optimal position
+        // Glitter
         this.glittersProgress.value = 1 + this.game.view.camera.position.x + this.game.view.camera.position.y + this.game.ticker.elapsedScaled * 0.4
         
         // Rounded position
