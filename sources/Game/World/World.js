@@ -1,21 +1,12 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { Foliage } from './Foliage.js'
-import { Flowers } from './Flowers.js'
 import { Field } from './Field.js'
 import { Grid } from './Grid.js'
 import { Grass } from './Grass.js'
-import { Playground } from './Playground.js'
-import { Bricks } from './Bricks.js'
 import { Fn, instance, positionLocal } from 'three/tsl'
-import { Christmas } from './Christmas.js'
-import { InstancedGroup } from '../InstancedGroup.js'
-import { Trees } from './Trees.js'
-import Bushes from './Bushes.js'
 import { WaterSurface } from './WaterSurface.js'
 import { Scenery } from './Scenery.js'
 import { WindLines } from './WindLines.js'
-import { PoleLights } from './PoleLights.js'
 import { Leaves } from './Leaves.js'
 import { Lightnings } from './Lightnings.js'
 import { Rain } from './Rain.js'
@@ -29,23 +20,14 @@ export class World
 
         this.field = new Field()
         // this.grid = new Grid()
-        this.scenery = new Scenery()
         this.waterSurface = new WaterSurface()
         this.grass = new Grass()
-        this.bushes = new Bushes()
-        this.birchTrees = new Trees('Birch Tree', this.game.resources.birchTreesVisualModel.scene, this.game.resources.birchTreesReferencesModel.scene.children, '#ff782b')
-        this.oakTrees = new Trees('Oak Tree', this.game.resources.oakTreesVisualModel.scene, this.game.resources.oakTreesReferencesModel.scene.children, '#c4c557')
-        this.cherryTrees = new Trees('Cherry Tree', this.game.resources.cherryTreesVisualModel.scene, this.game.resources.cherryTreesReferencesModel.scene.children, '#ff6da8')
-        this.flowers = new Flowers()
-        this.bricks = new Bricks()
         this.windLines = new WindLines()
-        this.poleLights = new PoleLights()
         this.leaves = new Leaves()
         this.rainSnow = new Rain()
         this.lightnings = new Lightnings()
         this.snow = new Snow()
-        // this.playground = new Playground()
-        // this.christmas = new Christmas()
+        this.scenery = new Scenery()
 
         // this.setAxesHelper()
         // this.setCollisionGroupsTest()

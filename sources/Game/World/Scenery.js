@@ -2,6 +2,13 @@ import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import { color, dot, Fn, max, mix, normalGeometry, smoothstep, uniform, vec3, vec4 } from 'three/tsl'
 import { normalWorld } from 'three/tsl'
+import { Flowers } from './Flowers.js'
+import { Bricks } from './Bricks.js'
+import { Trees } from './Trees.js'
+import Bushes from './Bushes.js'
+import { PoleLights } from './PoleLights.js'
+import { Playground } from './Playground.js'
+import { Christmas } from './Christmas.js'
 
 export class Scenery
 {
@@ -17,43 +24,22 @@ export class Scenery
             })
         }
 
-        // this.setStoneMaterial()
+        this.setStaticObjects()
+        this.setDynamicsObjects()
 
-        this.setStatic()
-        this.setDynamics()
+        this.bushes = new Bushes()
+        this.birchTrees = new Trees('Birch Tree', this.game.resources.birchTreesVisualModel.scene, this.game.resources.birchTreesReferencesModel.scene.children, '#ff782b')
+        this.oakTrees = new Trees('Oak Tree', this.game.resources.oakTreesVisualModel.scene, this.game.resources.oakTreesReferencesModel.scene.children, '#c4c557')
+        this.cherryTrees = new Trees('Cherry Tree', this.game.resources.cherryTreesVisualModel.scene, this.game.resources.cherryTreesReferencesModel.scene.children, '#ff6da8')
+        this.flowers = new Flowers()
+        this.bricks = new Bricks()
+        this.poleLights = new PoleLights()
+        // this.playground = new Playground()
+        // this.christmas = new Christmas()
+
     }
 
-    setStoneMaterial()
-    {
-        const test = new THREE.MeshBasicNodeMaterial()
-        test.shadowSide = THREE.BackSide
-
-        const stoneColor = uniform(color('#ffe9d7'))
-        const mossColor = uniform(color('#d4d56d'))
-
-        test.outputNode = Fn(() =>
-        {
-            const upDot = dot(vec3(0.2, 1, 0.4).normalize(), normalGeometry).toVar()
-
-            const baseColor = mix(stoneColor, mossColor, max(0, upDot))
-            return this.game.lighting.lightOutputNodeBuilder(baseColor, normalWorld, this.game.lighting.addTotalShadowToMaterial(test))
-        })()
-        this.game.materials.save('stoneWhite', test)
-
-        // Debug
-        if(this.game.debug.active)
-        {
-            const debugPanel = this.debugPanel.addFolder({
-                title: 'Stone material',
-                expanded: false,
-            })
-
-            this.game.debug.addThreeColorBinding(debugPanel, stoneColor.value, 'stoneColor')
-            this.game.debug.addThreeColorBinding(debugPanel, mossColor.value, 'mossColor')
-        }
-    }
-
-    setStatic()
+    setStaticObjects()
     {
         // Models
         const visualModel = this.game.resources.sceneryStaticVisualModel.scene
@@ -83,7 +69,7 @@ export class Scenery
         )
     }
 
-    setDynamics()
+    setDynamicsObjects()
     {
         for(const child of this.game.resources.sceneryDynamicModel.scene.children)
         {
