@@ -38,10 +38,9 @@ export class Flowers
         this.colors = {}
         this.colors.presets = [
             new THREE.Color('#ffffff'),
-            new THREE.Color('#cc99ff'),
-            new THREE.Color('#ffb037'),
-            new THREE.Color('#a0d5d3'),
-            new THREE.Color('#cef582'),
+            new THREE.Color('#8900ff'),
+            new THREE.Color('#a4ffb9'),
+            new THREE.Color('#ff3e00'),
         ]
 
         this.colors.array = []
@@ -65,8 +64,6 @@ export class Flowers
         this.colors.updateArray()
 
         this.colors.uniform = uniformArray(this.colors.array)
-
-        this.colors.emissiveIntensity = uniform(float(0))
     }
 
     setOne()
@@ -125,10 +122,10 @@ export class Flowers
 
     setGeometry()
     {
-        const count = 6
+        const count = 8
         const planes = []
 
-        const emissiveMultiplierArray = new Float32Array(count * 4)
+        const colorMixerArray = new Float32Array(count * 4)
 
         for(let i = 0; i < count; i++)
         {
@@ -136,27 +133,26 @@ export class Flowers
 
             // Position
             const spherical = new THREE.Spherical(
-                1 - Math.pow(Math.random(), 3),
+                1,
                 Math.PI * 0.5 * Math.random(),
                 Math.PI * 2 * Math.random()
             )
-            const position = new THREE.Vector3().setFromSpherical(spherical)
+            const direction = new THREE.Vector3().setFromSpherical(spherical)
+            const position = direction.clone().setLength(1 - Math.pow(Math.random(), 2))
+            position.y *= 0.5
+            const randomUpAngle = Math.random() * Math.PI * 2
+            
+            const matrix = new THREE.Matrix4().lookAt(new THREE.Vector3(), direction, new THREE.Vector3(Math.sin(randomUpAngle), Math.cos(randomUpAngle), 0))
+            matrix.setPosition(position)
+            
+            plane.applyMatrix4(matrix)
 
-            plane.rotateX(Math.random() * 9999)
-            plane.rotateY(Math.random() * 9999)
-            plane.rotateZ(Math.random() * 9999)
-            plane.translate(
-                position.x,
-                position.y * 0.5,
-                position.z
-            )
-
-            // Emissiveness
-            const emissiveMultiplier = 0.5 + (i / count) * 0.5
-            emissiveMultiplierArray[i * 4 + 0] = emissiveMultiplier
-            emissiveMultiplierArray[i * 4 + 1] = emissiveMultiplier
-            emissiveMultiplierArray[i * 4 + 2] = emissiveMultiplier
-            emissiveMultiplierArray[i * 4 + 3] = emissiveMultiplier
+            // Color mixer
+            const colorMixer = Math.random()
+            colorMixerArray[i * 4 + 0] = colorMixer
+            colorMixerArray[i * 4 + 1] = colorMixer
+            colorMixerArray[i * 4 + 2] = colorMixer
+            colorMixerArray[i * 4 + 3] = colorMixer
 
             // Save
             planes.push(plane)
@@ -169,7 +165,7 @@ export class Flowers
         this.geometry.deleteAttribute('uv')
 
         // Add attribute
-        this.geometry.setAttribute('emissiveMultiplier', new THREE.Float32BufferAttribute(emissiveMultiplierArray, 1))
+        this.geometry.setAttribute('colorMixer', new THREE.Float32BufferAttribute(colorMixerArray, 1))
     
     }
 
@@ -200,6 +196,7 @@ export class Flowers
         // Output
         this.material.outputNode = Fn(() =>
         {
+            // Color
             const colorIndex = instancedBufferAttribute(this.instanceColorIndex, 'float', 1)
             colorIndex.setUsage(THREE.StaticDrawUsage)
             const baseColor = vec3(
@@ -207,15 +204,11 @@ export class Flowers
                 this.colors.uniform.element(colorIndex.mul(3).add(1)),
                 this.colors.uniform.element(colorIndex.mul(3).add(2))
             )
+            const colorMixer = attribute('colorMixer')
+            const mixedColor = mix(baseColor, this.game.terrainData.grassColorUniform, colorMixer)
 
-            const lightOutputColor = this.game.lighting.lightOutputNodeBuilder(baseColor, normalWorld, totalShadows, true, false)
-
-            const baseLuminance = luminance(baseColor)
-            const emissiveMultiplier = attribute('emissiveMultiplier')
-            const emissiveColor = baseColor.div(baseLuminance).mul(2)
-
-            return mix(lightOutputColor, emissiveColor, this.colors.emissiveIntensity.mul(emissiveMultiplier))
-            // return vec4(vec3(emissiveColor), 1)
+            // Light
+            return this.game.lighting.lightOutputNodeBuilder(mixedColor, normalWorld, totalShadows, true, false)
         })()
     }
 
@@ -247,7 +240,5 @@ export class Flowers
     {
         const intensityStart = smoothstep(this.game.dayCycles.progress, 0.25, 0.4)
         const intensityEnd = smoothstep(this.game.dayCycles.progress, 0.75, 0.6)
-
-        this.colors.emissiveIntensity.value = Math.min(intensityStart, intensityEnd)
     }
 }

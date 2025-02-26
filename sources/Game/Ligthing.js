@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from './Game.js'
-import { uniform, color, float, Fn, vec4, positionWorld, vec3, mix, max } from 'three/tsl'
+import { uniform, color, float, Fn, vec4, positionWorld, vec3, mix, max, If, frontFacing } from 'three/tsl'
 
 export class Lighting
 {
@@ -107,13 +107,19 @@ export class Lighting
                 const baseColor = inputColor.toVar()
                 // baseColor.assign(vec3(0.8))
 
+                const fixedNormal = normal.toVar()
+                If(frontFacing.not(), () =>
+                {
+                    fixedNormal.mulAssign(-1)
+                })
+
                 if(withBounce)
                 {
                     // const terrainUv = this.game.terrainData.worldPositionToUvNode(positionWorld.xz)
                     const terrainData = this.game.terrainData.terrainDataNode(positionWorld.xz)
 
                     // Bounce color
-                    const bounceOrientation = normal.dot(vec3(0, - 1, 0)).smoothstep(this.lightBounceEdgeLow, this.lightBounceEdgeHigh)
+                    const bounceOrientation = fixedNormal.dot(vec3(0, - 1, 0)).smoothstep(this.lightBounceEdgeLow, this.lightBounceEdgeHigh)
                     const bounceDistance = this.lightBounceDistance.sub(max(0, positionWorld.y)).div(this.lightBounceDistance).max(0).pow(2)
                     // const bounceWater = positionWorld.y.step(-0.3).mul(0.9).add(1)
                     const bounceColor = this.game.terrainData.colorNode(terrainData)
@@ -131,7 +137,7 @@ export class Lighting
                 const lightenColor = baseColor.mul(this.game.lighting.colorUniform.mul(this.game.lighting.intensityUniform))
 
                 // Core shadow
-                const coreShadowMix = normal.dot(this.game.lighting.directionUniform).smoothstep(this.coreShadowEdgeHigh, this.coreShadowEdgeLow)
+                const coreShadowMix = fixedNormal.dot(this.game.lighting.directionUniform).smoothstep(this.coreShadowEdgeHigh, this.coreShadowEdgeLow)
                 
                 // Cast shadow
                 const castShadowMix = totalShadows.oneMinus()
