@@ -33,7 +33,8 @@ export class Vehicle
         this.sideward = new THREE.Vector3(0, 0, 1)
         this.upward = new THREE.Vector3(0, 1, 0)
         this.forward = new THREE.Vector3(1, 0, 0)
-        this.position = new THREE.Vector3(0, 5, 0)
+        this.basePosition = new THREE.Vector3(30, 5, -20)
+        this.position = this.basePosition.clone()
         this.velocity = new THREE.Vector3()
         this.direction = this.forward.clone()
         this.goingForward = false
@@ -417,7 +418,7 @@ export class Vehicle
         this.reset = {}
         this.reset.activate = () =>
         {
-            this.chassis.entity.physical.body.setTranslation({ x: 2, y: 4, z: 2 })
+            this.chassis.entity.physical.body.setTranslation(this.basePosition)
             this.chassis.entity.physical.body.setRotation({ w: 1, x: 0, y: 0, z: 0 })
             this.chassis.entity.physical.body.setLinvel({ x: 0, y: 0, z: 0 })
             this.chassis.entity.physical.body.setAngvel({ x: 0, y: 0, z: 0 })

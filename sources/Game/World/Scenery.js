@@ -9,6 +9,7 @@ import { Bushes } from './Bushes.js'
 import { PoleLights } from './PoleLights.js'
 import { Playground } from './Playground.js'
 import { Christmas } from './Christmas.js'
+import { Altar } from './Altar.js'
 
 export class Scenery
 {
@@ -34,8 +35,13 @@ export class Scenery
         this.flowers = new Flowers()
         this.bricks = new Bricks()
         this.poleLights = new PoleLights()
+
+        if(this.references.altar)
+            this.altar = new Altar(this.references.altar.position)
         // this.playground = new Playground()
         // this.christmas = new Christmas()
+
+        console.log(this.references.altar)
 
     }
 
@@ -44,6 +50,9 @@ export class Scenery
         // Models
         const visualModel = this.game.resources.sceneryStaticVisualModel.scene
         const physicalModel = this.game.resources.sceneryStaticPhysicalModel.scene
+
+        // Items
+        this.references = {}
         
         // Materials
         this.game.materials.updateObject(visualModel)
@@ -56,6 +65,9 @@ export class Scenery
                 _child.castShadow = true
                 _child.receiveShadow = true
             }
+
+            if(_child.name === 'altar')
+                this.references.altar = _child
         })
 
         // Entities
