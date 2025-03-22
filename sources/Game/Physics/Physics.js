@@ -155,11 +155,11 @@ export class Physics
 
     update()
     {
+        // this.world.vehicleControllers.forEach((_vehicleController) =>
+        // {
+        //     _vehicleController.updateVehicle(this.game.ticker.delta)
+        // })
         this.world.timestep = this.game.ticker.deltaScaled
-        this.world.vehicleControllers.forEach((_vehicleController) =>
-        {
-            _vehicleController.updateVehicle(this.game.ticker.delta)
-        })
     
         for(const physical of this.physicals)
         {

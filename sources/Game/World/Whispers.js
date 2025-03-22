@@ -289,9 +289,9 @@ export class Whispers
                 this.game.server.send({
                     type: 'whispersInsert',
                     message: sanatized,
-                    x: this.game.vehicle.position.x,
-                    y: this.game.vehicle.position.y,
-                    z: this.game.vehicle.position.z
+                    x: this.game.player.position.x,
+                    y: this.game.player.position.y,
+                    z: this.game.player.position.z
                 })
 
                 // Close modal
@@ -376,7 +376,7 @@ export class Whispers
         {
             if(!item.available)
             {
-                const distance = this.game.vehicle.position.distanceTo(item.position)
+                const distance = this.game.player.position.distanceTo(item.position)
 
                 if(distance < closestDistance && distance < this.bubble.minDistance)
                 {

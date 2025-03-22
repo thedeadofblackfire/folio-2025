@@ -12,6 +12,7 @@ import { Lightnings } from './Lightnings.js'
 import { Rain } from './Rain.js'
 import { Snow } from './Snow.js'
 import { Whispers } from './Whispers.js'
+import { VisualVehicle } from '../VisualVehicle.js'
 
 export class World
 {
@@ -19,6 +20,7 @@ export class World
     {
         this.game = Game.getInstance()
 
+        this.visualVehicle = new VisualVehicle()
         this.field = new Field()
         // this.grid = new Grid()
         this.waterSurface = new WaterSurface()

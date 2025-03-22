@@ -8,7 +8,7 @@ import { Rendering } from './Rendering.js'
 import { ResourcesLoader } from './ResourcesLoader.js'
 import { Ticker } from './Ticker.js'
 import { Time } from './Time.js'
-import { Vehicle } from './Vehicle.js'
+import { Player } from './Player.js'
 import { View } from './View.js'
 import { Viewport } from './Viewport.js'
 import { World } from './World/World.js'
@@ -27,6 +27,7 @@ import { Explosions } from './Explosions.js'
 import { YearCycles } from './Cycles/YearCycles.js'
 import { Server } from './Server.js'
 import { Modals } from './Modals.js'
+import { PhysicalVehicle } from './PhysicalVehicle.js'
 
 export class Game
 {
@@ -117,15 +118,15 @@ export class Game
             { name: 'boost',                category: 'vehicle', keys: [ 'ShiftLeft', 'ShiftRight' ] },
             { name: 'brake',                category: 'vehicle', keys: [ 'KeyB' ] },
             { name: 'reset',                category: 'vehicle', keys: [ 'KeyR' ] },
-            { name: 'hydraulics',           category: 'vehicle', keys: [ 'Numpad5', 'Space' ] },
-            { name: 'hydraulicsFront',      category: 'vehicle', keys: [ 'Numpad8' ] },
-            { name: 'hydraulicsBack',       category: 'vehicle', keys: [ 'Numpad2' ] },
-            { name: 'hydraulicsRight',      category: 'vehicle', keys: [ 'Numpad6' ] },
-            { name: 'hydraulicsLeft',       category: 'vehicle', keys: [ 'Numpad4' ] },
-            { name: 'hydraulicsFrontLeft',  category: 'vehicle', keys: [ 'Numpad7' ] },
-            { name: 'hydraulicsFrontRight', category: 'vehicle', keys: [ 'Numpad9' ] },
-            { name: 'hydraulicsBackRight',  category: 'vehicle', keys: [ 'Numpad3' ] },
-            { name: 'hydraulicsBackLeft',   category: 'vehicle', keys: [ 'Numpad1' ] },
+            { name: 'suspensions',           category: 'vehicle', keys: [ 'Numpad5', 'Space' ] },
+            { name: 'suspensionsFront',      category: 'vehicle', keys: [ 'Numpad8' ] },
+            { name: 'suspensionsBack',       category: 'vehicle', keys: [ 'Numpad2' ] },
+            { name: 'suspensionsRight',      category: 'vehicle', keys: [ 'Numpad6' ] },
+            { name: 'suspensionsLeft',       category: 'vehicle', keys: [ 'Numpad4' ] },
+            { name: 'suspensionsFrontLeft',  category: 'vehicle', keys: [ 'Numpad7' ] },
+            { name: 'suspensionsFrontRight', category: 'vehicle', keys: [ 'Numpad9' ] },
+            { name: 'suspensionsBackRight',  category: 'vehicle', keys: [ 'Numpad3' ] },
+            { name: 'suspensionsBackLeft',   category: 'vehicle', keys: [ 'Numpad1' ] },
             { name: 'whisper',              category: 'vehicle', keys: [ 'KeyT' ] },
 
             // UI
@@ -154,18 +155,14 @@ export class Game
             this.fog = new Fog()
             this.materials = new Materials()
             this.entities = new Entities()
-            this.physics = new Physics()
             this.explosions = new Explosions()
-            this.vehicle = new Vehicle()
+            this.physics = new Physics()
+            this.physicalVehicle = new PhysicalVehicle()
+            this.player = new Player()
             this.world = new World()
             // this.monitoring = new Monitoring()
 
             this.rendering.renderer.setAnimationLoop((elapsedTime) => { this.ticker.update(elapsedTime) })
-
-            // this.ticker.events.on('tick', () =>
-            // {
-            //     console.log(this.yearCycles.properties.temperature)
-            // })
         })
     }
 }

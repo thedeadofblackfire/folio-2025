@@ -291,8 +291,8 @@ export class Leaves
     {
         this.focusPoint.value.set(this.game.view.optimalArea.position.x, this.game.view.optimalArea.position.z)
 
-        this.vehicleVelocity.value.copy(this.game.vehicle.velocity)
-        this.vehiclePosition.value.copy(this.game.vehicle.position)
+        this.vehicleVelocity.value.copy(this.game.player.velocity)
+        this.vehiclePosition.value.copy(this.game.player.position)
         this.game.rendering.renderer.computeAsync(this.updateCompute)
 
         this.explosion.value.w = 0 // Reset potential explosion

@@ -48,10 +48,9 @@ export class Vehicle
         this.setWheels()
         this.setStop()
         this.setFlip()
-        // this.setInWater()
         this.setUnstuck()
         this.setReset()
-        this.setHydraulics()
+        this.setSuspensions()
         this.setBlinkers()
         this.setAntenna()
         this.setExplosions()
@@ -147,10 +146,6 @@ export class Vehicle
         this.wheels.idleBrakeStrength = 15
         this.wheels.maxSpeed = 5
         this.wheels.maxSpeedBoost = 12
-
-        // Geometry
-        const wheelGeometry = new THREE.CylinderGeometry(1, 1, 0.5, 8)
-        wheelGeometry.rotateX(Math.PI * 0.5)
 
         // Create wheels
         for(let i = 0; i < 4; i++)
@@ -314,31 +309,6 @@ export class Vehicle
         }
     }
 
-    // setInWater()
-    // {
-    //     this.inWater = {}
-    //     this.inWater.active = false
-    //     this.inWater.threshold = 0
-        
-    //     this.inWater.activate = () =>
-    //     {
-    //         if(this.inWater.active)
-    //             return
-
-    //         this.inWater.active = true
-    //         this.events.trigger('inWater')
-    //     }
-        
-    //     this.inWater.deactivate = () =>
-    //     {
-    //         if(!this.inWater.active)
-    //             return
-                
-    //         this.inWater.active = false
-    //         this.events.trigger('outWater')
-    //     }
-    // }
-
     setUnstuck()
     {
         this.unstuck = {}
@@ -431,52 +401,52 @@ export class Vehicle
         })
     }
 
-    setHydraulics()
+    setSuspensions()
     {
-        this.hydraulics = {}
-        this.hydraulics.low = 0.125
-        this.hydraulics.mid = 0.45
-        this.hydraulics.high = 1
+        this.suspensions = {}
+        this.suspensions.low = 0.125
+        this.suspensions.mid = 0.45
+        this.suspensions.high = 1
 
         for(let i = 0; i < 4; i++)
-            this.controller.setWheelSuspensionRestLength(i, this.hydraulics.low)
+            this.controller.setWheelSuspensionRestLength(i, this.suspensions.low)
 
-        this.hydraulics.update = (_event) =>
+        this.suspensions.update = (_event) =>
         {
-            const activeHydraulics = [
-                this.game.inputs.keys.hydraulics || this.game.inputs.keys.hydraulicsFront || this.game.inputs.keys.hydraulicsRight || this.game.inputs.keys.hydraulicsFrontRight, // front right
-                this.game.inputs.keys.hydraulics || this.game.inputs.keys.hydraulicsFront || this.game.inputs.keys.hydraulicsLeft || this.game.inputs.keys.hydraulicsFrontLeft, // front left
-                this.game.inputs.keys.hydraulics || this.game.inputs.keys.hydraulicsBack || this.game.inputs.keys.hydraulicsRight || this.game.inputs.keys.hydraulicsBackRight, // back right
-                this.game.inputs.keys.hydraulics || this.game.inputs.keys.hydraulicsBack || this.game.inputs.keys.hydraulicsLeft || this.game.inputs.keys.hydraulicsBackLeft, // back left
+            const activeSuspensions = [
+                this.game.inputs.keys.suspensions || this.game.inputs.keys.suspensionsFront || this.game.inputs.keys.suspensionsRight || this.game.inputs.keys.suspensionsFrontRight, // front right
+                this.game.inputs.keys.suspensions || this.game.inputs.keys.suspensionsFront || this.game.inputs.keys.suspensionsLeft || this.game.inputs.keys.suspensionsFrontLeft, // front left
+                this.game.inputs.keys.suspensions || this.game.inputs.keys.suspensionsBack || this.game.inputs.keys.suspensionsRight || this.game.inputs.keys.suspensionsBackRight, // back right
+                this.game.inputs.keys.suspensions || this.game.inputs.keys.suspensionsBack || this.game.inputs.keys.suspensionsLeft || this.game.inputs.keys.suspensionsBackLeft, // back left
             ]
 
-            const restLength = this.game.inputs.keys.hydraulics ? this.hydraulics.high : this.hydraulics.mid
+            const restLength = this.game.inputs.keys.suspensions ? this.suspensions.high : this.suspensions.mid
             
             for(let i = 0; i < 4; i++)
-                this.controller.setWheelSuspensionRestLength(i, activeHydraulics[i] ? restLength : this.hydraulics.low)
+                this.controller.setWheelSuspensionRestLength(i, activeSuspensions[i] ? restLength : this.suspensions.low)
         }
 
-        this.game.inputs.events.on('hydraulics', this.hydraulics.update)
-        this.game.inputs.events.on('hydraulicsFront', this.hydraulics.update)
-        this.game.inputs.events.on('hydraulicsBack', this.hydraulics.update)
-        this.game.inputs.events.on('hydraulicsRight', this.hydraulics.update)
-        this.game.inputs.events.on('hydraulicsLeft', this.hydraulics.update)
-        this.game.inputs.events.on('hydraulicsFrontLeft', this.hydraulics.update)
-        this.game.inputs.events.on('hydraulicsFrontRight', this.hydraulics.update)
-        this.game.inputs.events.on('hydraulicsBackRight', this.hydraulics.update)
-        this.game.inputs.events.on('hydraulicsBackLeft', this.hydraulics.update)
+        this.game.inputs.events.on('suspensions', this.suspensions.update)
+        this.game.inputs.events.on('suspensionsFront', this.suspensions.update)
+        this.game.inputs.events.on('suspensionsBack', this.suspensions.update)
+        this.game.inputs.events.on('suspensionsRight', this.suspensions.update)
+        this.game.inputs.events.on('suspensionsLeft', this.suspensions.update)
+        this.game.inputs.events.on('suspensionsFrontLeft', this.suspensions.update)
+        this.game.inputs.events.on('suspensionsFrontRight', this.suspensions.update)
+        this.game.inputs.events.on('suspensionsBackRight', this.suspensions.update)
+        this.game.inputs.events.on('suspensionsBackLeft', this.suspensions.update)
 
         // Debug
         if(this.game.debug.active)
         {
             const debugPanel = this.debugPanel.addFolder({
-                title: '⬆️ Hydraulics',
+                title: '⬆️ Suspensions',
                 expanded: false,
             })
 
-            debugPanel.addBinding(this.hydraulics, 'low', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
-            debugPanel.addBinding(this.hydraulics, 'mid', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
-            debugPanel.addBinding(this.hydraulics, 'high', { min: 0, max: 2, step: 0.01 }).on('change', this.hydraulics.update)
+            debugPanel.addBinding(this.suspensions, 'low', { min: 0, max: 2, step: 0.01 }).on('change', this.suspensions.update)
+            debugPanel.addBinding(this.suspensions, 'mid', { min: 0, max: 2, step: 0.01 }).on('change', this.suspensions.update)
+            debugPanel.addBinding(this.suspensions, 'high', { min: 0, max: 2, step: 0.01 }).on('change', this.suspensions.update)
         }
     }
 
