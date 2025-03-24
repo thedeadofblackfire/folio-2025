@@ -293,16 +293,16 @@ export class PhysicsVehicle
         this.tornado.apply = () =>
         {
             const toTornado = this.game.tornado.position.clone().sub(this.position)
-            const distanceDistance = toTornado.length()
+            const distance = toTornado.length()
             
-            const strength = remapClamp(distanceDistance, 20, 2, 0, 1)
+            const strength = remapClamp(distance, 20, 2, 0, 1)
 
             const force = toTornado.clone().normalize()
 
-            const sideAngleStrength = remapClamp(distanceDistance, 8, 2, 0, Math.PI * 0.25)
+            const sideAngleStrength = remapClamp(distance, 8, 2, 0, Math.PI * 0.25)
             force.applyAxisAngle(new THREE.Vector3(0, 1, 0), -sideAngleStrength)
 
-            const flyForce = remapClamp(distanceDistance, 8, 2, 0, 1)
+            const flyForce = remapClamp(distance, 8, 2, 0, 1)
             force.y = flyForce * 2
 
             force.setLength(strength * this.game.ticker.deltaScaled * this.game.tornado.strength * 30)

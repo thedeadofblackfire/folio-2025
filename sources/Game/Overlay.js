@@ -32,7 +32,7 @@ export class Overlay
         {
             const debugPanel = this.game.debug.panel.addFolder({
                 title: '⬛️ Overlay',
-                expanded: true,
+                expanded: false,
             })
             this.game.debug.addThreeColorBinding(debugPanel, baseColor.value, 'color')
             debugPanel.addBinding(this.alpha, 'value', { min: 0, max: 1, step: 0.001 })

@@ -10,7 +10,7 @@ export class Tornado
     {
         this.game = Game.getInstance()
 
-        this.strength = 0
+        this.strength = 1
         this.resolution = 20
         this.position = new THREE.Vector3()
 

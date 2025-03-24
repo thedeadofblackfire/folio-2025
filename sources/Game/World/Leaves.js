@@ -1,7 +1,8 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { float, Fn, hash, instancedArray, instanceIndex, materialNormal, max, mod, modelViewMatrix, normalWorld, positionGeometry, rotateUV, sin, smoothstep, step, storage, texture, uniform, vec2, vec3, vec4 } from 'three/tsl'
+import { float, Fn, hash, instancedArray, instanceIndex, materialNormal, max, mod, modelViewMatrix, normalWorld, positionGeometry, remapClamp, rotateUV, sin, smoothstep, step, storage, texture, uniform, vec2, vec3, vec4 } from 'three/tsl'
 import { remap } from '../utilities/maths.js'
+import gsap from 'gsap'
 
 export class Leaves
 {
@@ -69,6 +70,7 @@ export class Leaves
         this.waterDamping = uniform(0.01)
         this.gravity = uniform(0.01)
         this.explosion = uniform(vec4(0))
+        this.tornado = uniform(vec4(0))
 
         // Buffers
         this.positionBuffer = instancedArray(this.count, 'vec3')
@@ -198,13 +200,30 @@ export class Leaves
             velocity.z.addAssign(this.game.wind.direction.y.mul(windStrength))
 
             // Explosion
-            const explosionDelta = position.sub(this.explosion.xyz)
+            const explosionDelta = position.xz.sub(this.explosion.xy)
             const distanceToExplosion = explosionDelta.length()
-            const explosionMultiplier = distanceToExplosion.remapClamp(2, 4, 0.2, 0)
-            const explosionDirection = vec3(explosionDelta.x, 0, explosionDelta.z)
+            const explosionMultiplier = distanceToExplosion.remapClamp(this.explosion.z.mul(0.5), this.explosion.z.mul(1), 0.2, 0)
+            const explosionDirection = vec2(explosionDelta.x, explosionDelta.y)
             const explosionPush = explosionDirection.mul(explosionMultiplier).mul(this.explosion.a).mul(inverseWeight)
             
-            velocity.addAssign(explosionPush)
+            velocity.addAssign(vec3(explosionPush.x, 0, explosionPush.y))
+
+            // //Tornado
+            // const toTornado = this.tornado.sub(position).toVar()
+            // const tornadoDistance = toTornado.length()
+            // const strength = remapClamp(tornadoDistance, 20, 2, 0, 1)
+            // const sideAngleStrength = remapClamp(tornadoDistance, 8, 2, 0, Math.PI * 0.25)
+
+            // const force = toTornado.clone().normalize()
+
+            // const sideAngleStrength = remapClamp(tornadoDistance, 8, 2, 0, Math.PI * 0.25)
+            // force.applyAxisAngle(new THREE.Vector3(0, 1, 0), -sideAngleStrength)
+
+            // const flyForce = remapClamp(tornadoDistance, 8, 2, 0, 1)
+            // force.y = flyForce * 2
+
+            // force.setLength(strength * this.game.ticker.deltaScaled * this.game.tornado.strength * 30)
+            // this.chassis.physical.body.applyImpulse(force)
 
             // Upward fly
             velocity.y = velocity.xz.length().mul(this.upwardMultiplier)
@@ -263,36 +282,33 @@ export class Leaves
     {
         this.game.explosions.events.on('explosion', (coordinates) =>
         {
-            this.explosion.value.x = coordinates.x
-            this.explosion.value.y = coordinates.y
-            this.explosion.value.z = coordinates.z
-            this.explosion.value.w = 1
-            // const direction = this.position.clone().sub(coordinates)
-            // direction.y = 0
-            // const distance = Math.hypot(direction.x, direction.z)
-
-            // const strength = remapClamp(distance, 1, 7, 1, 0)
-            // const impulse = direction.clone().normalize()
-            // impulse.y = 1
-            // impulse.setLength(strength * this.chassisMass * 4)
-
-            // if(strength > 0)
-            // {
-            //     const point = direction.negate().setLength(0).add(this.position)
-            //     requestAnimationFrame(() =>
-            //     {
-            //         this.chassis.physical.body.applyImpulseAtPoint(impulse, point)
-            //     })
-            // }
+            this.explosion.value.x = coordinates.x // X
+            this.explosion.value.y = coordinates.z // Z
+            this.explosion.value.z = 4 // Radius
+            this.explosion.value.w = 1 // Strength
         })
+        
+        const test = () =>
+        {
+            if(this.game.tornado.strength)
+            {
+                this.explosion.value.set(
+                    this.game.tornado.position.x + (Math.random() - 0.5) * 8,
+                    this.game.tornado.position.z + (Math.random() - 0.5) * 8,
+                    4,
+                    this.game.tornado.strength * Math.random() * 0.4
+                )
+            }
+        }
+        gsap.set(test, {delay: 0.1, onRepeat: test, repeat: -1, repeatDelay: 0.1})
     }
 
     update()
     {
         this.focusPoint.value.set(this.game.view.optimalArea.position.x, this.game.view.optimalArea.position.z)
 
-        this.vehicleVelocity.value.copy(this.game.player.velocity)
-        this.vehiclePosition.value.copy(this.game.player.position)
+        this.vehicleVelocity.value.copy(this.game.physicalVehicle.velocity)
+        this.vehiclePosition.value.copy(this.game.physicalVehicle.position)
         this.game.rendering.renderer.computeAsync(this.updateCompute)
 
         this.explosion.value.w = 0 // Reset potential explosion
