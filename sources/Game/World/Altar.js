@@ -23,17 +23,15 @@ export class Altar
         this.skullEyes = skullEyes
 
         this.colorBottom = uniform(color('#ff544d'))
-        this.colorTop = uniform(color('#ff1141'))
         this.emissiveBottom = uniform(8)
-        this.emissiveTop = uniform(2.7)
 
         this.setBeam()
         this.setBeamParticles()
         this.setCounter()
         this.setArea()
         this.setSkullEyes()
+        this.setData()
 
-        this.updateValue(1)
         this.updateSkullEyes(0)
 
         // // Faker
@@ -48,8 +46,6 @@ export class Altar
         {
             this.game.debug.addThreeColorBinding(this.debugPanel, this.colorBottom.value, 'colorBottom')
             this.debugPanel.addBinding(this.emissiveBottom, 'value', { label: 'emissiveBottom', min: 0, max: 10, step: 0.1 })
-            this.game.debug.addThreeColorBinding(this.debugPanel, this.colorTop.value, 'colorTop')
-            this.debugPanel.addBinding(this.emissiveTop, 'value', { label: 'emissiveTop', min: 0, max: 10, step: 0.1 })
         }
     }
 
@@ -75,7 +71,7 @@ export class Altar
             noise.addAssign(baseUv.y.mul(this.beamAttenuation.add(1)))
 
             // Emissive
-            const emissiveColor = mix(this.colorBottom.mul(this.emissiveBottom), this.colorTop.mul(this.emissiveTop), baseUv.y)
+            const emissiveColor = this.colorBottom.mul(this.emissiveBottom)
 
             // Goo
             const gooColor = this.game.fog.strength.mix(vec3(0), this.game.fog.color) // Fog
@@ -327,10 +323,38 @@ export class Altar
             {
                 this.animateBeam()
                 this.animateBeamParticles()
-                this.updateValue(this.value + 1)
+                this.data.insert()
                 this.game.player.die()
             }
         })
+    }
+
+    setData()
+    {
+        this.data = {}
+        
+        this.data.insert = () =>
+        {
+            this.game.server.send({
+                type: 'cataclysmInsert'
+            })
+        }
+
+        // Server message event
+        this.game.server.events.on('message', (data) =>
+        {
+            // Init and insert
+            if(data.type === 'init' || data.type === 'cataclysmUpdate')
+            {
+                this.updateValue(data.cataclysmCount)
+            }
+        })
+
+        // Init message already received
+        if(this.game.server.initData)
+        {
+            this.updateValue(this.game.server.initData.cataclysmCount)
+        }
     }
 
     setSkullEyes()
