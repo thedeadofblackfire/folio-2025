@@ -91,7 +91,10 @@ export class Bonfire
             InteractiveAreas.ALIGN_RIGHT,
             () =>
             {
-                this.game.player.respawn()
+                this.game.player.respawn(null, () =>
+                {
+                    this.game.entities.reset()
+                })
             }
         )
     }

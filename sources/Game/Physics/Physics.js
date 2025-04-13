@@ -76,9 +76,15 @@ export class Physics
         let rigidBodyDesc = RAPIER.RigidBodyDesc
         
         if(_physicalDescription.type === 'dynamic' || typeof _physicalDescription.type === 'undefined')
+        {
+            physical.type = 'dynamic'
             rigidBodyDesc = rigidBodyDesc.dynamic()
+        }
         else if(_physicalDescription.type === 'fixed')
+        {
+            physical.type = 'fixed'
             rigidBodyDesc = rigidBodyDesc.fixed()
+        }
 
         if(typeof _physicalDescription.position !== 'undefined')
             rigidBodyDesc.setTranslation(_physicalDescription.position.x, _physicalDescription.position.y, _physicalDescription.position.z)
@@ -147,6 +153,13 @@ export class Physics
 
             const collider = this.world.createCollider(colliderDescription, physical.body)
             physical.colliders.push(collider)
+        }
+
+        // Original transform
+        physical.initialState = {
+            position: { x: physical.body.translation().x, y: physical.body.translation().y, z: physical.body.translation().z },
+            rotation: physical.body.rotation(),
+            sleeping: physical.body.isSleeping() 
         }
 
         this.physicals.push(physical)

@@ -76,7 +76,7 @@ export class Entities
         // If sleeping, not enabled or fixed apply transform directly
         if(entity.visual && entity.physical)
         {
-            if(_physicalDescription.sleeping || !_physicalDescription.enabled || _physicalDescription.type === 'fixed')
+            if(_physicalDescription.sleeping || !_physicalDescription.enabled || entity.physical.type === 'fixed')
             {
                 entity.visual.position.copy(entity.physical.body.translation())
                 entity.visual.quaternion.copy(entity.physical.body.rotation())
@@ -140,6 +140,37 @@ export class Entities
                 colliders: colliders
             }
         )
+    }
+
+    reset()
+    {
+        this.list.forEach((entity) =>
+        {
+            if(entity.physical)
+            {
+                if(entity.physical.type === 'dynamic')
+                {
+                    entity.physical.body.setTranslation(entity.physical.initialState.position)
+                    entity.physical.body.setRotation(entity.physical.initialState.rotation)
+                    entity.physical.body.setLinvel({ x: 0, y: 0, z: 0 })
+                    entity.physical.body.setAngvel({ x: 0, y: 0, z: 0 })
+                    
+                    if(entity.physical.initialState.sleeping)
+                    {
+                        requestAnimationFrame(() =>
+                        {
+                            entity.physical.body.sleep()
+                        })
+                    }
+                    
+                    if(entity.visual)
+                    {
+                        entity.visual.position.copy(entity.physical.initialState.position)
+                        entity.visual.quaternion.copy(entity.physical.initialState.rotation)
+                    }
+                }
+            }
+        })
     }
 
     update()

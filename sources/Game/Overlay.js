@@ -69,10 +69,13 @@ export class Overlay
         }
     }
 
-    show()
+    show(callback)
     {
         this.inverted.value = 0
-        gsap.to(this.progress, { value: 1, ease: 'power4.out', overwrite: true, duration: 3 })
+        gsap.to(this.progress, { value: 1, ease: 'power4.out', overwrite: true, duration: 3, onComplete: () =>
+        {
+            callback()
+        } })
     }
 
     hide()

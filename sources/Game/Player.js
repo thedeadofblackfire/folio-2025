@@ -105,14 +105,17 @@ export class Player
         })
     }
 
-    respawn(respawnName = null)
+    respawn(respawnName = null, callback = null)
     {
-        this.game.overlay.show()
-
-        gsap.delayedCall(2, () =>
+        this.game.overlay.show(() =>
         {
+            if(typeof callback === 'function')
+                callback()
+            
+            // Find respawn
             let respawn = respawnName ? this.game.respawns.getByName(respawnName) : this.game.respawns.getClosest(this.position)
 
+            // Update physical vehicle
             this.game.physicalVehicle.moveTo(
                 respawn.position,
                 respawn.rotation
@@ -129,9 +132,7 @@ export class Player
         
         gsap.delayedCall(2, () =>
         {
-            this.respawn()
-
-            gsap.delayedCall(3, () =>
+            this.respawn(null, () =>
             {
                 this.state = Player.STATE_DEFAULT
             })
