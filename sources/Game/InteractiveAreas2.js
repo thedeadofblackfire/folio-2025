@@ -60,7 +60,7 @@ export class InteractiveAreas
 
         // Uniforms
         this.playerPosition = uniform(vec2())
-        this.backColor = uniform(color('#222222'))
+        this.backColor = uniform(color('#251f2b'))
         this.frontColor = uniform(color('#ffffff'))
 
         // Debug
