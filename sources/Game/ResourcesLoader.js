@@ -22,7 +22,7 @@ export class ResourcesLoader
         else if(_type === 'gltf')
         {
             const dracoLoader = new DRACOLoader()
-            dracoLoader.setDecoderPath('/draco/')
+            dracoLoader.setDecoderPath('./draco/')
             dracoLoader.preload()
             
             loader = new GLTFLoader()
