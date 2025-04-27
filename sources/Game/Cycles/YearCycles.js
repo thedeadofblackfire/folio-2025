@@ -5,7 +5,7 @@ export class YearCycles extends Cycles
 {
     constructor()
     {
-        const forcedProgress = import.meta.env.VITE_SERVER_YEAR_CYCLE_PROGRESS ? parseFloat(import.meta.env.VITE_SERVER_YEAR_CYCLE_PROGRESS) : null
+        const forcedProgress = import.meta.env.VITE_YEAR_CYCLE_PROGRESS ? parseFloat(import.meta.env.VITE_YEAR_CYCLE_PROGRESS) : null
         super('🕜 Year Cycles', 60 * 60 * 24 * 365, forcedProgress, false)
     }
 

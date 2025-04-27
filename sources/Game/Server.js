@@ -34,7 +34,7 @@ export class Server
 
     connect()
     {
-        this.socket = new WebSocket(import.meta.env.VITE_SERVER_SERVER_URL)
+        this.socket = new WebSocket(import.meta.env.VITE_SERVER_URL)
         this.socket.binaryType = 'arraybuffer'
 
         this.socket.addEventListener('open', () =>
