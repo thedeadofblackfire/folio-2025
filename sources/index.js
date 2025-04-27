@@ -1,3 +1,3 @@
-import { Game } from './Game/Game.js'
+// import { Game } from './Game/Game.js'
 
-window.game = new Game()
+// window.game = new Game()
