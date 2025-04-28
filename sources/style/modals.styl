@@ -54,12 +54,29 @@
         .message
             position relative
             background #251f2b
-            padding 0 15px 4px 15px
-            font-size 2.5rem
-            white-space nowrap
-            color #ffffff
-            border none
-            outline none
+            padding 0 4px 4px 4px
+
+            .text
+                font-size 2.5rem
+                white-space nowrap
+                color #ffffff
+                border none
+                outline none
+
+            .flag
+                position absolute
+                bottom calc(100% - 12px)
+                right -16px
+                width 54px
+                height 36px
+                background red
+                background-size cover
+                image-rendering pixelated
+                transform rotate(15deg)
+                display none
+
+                &.is-visible
+                    display block
 
         .background
             position absolute

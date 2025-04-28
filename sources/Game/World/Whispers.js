@@ -255,11 +255,12 @@ export class Whispers
         this.modal = {}
 
         const modalItem = this.game.modals.items.get('whispers')
-        this.modal.element = modalItem.element
-        this.modal.inputGroupElement = this.modal.element.querySelector('.js-input-group')
-        this.modal.inputElement = this.modal.inputGroupElement.querySelector('.js-input')
-        this.modal.previewMessageElement = this.modal.element.querySelector('.js-preview-message')
-        this.modal.offlineElement = this.modal.element.querySelector('.js-offline')
+        this.modal.container = modalItem.element
+        this.modal.inputGroup = this.modal.container.querySelector('.js-input-group')
+        this.modal.input = this.modal.inputGroup.querySelector('.js-input')
+        this.modal.previewMessage = this.modal.container.querySelector('.js-preview-message')
+        this.modal.previewMessageText = this.modal.previewMessage.querySelector('.js-text')
+        this.modal.offline = this.modal.container.querySelector('.js-offline')
 
         const sanatize = (text = '', trim = false, limit = false, stripEmojis = false) =>
         {
@@ -278,7 +279,7 @@ export class Whispers
 
         const submit = () =>
         {
-            const sanatized = sanatize(this.modal.inputElement.value, true, true, true)
+            const sanatized = sanatize(this.modal.input.value, true, true, true)
             
             if(sanatized.length && this.game.server.connected)
             {
@@ -298,42 +299,42 @@ export class Whispers
 
         const updateGroup = () =>
         {
-            if(this.modal.inputElement.value.length && this.game.server.connected)
-                this.modal.inputGroupElement.classList.add('is-valide')
+            if(this.modal.input.value.length && this.game.server.connected)
+                this.modal.inputGroup.classList.add('is-valide')
             else
-                this.modal.inputGroupElement.classList.remove('is-valide')
+                this.modal.inputGroup.classList.remove('is-valide')
         }
 
-        this.modal.inputElement.addEventListener('input', () =>
+        this.modal.input.addEventListener('input', () =>
         {
-            const sanatized = sanatize(this.modal.inputElement.value, false, true, true)
-            this.modal.previewMessageElement.textContent = sanatized.length ? sanatized : 'Your message here'
-            this.modal.inputElement.value = sanatized
+            const sanatized = sanatize(this.modal.input.value, false, true, true)
+            this.modal.previewMessageText.textContent = sanatized.length ? sanatized : 'Your message here'
+            this.modal.input.value = sanatized
             updateGroup()
         })
 
-        this.modal.previewMessageElement.addEventListener('input', (event) =>
+        this.modal.previewMessageText.addEventListener('input', (event) =>
         {
-            const sanatized = sanatize(this.modal.previewMessageElement.textContent, false, true, true)
-            this.modal.previewMessageElement.textContent = sanatized
-            this.modal.inputElement.value = sanatized
+            const sanatized = sanatize(this.modal.previewMessageText.textContent, false, true, true)
+            this.modal.previewMessageText.textContent = sanatized
+            this.modal.input.value = sanatized
             updateGroup()
         })
 
-        this.modal.previewMessageElement.addEventListener('blur', () =>
+        this.modal.previewMessageText.addEventListener('blur', () =>
         {
-            const sanatized = sanatize(this.modal.inputElement.value, true, true, true)
-            this.modal.previewMessageElement.textContent = sanatized !== '' ? sanatized : 'Your message here'
+            const sanatized = sanatize(this.modal.input.value, true, true, true)
+            this.modal.previewMessageText.textContent = sanatized !== '' ? sanatized : 'Your message here'
             updateGroup()
         })
 
-        this.modal.previewMessageElement.addEventListener('keydown', (event) =>
+        this.modal.previewMessageText.addEventListener('keydown', (event) =>
         {
             if(event.key === 'Enter')
                 submit()
         })
 
-        this.modal.inputGroupElement.addEventListener('submit', (event) =>
+        this.modal.inputGroup.addEventListener('submit', (event) =>
         {
             event.preventDefault()
 
@@ -342,25 +343,25 @@ export class Whispers
 
         modalItem.events.on('closed', () =>
         {
-            this.modal.previewMessageElement.textContent = 'Your message here'
-            this.modal.inputElement.value = ''
+            this.modal.previewMessageText.textContent = 'Your message here'
+            this.modal.input.value = ''
             updateGroup()
             closeFlagSelect()
         })
 
         // Server connect / disconnect
         if(this.game.server.connected)
-            this.modal.offlineElement.style.display = 'none'
+            this.modal.offline.style.display = 'none'
             
         this.game.server.events.on('connected', () =>
         {
-            this.modal.offlineElement.style.display = 'none'
+            this.modal.offline.style.display = 'none'
             updateGroup()
         })
 
         this.game.server.events.on('disconnected', () =>
         {
-            this.modal.offlineElement.style.display = 'block'
+            this.modal.offline.style.display = 'block'
             updateGroup()
         })
 
@@ -368,32 +369,39 @@ export class Whispers
          * Flag
          */
         // Setup
-        this.modal.inputFlag = this.modal.inputGroupElement.querySelector('.js-input-flag')
+        this.modal.inputFlag = this.modal.inputGroup.querySelector('.js-input-flag')
         this.modal.flagButton = this.modal.inputFlag.querySelector('.js-flag-button')
         this.modal.flag = this.modal.flagButton.querySelector('.js-flag')
         this.modal.flagSelect = this.modal.inputFlag.querySelector('.js-flag-select')
         this.modal.flagClose = this.modal.inputFlag.querySelector('.js-flag-close')
         this.modal.flagSearch = this.modal.inputFlag.querySelector('.js-flag-search')
         this.modal.flagRemove = this.modal.inputFlag.querySelector('.js-flag-remove')
-        this.modal.noResult = this.modal.inputFlag.querySelector('.js-no-result')
-        this.modal.flagsSelectOpen = false
+        this.modal.flagNoResult = this.modal.inputFlag.querySelector('.js-no-result')
+        this.modal.previewMessageFlag = this.modal.previewMessage.querySelector('.js-flag')
 
+        this.modal.flagsSelectOpen = false
         this.modal.flagActive = null
 
         // Select
         const selectFlag = (country = null) =>
         {
+            // Selected a flag
             if(country)
             {
                 this.modal.flagActive = country
                 this.modal.flag.src = country.imageUrl
                 this.modal.flagButton.classList.add('has-flag')
+                this.modal.previewMessageFlag.classList.add('is-visible')
+                this.modal.previewMessageFlag.style.backgroundImage = `url(${country.imageUrl})`
                 localStorage.setItem('countryCode', country.code)
             }
+
+            // Selected no flag
             else
             {
                 this.modal.flagActive = null
                 this.modal.flagButton.classList.remove('has-flag')
+                this.modal.previewMessageFlag.classList.remove('is-visible')
                 localStorage.removeItem('countryCode')
             }
 
@@ -462,9 +470,9 @@ export class Whispers
 
             // No result
             if(!found)
-                this.modal.noResult.classList.add('is-visible')
+                this.modal.flagNoResult.classList.add('is-visible')
             else
-                this.modal.noResult.classList.remove('is-visible')
+                this.modal.flagNoResult.classList.remove('is-visible')
         }
 
         this.modal.flagSearch.addEventListener('input', () =>
