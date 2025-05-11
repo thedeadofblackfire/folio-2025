@@ -8,6 +8,10 @@ export class InteractiveAreas
     static ALIGN_LEFT = 1
     static ALIGN_RIGHT = 2
 
+    static STATE_HIDDEN = 3
+    static STATE_OPEN = 4
+    static STATE_CLOSED = 5
+
     constructor()
     {
         this.game = Game.getInstance()
@@ -33,10 +37,10 @@ export class InteractiveAreas
 
         this.game.inputs.events.on('interact', (event) =>
         {
-            if(event.down && this.activeItem)
+            if(event.down && this.activeItem && this.activeItem.state !== InteractiveAreas.STATE_HIDDEN)
             {
-                this.activeItem.callback()
                 this.activeItem.interact()
+                this.activeItem.callback()
             }
         })
     }
@@ -238,10 +242,33 @@ export class InteractiveAreas
         item.position = new THREE.Vector2(position.x, position.z)
         item.callback = callback
         item.isIn = false
+        item.state = InteractiveAreas.STATE_OPEN
+
+        // Hide
+        item.hide = () =>
+        {
+            item.state = InteractiveAreas.STATE_HIDDEN
+
+            gsap.to(threshold, { value: 0, ease: 'back.in(4.5)', duration: 0.6, overwrite: true })
+            gsap.to(lineThickness, { value: 0.150, ease: 'back.in(4.5)', duration: 0.6, overwrite: true })
+            gsap.to(lineOffset, { value: 0.175, ease: 'back.in(4.5)', duration: 0.6, overwrite: true, onComplete: () =>
+            {
+                diamond.visible = false
+                key.visible = false
+                label.visible = false
+            } })
+
+            gsap.to(key.scale, { x: 0, y: 0, z: 0, ease: 'back.in(4.5)', duration: 0.6, overwrite: true })
+
+            gsap.to(labelOffset, { value: 1, ease: 'power2.in', duration: 0.6, overwrite: true })
+        }
 
         // Open
         item.open = () =>
         {
+            item.state = InteractiveAreas.STATE_OPEN
+
+            diamond.visible = true
             key.visible = true
             label.visible = true
 
@@ -254,8 +281,13 @@ export class InteractiveAreas
             gsap.to(labelOffset, { value: 0, ease: 'power2.out', duration: 0.6, delay: 0.2, overwrite: true })
         }
 
+        // Close
         item.close = () =>
         {
+            item.state = InteractiveAreas.STATE_CLOSED
+            
+            diamond.visible = true
+
             gsap.to(threshold, { value: 0.250, ease: 'back.in(4.5)', duration: 0.6, delay: 0.2, overwrite: true })
             gsap.to(lineThickness, { value: 0.150, ease: 'back.in(4.5)', duration: 0.6, delay: 0.2, overwrite: true })
             gsap.to(lineOffset, { value: 0.175, ease: 'back.in(4.5)', duration: 0.6, delay: 0.2, overwrite: true, onComplete: () =>
@@ -269,6 +301,7 @@ export class InteractiveAreas
             gsap.to(labelOffset, { value: 1, ease: 'power2.in', duration: 0.6, overwrite: true })
         }
 
+        // Interact
         item.interact = () =>
         {
             gsap.to(threshold, { value: 0.6, ease: 'power2.out', duration: 0.1, overwrite: true, onComplete: () =>
@@ -288,6 +321,8 @@ export class InteractiveAreas
             this.debugPanel.addBinding(lineOffset, 'value', { label: 'lineOffset', min: 0, max: 1, step: 0.001 })
             this.debugPanel.addBinding(labelOffset, 'value', { label: 'labelOffset', min: 0, max: 1, step: 0.001 })
         }
+
+        return item
     }
 
     update()
@@ -297,23 +332,26 @@ export class InteractiveAreas
 
         for(const item of this.items)
         {
-            const isIn = Math.abs(item.position.x - playerPosition2.x) < 2 && Math.abs(item.position.y - playerPosition2.y) < 2
-
-            if(isIn !== item.isIn)
+            if(!item.state !== InteractiveAreas.STATE_HIDDEN)
             {
-                item.isIn = isIn
+                const isIn = Math.abs(item.position.x - playerPosition2.x) < 2 && Math.abs(item.position.y - playerPosition2.y) < 2
 
-                if(isIn)
+                if(isIn !== item.isIn)
                 {
-                    this.activeItem = item
+                    item.isIn = isIn
 
-                    item.open()
-                }
-                else
-                {
-                    this.activeItem = null
+                    if(isIn)
+                    {
+                        this.activeItem = item
 
-                    item.close()
+                        item.open()
+                    }
+                    else
+                    {
+                        this.activeItem = null
+
+                        item.close()
+                    }
                 }
             }
         }

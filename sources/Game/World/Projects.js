@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu'
 import { Fn, normalWorld, texture } from 'three/tsl'
 import { Game } from '../Game.js'
 import { InteractiveAreas } from '../InteractiveAreas.js'
+import gsap from 'gsap'
 
 export class Projects
 {
@@ -35,7 +36,7 @@ export class Projects
 
     setInteractiveArea()
     {
-        this.game.interactiveAreas.create(
+        this.interactiveArea = this.game.interactiveAreas.create(
             this.interactiveAreaPosition,
             'Projects',
             InteractiveAreas.ALIGN_RIGHT,
@@ -109,6 +110,9 @@ export class Projects
 
         // View cinematic
         this.game.view.cinematic.start(this.cinematic.position, this.cinematic.target)
+
+        // Interactive area
+        this.interactiveArea.hide()
     }
 
     close()
@@ -123,6 +127,12 @@ export class Projects
 
         // View cinematic
         this.game.view.cinematic.end()
+
+        // Interactive area
+        gsap.delayedCall(1, () =>
+        {
+            this.interactiveArea.open()
+        })
     }
 
     previous()
