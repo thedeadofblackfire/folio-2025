@@ -82,7 +82,8 @@ export class TextWrapper
         let i = 0
         for(const line of this.lines)
         {
-            const y = this.height / (this.lines.length + 1) * (i + 1)
+            // const y = this.height / (this.lines.length + 1) * (i + 1)
+            const y = this.height / 2 + (i - (this.lines.length - 1) / 2) * this.lineHeight
 
             let x = null
             if(this.horizontalAlign === 'center')

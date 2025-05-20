@@ -195,6 +195,8 @@ export class Projects
     setImages()
     {
         this.images = {}
+        this.images.width = 1920 * 0.5
+        this.images.height = 1080 * 0.5
         this.images.index = 0
         this.images.direction = Projects.DIRECTION_NEXT
 
@@ -207,20 +209,26 @@ export class Projects
 
         // Textures (based on dummy image first)
         const dummyImageOld = new Image()
-        dummyImageOld.width = 1920
-        dummyImageOld.height = 1080
+        dummyImageOld.width = this.images.width
+        dummyImageOld.height = this.images.height
 
         const dummyImageNew = new Image()
-        dummyImageNew.width = 1920
-        dummyImageNew.height = 1080
+        dummyImageNew.width = this.images.width
+        dummyImageNew.height = this.images.height
 
         this.images.textureOld = new THREE.Texture(dummyImageOld)
         this.images.textureOld.colorSpace = THREE.SRGBColorSpace
         this.images.textureOld.flipY = false
+        this.images.textureOld.magFilter = THREE.LinearFilter
+        this.images.textureOld.minFilter = THREE.LinearFilter
+        this.images.textureOld.generateMipmaps = false
         
         this.images.textureNew = new THREE.Texture(dummyImageNew)
         this.images.textureNew.colorSpace = THREE.SRGBColorSpace
         this.images.textureNew.flipY = false
+        this.images.textureNew.magFilter = THREE.LinearFilter
+        this.images.textureNew.minFilter = THREE.LinearFilter
+        this.images.textureNew.generateMipmaps = false
 
         this.images.oldResource = this.images.textureNew.source
         
@@ -327,8 +335,8 @@ export class Projects
 
                 // Image
                 resource.image = new Image()
-                resource.image.width = 1920
-                resource.image.height = 1080
+                resource.image.width = this.images.width
+                resource.image.height = this.images.height
 
                 // Source
                 resource.source = new THREE.Source(resource.image)
@@ -492,11 +500,12 @@ export class Projects
             item.textWrapper = new TextWrapper(
                 this.texts.fontFamily,
                 this.texts.fontWeight,
-                this.texts.fontSizeMultiplier * 0.25,
+                this.texts.fontSizeMultiplier * 0.23,
                 1.4,
                 0.45,
                 this.texts.density,
-                'center'
+                'center',
+                0.2
             )
 
             this.texts.createMaterialOnMesh(textMesh, item.textWrapper.texture)
@@ -564,7 +573,8 @@ export class Projects
             1.25,
             0.75,
             this.texts.density,
-            'center'
+            'center',
+            0.3
         )
         this.texts.createMaterialOnMesh(this.adjacents.previous.textMesh, this.adjacents.previous.textWrapper.texture)
         
@@ -593,7 +603,8 @@ export class Projects
             1.25,
             0.75,
             this.texts.density,
-            'center'
+            'center',
+            0.3
         )
         this.texts.createMaterialOnMesh(this.adjacents.next.textMesh, this.adjacents.next.textWrapper.texture)
 
