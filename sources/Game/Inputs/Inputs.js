@@ -71,6 +71,21 @@ export class Inputs
     setPointer()
     {
         this.pointer = new Pointer(this.game.domElement)
+
+        this.pointer.events.on('down', () =>
+        {
+            this.start('Pointer.any', { x: this.pointer.current.x, y: this.pointer.current.y })
+        })
+
+        this.pointer.events.on('up', () =>
+        {
+            this.end('Pointer.any', { x: this.pointer.current.x, y: this.pointer.current.y })
+        })
+
+        this.pointer.events.on('move', () =>
+        {
+            this.change('Pointer.any', { x: this.pointer.current.x, y: this.pointer.current.y })
+        })
     }
 
     setWheel()
@@ -95,6 +110,7 @@ export class Inputs
             const formatedAction = {...action}
             formatedAction.active = false
             formatedAction.value = 0
+            formatedAction.trigger = null
             formatedAction.activeKeys = new Set()
 
             this.actions.set(action.name, formatedAction)
@@ -132,6 +148,7 @@ export class Inputs
             {
                 action.value = value
                 action.activeKeys.add(key)
+                action.trigger = 'start'
 
                 // Can be active or inactive => trigger event only on change
                 if(isToggle)
@@ -155,7 +172,7 @@ export class Inputs
         }
     }
 
-    end(key)
+    end(key, value = 0)
     {
         const filteredActions = [...this.actions.values()].filter((_action) => _action.keys.indexOf(key) !== - 1 )
             
@@ -168,7 +185,9 @@ export class Inputs
                 if(action.activeKeys.size === 0)
                 {
                     action.active = false
-                    action.value = 0
+                    action.value = value
+                    action.trigger = 'end'
+
                     this.events.trigger('actionEnd', [ action ])
                     this.events.trigger(action.name, [ action ])
                 }
@@ -182,10 +201,37 @@ export class Inputs
             
         for(const action of filteredActions)
         {
-            if(action && action.active && this.checkCategory(action) && action.value !== value)
+            if(action && this.checkCategory(action))
             {
-                action.value = value
-                this.events.trigger('actionChange', [ action ])
+                // Test if value has changed
+                // - number => Direct comparaison
+                // - object => Every property comparaison
+                let hasChanged = false
+
+                if(typeof value === 'number')
+                {
+                    if(action.value !== value)
+                        hasChanged = true
+                }
+                else if(typeof value === 'object')
+                {
+                    const keys = Object.keys(value)
+
+                    for(const key of keys)
+                    {
+                        if(action.value[key] !== value[key])
+                            hasChanged = true
+                    }
+                }
+
+                if(hasChanged)
+                {
+                    action.value = value
+                    action.trigger = 'change'
+
+                    this.events.trigger('actionChange', [ action ])
+                    this.events.trigger(action.name, [ action ])
+                }
             }
         }
     }

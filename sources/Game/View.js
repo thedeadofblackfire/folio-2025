@@ -51,6 +51,7 @@ export class View
         this.setFree()
         this.setCinematic()
         this.setSpeedLines()
+        this.setMapControls()
 
         this.game.ticker.events.on('tick', () =>
         {
@@ -105,9 +106,30 @@ export class View
         this.focusPoint.position = new THREE.Vector3()
         this.focusPoint.smoothedPosition = new THREE.Vector3()
 
-        this.game.inputs.events.on('actionStart', () =>
+        const focusActionsNames = [
+            'forward',
+            'right',
+            'backward',
+            'left',
+            'boost',
+            'brake',
+            'respawn',
+            'suspensions',
+            'suspensionsFront',
+            'suspensionsBack',
+            'suspensionsRight',
+            'suspensionsLeft',
+            'suspensionsFrontLeft',
+            'suspensionsFrontRight',
+            'suspensionsBackRight',
+            'suspensionsBackLeft',
+            'interact',
+            'whisper'
+        ]
+        this.game.inputs.events.on('actionStart', (action) =>
         {
-            this.focusPoint.isTracking = true
+            if(focusActionsNames.indexOf(action.name) !== -1)
+                this.focusPoint.isTracking = true
         })
 
         this.focusPoint.helper = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicNodeMaterial({ color: '#ff0000', wireframe: true }))
@@ -460,42 +482,56 @@ export class View
         this.freeCamera.updateProjectionMatrix()
     }
 
-    update()
+    setMapControls()
     {
-        // Default mode
-        if(this.mode === View.DEFAULT_MODE)
-        {
-            // Focus point
-            if(this.game.inputs.pointer.isDown)
-            {
-                if(this.game.inputs.pointer.type === 'mouse' || this.game.inputs.pointer.touchesLength >= 2)
-                {
-                    this.focusPoint.isTracking = false
-                    
-                    const mapMovement = new THREE.Vector2(this.game.inputs.pointer.delta.x, this.game.inputs.pointer.delta.y)                    
-                    mapMovement.rotateAround(new THREE.Vector2(), -this.spherical.theta)
+        this.game.inputs.addActions([
+            { name: 'viewMapPointer', categories: [ 'playing' ], keys: [ 'Pointer.any' ] },
+        ])
 
-                    const smallestSide = Math.min(this.game.viewport.width, this.game.viewport.height)
-                    mapMovement.multiplyScalar(10 / smallestSide)
-                    
-                    this.focusPoint.position.x -= mapMovement.x
-                    this.focusPoint.position.z -= mapMovement.y
+        this.game.inputs.events.on('viewMapPointer', (action) =>
+        {
+            if(this.mode === View.DEFAULT_MODE)
+            {
+                // Focus point
+                if(action.active)
+                {
+                    if(this.game.inputs.pointer.type === 'mouse' || this.game.inputs.pointer.touchesLength >= 2)
+                    {
+                        this.focusPoint.isTracking = false
+                        
+                        const mapMovement = new THREE.Vector2(this.game.inputs.pointer.delta.x, this.game.inputs.pointer.delta.y)                    
+                        mapMovement.rotateAround(new THREE.Vector2(), -this.spherical.theta)
+
+                        const smallestSide = Math.min(this.game.viewport.width, this.game.viewport.height)
+                        mapMovement.multiplyScalar(10 / smallestSide)
+                        
+                        this.focusPoint.position.x -= mapMovement.x
+                        this.focusPoint.position.z -= mapMovement.y
+                    }
                 }
             }
+        })
 
-            if(this.game.inputs.gamepad.joysticks.items.right.active)
-            {
-                this.focusPoint.isTracking = false
 
-                const mapMovement = new THREE.Vector2(this.game.inputs.gamepad.joysticks.items.right.x, this.game.inputs.gamepad.joysticks.items.right.y)
-                mapMovement.rotateAround(new THREE.Vector2(), -this.spherical.theta)
-                mapMovement.multiplyScalar(20 * this.game.ticker.delta)
+        // Default mode
+        // if(this.mode === View.DEFAULT_MODE)
+        // {
+        //     if(this.game.inputs.gamepad.joysticks.items.right.active)
+        //     {
+        //         this.focusPoint.isTracking = false
 
-                this.focusPoint.position.x += mapMovement.x
-                this.focusPoint.position.z += mapMovement.y
-            }
-        }
+        //         const mapMovement = new THREE.Vector2(this.game.inputs.gamepad.joysticks.items.right.x, this.game.inputs.gamepad.joysticks.items.right.y)
+        //         mapMovement.rotateAround(new THREE.Vector2(), -this.spherical.theta)
+        //         mapMovement.multiplyScalar(20 * this.game.ticker.delta)
 
+        //         this.focusPoint.position.x += mapMovement.x
+        //         this.focusPoint.position.z += mapMovement.y
+        //     }
+        // }
+    }
+
+    update()
+    {
         // Focus point
         if(this.focusPoint.isTracking)
         {

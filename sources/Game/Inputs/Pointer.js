@@ -15,7 +15,7 @@ export class Pointer
         this.type = 'mouse'
         this.upcomingDown = false
         this.hasMoved = false
-        this.hasClicked = false
+        this.hasDowned = false
         this.hasReleased = false
         this.touchesLength = 0
 
@@ -124,7 +124,7 @@ export class Pointer
 
         this.hasMoved = this.delta.x !== 0 || this.delta.y !== 0
 
-        this.hasClicked = false
+        this.hasDowned = false
         this.hasReleased = false
         
         if(this.upcomingDown !== this.isDown)
@@ -132,9 +132,20 @@ export class Pointer
             this.isDown = this.upcomingDown
 
             if(this.isDown)
-                this.hasClicked = true
+            {
+                this.hasDowned = true
+                this.events.trigger('down')
+            }
             else
+            {
                 this.hasReleased = true
+                this.events.trigger('up')
+            }
+        }
+
+        if(this.hasMoved)
+        {
+            this.events.trigger('move')
         }
     }
 }
