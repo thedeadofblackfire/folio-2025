@@ -1,12 +1,10 @@
-import normalizeWheel from 'normalize-wheel'
-import * as THREE from 'three/webgpu'
-
 import { Events } from '../Events.js'
 import { Game } from '../Game.js'
 import { Gamepad } from './Gamepad.js'
 import { Pointer } from './Pointer.js'
 import Keyboard from './Keyboard.js'
 import { Nipple } from './Nipple.js'
+import { Wheel } from './Wheel.js'
 
 export class Inputs
 {
@@ -41,12 +39,12 @@ export class Inputs
 
         this.keyboard.events.on('down', (key) =>
         {
-            this.down(`Keyboard.${key}`)
+            this.start(`Keyboard.${key}`)
         })
 
         this.keyboard.events.on('up', (key) =>
         {
-            this.up(`Keyboard.${key}`)
+            this.end(`Keyboard.${key}`)
         })
     }
 
@@ -56,12 +54,12 @@ export class Inputs
 
         this.gamepad.events.on('down', (key) =>
         {
-            this.down(`Gamepad.${key.name}`, key.value)
+            this.start(`Gamepad.${key.name}`, key.value)
         })
 
         this.gamepad.events.on('up', (key) =>
         {
-            this.up(`Gamepad.${key.name}`)
+            this.end(`Gamepad.${key.name}`)
         })
 
         this.gamepad.events.on('change', (key) =>
@@ -77,20 +75,12 @@ export class Inputs
 
     setWheel()
     {
-        addEventListener('wheel', (_event) =>
+        this.wheel = new Wheel()
+
+        this.wheel.events.on('roll', (value) =>
         {
-            const filteredActions = [...this.actions.values()].filter((_action) => _action.keys.indexOf('wheel') !== - 1 )
-            
-            for(const action of filteredActions)
-            {
-                if(this.checkCategory(action))
-                {
-                    const normalized = normalizeWheel(_event)
-                    action.value = normalized.spinY
-                    this.events.trigger(action.name, [ action ])
-                }
-            }
-        }, { passive: true })
+            this.start('Wheel.roll', value, false)
+        })
     }
 
     setNipple()
@@ -132,7 +122,7 @@ export class Inputs
         return false
     }
 
-    down(key, value = 1)
+    start(key, value = 1, isToggle = true)
     {
         const filteredActions = [...this.actions.values()].filter((_action) => _action.keys.indexOf(key) !== - 1 )
             
@@ -143,10 +133,21 @@ export class Inputs
                 action.value = value
                 action.activeKeys.add(key)
 
-                if(!action.active)
+                // Can be active or inactive => trigger event only on change
+                if(isToggle)
                 {
-                    action.active = true
-                    
+                    if(!action.active)
+                    {
+                        action.active = true
+                        
+                        this.events.trigger('actionStart', [ action ])
+                        this.events.trigger(action.name, [ action ])
+                    }
+                }
+
+                // Trigger event whenever action starts (no "end")
+                else
+                {
                     this.events.trigger('actionStart', [ action ])
                     this.events.trigger(action.name, [ action ])
                 }
@@ -154,7 +155,7 @@ export class Inputs
         }
     }
 
-    up(key)
+    end(key)
     {
         const filteredActions = [...this.actions.values()].filter((_action) => _action.keys.indexOf(key) !== - 1 )
             
@@ -184,6 +185,7 @@ export class Inputs
             if(action && action.active && this.checkCategory(action) && action.value !== value)
             {
                 action.value = value
+                this.events.trigger('actionChange', [ action ])
             }
         }
     }

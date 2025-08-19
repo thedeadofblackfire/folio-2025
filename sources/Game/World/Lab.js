@@ -934,7 +934,7 @@ export class Lab
 
         // Inputs
         this.game.inputs.addActions([
-            { name: 'scroll', categories: [ 'cinematic' ], keys: [ 'wheel' ] }
+            { name: 'scroll', categories: [ 'cinematic' ], keys: [ 'Wheel.roll' ] }
         ])
 
         this.game.inputs.events.on('scroll', (action) =>

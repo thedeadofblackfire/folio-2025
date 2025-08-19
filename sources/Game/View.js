@@ -221,7 +221,7 @@ export class View
         this.zoom.sensitivity = 0.05
 
         this.game.inputs.addActions([
-            { name: 'zoom',    categories: [ 'playing' ], keys: [ 'wheel' ] },
+            { name: 'zoom',    categories: [ 'playing' ], keys: [ 'Wheel.roll' ] },
             { name: 'zoomIn',  categories: [ 'playing' ], keys: [ 'Gamepad.joystickRight' ] },
             { name: 'zoomOut', categories: [ 'playing' ], keys: [ 'Gamepad.joystickLeft' ] },
         ])
