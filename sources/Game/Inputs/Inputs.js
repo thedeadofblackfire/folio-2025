@@ -8,6 +8,10 @@ import { Wheel } from './Wheel.js'
 
 export class Inputs
 {
+    static MODE_MOUSEKEYBOARD = 1
+    static MODE_GAMEPAD = 2
+    static MODE_TOUCH = 3
+
     constructor(actions = [], filters = [])
     {
         this.game = Game.getInstance()
@@ -15,6 +19,7 @@ export class Inputs
 
         this.actions = new Map()
         this.filters = new Set()
+        this.mode = Inputs.MODE_MOUSEKEYBOARD
 
         this.setKeyboard()
         this.setGamepad()
@@ -39,11 +44,13 @@ export class Inputs
 
         this.keyboard.events.on('down', (key) =>
         {
+            this.updateMode(Inputs.MODE_MOUSEKEYBOARD)
             this.start(`Keyboard.${key}`)
         })
 
         this.keyboard.events.on('up', (key) =>
         {
+            this.updateMode(Inputs.MODE_MOUSEKEYBOARD)
             this.end(`Keyboard.${key}`)
         })
     }
@@ -54,16 +61,19 @@ export class Inputs
 
         this.gamepad.events.on('down', (key) =>
         {
+            this.updateMode(Inputs.MODE_GAMEPAD)
             this.start(`Gamepad.${key.name}`, key.value)
         })
 
         this.gamepad.events.on('up', (key) =>
         {
+            this.updateMode(Inputs.MODE_GAMEPAD)
             this.end(`Gamepad.${key.name}`)
         })
 
         this.gamepad.events.on('change', (key) =>
         {
+            this.updateMode(Inputs.MODE_GAMEPAD)
             this.change(`Gamepad.${key.name}`, key.value)
         })
 
@@ -79,11 +89,13 @@ export class Inputs
 
         this.pointer.events.on('down', () =>
         {
+            this.updateMode(this.pointer.mode === Pointer.MODE_MOUSE ? Inputs.MODE_MOUSEKEYBOARD : Inputs.MODE_TOUCH)
             this.start('Pointer.any', { x: this.pointer.current.x, y: this.pointer.current.y })
         })
 
         this.pointer.events.on('up', () =>
         {
+            this.updateMode(this.pointer.mode === Pointer.MODE_MOUSE ? Inputs.MODE_MOUSEKEYBOARD : Inputs.MODE_TOUCH)
             this.end('Pointer.any', { x: this.pointer.current.x, y: this.pointer.current.y })
         })
 
@@ -99,6 +111,7 @@ export class Inputs
 
         this.wheel.events.on('roll', (value) =>
         {
+            this.updateMode(Inputs.MODE_MOUSEKEYBOARD)
             this.start('Wheel.roll', value, false)
         })
     }
@@ -239,6 +252,15 @@ export class Inputs
                 }
             }
         }
+    }
+
+    updateMode(mode)
+    {
+        if(mode === this.mode)
+            return
+
+        this.mode = mode
+        this.events.trigger('modeChange', [this.mode])
     }
 
     update()

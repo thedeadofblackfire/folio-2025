@@ -3,6 +3,9 @@ import { Events } from '../Events.js'
 
 export class Pointer
 {
+    static MODE_MOUSE = 1
+    static MODE_TOUCH = 2
+
     constructor(element)
     {
         this.element = element
@@ -12,7 +15,7 @@ export class Pointer
         this.delta = { x: 0, y: 0 }
         this.upcoming = { x: 0, y: 0 }
         this.isDown = false
-        this.type = 'mouse'
+        this.mode = Pointer.MODE_MOUSE
         this.upcomingDown = false
         this.hasMoved = false
         this.hasDowned = false
@@ -23,7 +26,7 @@ export class Pointer
         {
             _event.preventDefault()
 
-            this.type = 'mouse'
+            this.mode = Pointer.MODE_MOUSE
             
             this.upcoming.x = _event.clientX
             this.upcoming.y = _event.clientY
@@ -33,7 +36,7 @@ export class Pointer
         {
             _event.preventDefault()
 
-            this.type = 'mouse'
+            this.mode = Pointer.MODE_MOUSE
 
             this.upcomingDown = true
 
@@ -54,7 +57,7 @@ export class Pointer
         {
             _event.preventDefault()
 
-            this.type = 'touch'
+            this.mode = Pointer.MODE_TOUCH
             
             let x = 0
             let y = 0
@@ -75,7 +78,7 @@ export class Pointer
         {
             _event.preventDefault()
 
-            this.type = 'touch'
+            this.mode = Pointer.MODE_TOUCH
 
             this.upcomingDown = true
 

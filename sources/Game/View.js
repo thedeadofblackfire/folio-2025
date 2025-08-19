@@ -4,6 +4,7 @@ import { Game } from './Game.js'
 import { clamp, lerp, smoothstep } from './utilities/maths.js'
 import { mix, uniform, vec4, Fn, positionGeometry, attribute } from 'three/tsl'
 import gsap from 'gsap'
+import { Pointer } from './Inputs/Pointer.js'
 
 CameraControls.install( { THREE: THREE } )
 
@@ -496,7 +497,7 @@ export class View
                 // Focus point
                 if(action.active)
                 {
-                    if(this.game.inputs.pointer.type === 'mouse' || this.game.inputs.pointer.touchesLength >= 2)
+                    if(this.game.inputs.pointer.type === Pointer.MODE_MOUSE || this.game.inputs.pointer.touchesLength >= 2)
                     {
                         this.focusPoint.isTracking = false
                         
