@@ -42,7 +42,11 @@ export class Overlay
             const mask = patternMask.add(strokeMask.mul(0.2)).mul(1 / (1 + 0.2))
 
             // Diagonal
-            const diagonalRatio = screenUV.length().div(1.414) // Hypot 1, 1
+            const diagonalRatio = screenUV.length().div(1.414).toVar() // Hypot 1, 1
+            If(this.inverted.greaterThan(0.5), () =>
+            {
+                diagonalRatio.assign(diagonalRatio.oneMinus())
+            })
             const diagonalProgress = this.progress.sub(diagonalRatio.mul(diagonalAmplitude)).mul(diagonalInvertMultipilier)
 
             // Discard
@@ -93,7 +97,7 @@ export class Overlay
     {
         this.inverted.value = 0
         this.mesh.visible = true
-        gsap.to(this.progress, { value: 1, ease: 'power1.inOut', overwrite: true, duration: 4, onComplete: () =>
+        gsap.to(this.progress, { value: 1, ease: 'power1.inOut', overwrite: true, duration: 2, onComplete: () =>
         {
             if(typeof callback === 'function')
                 callback()
