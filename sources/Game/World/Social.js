@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { InteractiveAreas } from '../InteractiveAreas.js'
+import { InteractivePoints } from '../InteractivePoints.js'
 import socialData from '../../data/social.js'
 
 export class Social
@@ -37,25 +37,25 @@ export class Social
             position.y = 1
             position.z -= Math.sin(angle) * radius
 
-            this.interactiveArea = this.game.interactiveAreas.create(
+            this.interactiveArea = this.game.interactivePoints.create(
                 position,
                 link.name,
-                link.align === 'left' ? InteractiveAreas.ALIGN_LEFT : InteractiveAreas.ALIGN_RIGHT,
+                link.align === 'left' ? InteractivePoints.ALIGN_LEFT : InteractivePoints.ALIGN_RIGHT,
                 () =>
                 {
                     window.open(link.url, '_blank')
                 },
                 () =>
                 {
-                    this.game.inputs.touchButtons.addItems(['interact'])
+                    this.game.inputs.interactiveButtons.addItems(['interact'])
                 },
                 () =>
                 {
-                    this.game.inputs.touchButtons.removeItems(['interact'])
+                    this.game.inputs.interactiveButtons.removeItems(['interact'])
                 },
                 () =>
                 {
-                    this.game.inputs.touchButtons.removeItems(['interact'])
+                    this.game.inputs.interactiveButtons.removeItems(['interact'])
                 }
             )
             

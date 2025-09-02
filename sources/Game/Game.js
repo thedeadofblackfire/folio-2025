@@ -32,7 +32,7 @@ import { PhysicsWireframe } from './Physics/PhysicsWireframe.js'
 import { Areas } from './Areas.js'
 import { Overlay } from './Overlay.js'
 import { Tornado } from './Tornado.js'
-import { InteractiveAreas } from './InteractiveAreas.js'
+import { InteractivePoints } from './InteractivePoints.js'
 import { Respawns } from './Respawns.js'
 import { Audio } from './Audio.js'
 import { ClosingManager } from './ClosingManager.js'
@@ -92,8 +92,8 @@ export class Game
                     [ 'tornadoPathModel',                     'tornado/tornadoPath.glb',                      'gltf'    ],
                     [ 'overlayPatternTexture',                'overlay/overlayPattern.png',                   'texture', (resource) => { resource.wrapS = THREE.RepeatWrapping; resource.wrapT = THREE.RepeatWrapping } ],
                     [ 'cookieBannerTexture',                  'cookieStand/cookieBanner.png',                 'texture', (resource) => { resource.colorSpace = THREE.SRGBColorSpace; resource.flipY = false } ],
-                    [ 'interactiveAreasKeyIconEnterTexture',  'interactiveAreas/interactiveAreasKeyIconEnter.png', 'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
-                    [ 'interactiveAreasKeyIconCircleTexture', 'interactiveAreas/interactiveAreasKeyIconCircle.png', 'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
+                    [ 'interactivePointsKeyIconEnterTexture',  'interactivePoints/interactivePointsKeyIconEnter.png', 'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
+                    [ 'interactivePointsKeyIconCircleTexture', 'interactivePoints/interactivePointsKeyIconCircle.png', 'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
                     [ 'respawnsModel',                        'respawns/respawns.glb',                        'gltf'    ],
 
                     // [ 'easterEggVisualModel',                 'easter/easterEggVisual.glb',                   'gltf'    ],
@@ -158,7 +158,7 @@ export class Game
             this.areas = new Areas()
             this.respawns = new Respawns()
             this.player = new Player()
-            this.interactiveAreas = new InteractiveAreas()
+            this.interactivePoints = new InteractivePoints()
             this.world = new World()
             this.overlay = new Overlay()
             this.closingManager = new ClosingManager()

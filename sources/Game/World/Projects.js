@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { InteractiveAreas } from '../InteractiveAreas.js'
+import { InteractivePoints } from '../InteractivePoints.js'
 import gsap from 'gsap'
 import projectsData from '../../data/projects.js'
 import { TextCanvas } from '../TextCanvas.js'
@@ -69,25 +69,25 @@ export class Projects
 
     setInteractiveArea()
     {
-        this.interactiveArea = this.game.interactiveAreas.create(
+        this.interactiveArea = this.game.interactivePoints.create(
             this.references.get('interactiveArea')[0].position,
             'Projects',
-            InteractiveAreas.ALIGN_RIGHT,
+            InteractivePoints.ALIGN_RIGHT,
             () =>
             {
                 this.open()
             },
             () =>
             {
-                this.game.inputs.touchButtons.addItems(['interact'])
+                this.game.inputs.interactiveButtons.addItems(['interact'])
             },
             () =>
             {
-                this.game.inputs.touchButtons.removeItems(['interact'])
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
             },
             () =>
             {
-                this.game.inputs.touchButtons.removeItems(['interact'])
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
             }
         )
     }
@@ -131,25 +131,25 @@ export class Projects
             }
         })
 
-        this.game.inputs.touchButtons.events.on('previous', () =>
+        this.game.inputs.interactiveButtons.events.on('previous', () =>
         {
             if(this.state === Projects.STATE_OPEN)
                 this.previous()
         })
 
-        this.game.inputs.touchButtons.events.on('next', () =>
+        this.game.inputs.interactiveButtons.events.on('next', () =>
         {
             if(this.state === Projects.STATE_OPEN)
                 this.next()
         })
 
-        this.game.inputs.touchButtons.events.on('open', () =>
+        this.game.inputs.interactiveButtons.events.on('open', () =>
         {
             if(this.state === Projects.STATE_OPEN)
                 this.url.open()
         })
 
-        this.game.inputs.touchButtons.events.on('close', () =>
+        this.game.inputs.interactiveButtons.events.on('close', () =>
         {
             if(this.state === Projects.STATE_OPEN)
                 this.close()
@@ -1318,8 +1318,8 @@ export class Projects
         this.game.physicalVehicle.deactivate()
 
         // Buttons
-        this.game.inputs.touchButtons.clearItems()
-        this.game.inputs.touchButtons.addItems(['previous', 'next', 'open', 'close'])
+        this.game.inputs.interactiveButtons.clearItems()
+        this.game.inputs.interactiveButtons.addItems(['previous', 'next', 'open', 'close'])
     }
 
     close()
@@ -1370,7 +1370,7 @@ export class Projects
         this.game.physicalVehicle.activate()
             
         // Buttons
-        this.game.inputs.touchButtons.clearItems([])
+        this.game.inputs.interactiveButtons.clearItems([])
     }
 
     previous()

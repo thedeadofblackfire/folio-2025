@@ -4,7 +4,7 @@ import { color, distance, float, Fn, max, min, mix, mul, normalWorld, positionWo
 import gsap from 'gsap'
 import { Inputs } from './Inputs/Inputs.js'
 
-export class InteractiveAreas
+export class InteractivePoints
 {
     static ALIGN_LEFT = 1
     static ALIGN_RIGHT = 2
@@ -72,22 +72,22 @@ export class InteractiveAreas
     {
         this.game.inputs.events.on('interact', (action) =>
         {
-            if(action.active && this.activeItem && this.activeItem.state === InteractiveAreas.STATE_OPEN)
+            if(action.active && this.activeItem && this.activeItem.state === InteractivePoints.STATE_OPEN)
             {
                 this.activeItem.interact()
             }
         })
 
-        this.game.inputs.touchButtons.events.on('interact', () =>
+        this.game.inputs.interactiveButtons.events.on('interact', () =>
         {
-            if(this.activeItem && this.activeItem.state === InteractiveAreas.STATE_OPEN)
+            if(this.activeItem && this.activeItem.state === InteractivePoints.STATE_OPEN)
             {
                 this.activeItem.interact()
             }
         })
     }
 
-    create(position, text = '', align = InteractiveAreas.ALIGN_LEFT, interactCallback = null, revealCallback = null, concealCallback = null, hideCallback = null)
+    create(position, text = '', align = InteractivePoints.ALIGN_LEFT, interactCallback = null, revealCallback = null, concealCallback = null, hideCallback = null)
     {
         const newPosition = position.clone()
         // newPosition.y = 2.25
@@ -158,7 +158,7 @@ export class InteractiveAreas
             return vec4(vec3(this.frontColor), 1)
         })
 
-        keyMaterial.outputNode = keyOutput(texture(this.game.resources.interactiveAreasKeyIconEnterTexture, uv()))
+        keyMaterial.outputNode = keyOutput(texture(this.game.resources.interactivePointsKeyIconEnterTexture, uv()))
 
         // Mesh
         const key = new THREE.Mesh(
@@ -175,13 +175,13 @@ export class InteractiveAreas
         {
             if(this.game.inputs.mode === Inputs.MODE_GAMEPAD)
             {
-                keyMaterial.outputNode = keyOutput(texture(this.game.resources.interactiveAreasKeyIconCircleTexture, uv()))
+                keyMaterial.outputNode = keyOutput(texture(this.game.resources.interactivePointsKeyIconCircleTexture, uv()))
                 keyMaterial.needsUpdate = true
                 group.add(key)
             }
             else if(this.game.inputs.mode === Inputs.MODE_MOUSEKEYBOARD)
             {
-                keyMaterial.outputNode = keyOutput(texture(this.game.resources.interactiveAreasKeyIconEnterTexture, uv()))
+                keyMaterial.outputNode = keyOutput(texture(this.game.resources.interactivePointsKeyIconEnterTexture, uv()))
                 keyMaterial.needsUpdate = true
                 group.add(key)
             }
@@ -196,8 +196,8 @@ export class InteractiveAreas
          */
         // Canvas
         const height = 64
-        const textPaddingLeft = align === InteractiveAreas.ALIGN_LEFT ? 60 : 12
-        const textPaddingRight = align === InteractiveAreas.ALIGN_LEFT ? 12 : 60
+        const textPaddingLeft = align === InteractivePoints.ALIGN_LEFT ? 60 : 12
+        const textPaddingRight = align === InteractivePoints.ALIGN_LEFT ? 12 : 60
         const textOffsetVertical = 2
         const font = `700 ${height}px "Amatic SC"`
 
@@ -235,7 +235,7 @@ export class InteractiveAreas
         // Material
         const labelMaterial = new THREE.MeshLambertNodeMaterial({ transparent: true, depthTest: false })
 
-        const labelOffset = uniform(align === InteractiveAreas.ALIGN_LEFT ? - 1 : 1)
+        const labelOffset = uniform(align === InteractivePoints.ALIGN_LEFT ? - 1 : 1)
         labelMaterial.outputNode = Fn(() =>
         {
             // const _uv = uv().add(vec2(labelOffset, 0)).toVar()
@@ -268,7 +268,7 @@ export class InteractiveAreas
         label.scale.y = 0.75
         label.position.z = -0.01
 
-        label.position.x = align === InteractiveAreas.ALIGN_LEFT ? 0 : - label.scale.x
+        label.position.x = align === InteractivePoints.ALIGN_LEFT ? 0 : - label.scale.x
         label.visible = false
         group.add(label)
 
@@ -282,7 +282,7 @@ export class InteractiveAreas
         item.concealCallback = concealCallback
         item.hideCallback = hideCallback
         item.isIn = false
-        item.state = InteractiveAreas.STATE_OPEN
+        item.state = InteractivePoints.STATE_OPEN
         this.items.push(item)
 
         /**
@@ -296,19 +296,19 @@ export class InteractiveAreas
             ],
             onClick: () =>
             {
-                if(item.state !== InteractiveAreas.STATE_HIDDEN)
+                if(item.state !== InteractivePoints.STATE_HIDDEN)
                 {
                     item.interact()
                 }
             },
             onEnter: () =>
             {
-                if(item.state !== InteractiveAreas.STATE_HIDDEN)
+                if(item.state !== InteractivePoints.STATE_HIDDEN)
                     item.reveal()
             },
             onLeave: () =>
             {
-                if(item.state !== InteractiveAreas.STATE_HIDDEN)
+                if(item.state !== InteractivePoints.STATE_HIDDEN)
                     item.conceal()
             }
         })
@@ -319,7 +319,7 @@ export class InteractiveAreas
         // Hide
         item.hide = () =>
         {
-            item.state = InteractiveAreas.STATE_HIDDEN
+            item.state = InteractivePoints.STATE_HIDDEN
 
             item.intersect.active = false
 
@@ -344,7 +344,7 @@ export class InteractiveAreas
         // Open
         item.reveal = () =>
         {
-            item.state = InteractiveAreas.STATE_OPEN
+            item.state = InteractivePoints.STATE_OPEN
 
             item.intersect.active = true
 
@@ -368,7 +368,7 @@ export class InteractiveAreas
         // Close
         item.conceal = () =>
         {
-            item.state = InteractiveAreas.STATE_CLOSED
+            item.state = InteractivePoints.STATE_CLOSED
 
             item.intersect.active = true
             
@@ -384,7 +384,7 @@ export class InteractiveAreas
 
             gsap.to(key.scale, { x: 0, y: 0, z: 0, ease: 'power2.in', duration: 0.6, overwrite: true })
 
-            gsap.to(labelOffset, { value: align === InteractiveAreas.ALIGN_LEFT ? - 1 : 1, ease: 'power2.in', duration: 0.6, overwrite: true })
+            gsap.to(labelOffset, { value: align === InteractivePoints.ALIGN_LEFT ? - 1 : 1, ease: 'power2.in', duration: 0.6, overwrite: true })
 
             // Callback
             if(typeof item.concealCallback === 'function')
@@ -429,7 +429,7 @@ export class InteractiveAreas
         let activeItem = null
         for(const item of this.items)
         {
-            if(!item.state !== InteractiveAreas.STATE_HIDDEN)
+            if(!item.state !== InteractivePoints.STATE_HIDDEN)
             {
                 const itemDistance = Math.hypot(item.position.x - playerPosition2.x, item.position.y - playerPosition2.y)
                 const isIn = itemDistance < 2.5

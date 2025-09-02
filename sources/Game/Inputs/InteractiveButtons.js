@@ -1,6 +1,6 @@
 import { Events } from '../Events.js'
 
-export class TouchButtons
+export class InteractiveButtons
 {
     constructor()
     {

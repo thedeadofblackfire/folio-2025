@@ -155,17 +155,17 @@ export class Player
 
         this.game.physicalVehicle.events.on('stuck', () =>
         {
-            this.game.inputs.touchButtons.addItems(['unstuck'])
+            this.game.inputs.interactiveButtons.addItems(['unstuck'])
         })
 
         this.game.physicalVehicle.events.on('unstuck', () =>
         {
-            this.game.inputs.touchButtons.removeItems(['unstuck'])
+            this.game.inputs.interactiveButtons.removeItems(['unstuck'])
         })
 
-        this.game.inputs.touchButtons.events.on('unstuck', () =>
+        this.game.inputs.interactiveButtons.events.on('unstuck', () =>
         {
-            this.game.inputs.touchButtons.removeItems(['unstuck'])
+            this.game.inputs.interactiveButtons.removeItems(['unstuck'])
             this.respawn()
         })
     }

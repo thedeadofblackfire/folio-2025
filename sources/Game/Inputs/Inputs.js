@@ -3,7 +3,7 @@ import { Game } from '../Game.js'
 import { Gamepad } from './Gamepad.js'
 import { Pointer } from './Pointer.js'
 import Keyboard from './Keyboard.js'
-import { TouchButtons } from './TouchButtons.js'
+import { InteractiveButtons } from './InteractiveButtons.js'
 import { Wheel } from './Wheel.js'
 
 export class Inputs
@@ -25,7 +25,7 @@ export class Inputs
         this.setGamepad()
         this.setPointer()
         this.setWheel()
-        this.setTouchButtons()
+        this.setInteractiveButtons()
 
         this.addActions(actions)
         
@@ -116,9 +116,9 @@ export class Inputs
         })
     }
 
-    setTouchButtons()
+    setInteractiveButtons()
     {
-        this.touchButtons = new TouchButtons()
+        this.interactiveButtons = new InteractiveButtons()
     }
 
     addActions(actions)
@@ -262,9 +262,9 @@ export class Inputs
         this.mode = mode
         
         if(this.mode === Inputs.MODE_TOUCH)
-            this.touchButtons.activate()
+            this.interactiveButtons.activate()
         else
-            this.touchButtons.deactivate()
+            this.interactiveButtons.deactivate()
 
         this.events.trigger('modeChange', [this.mode])
     }

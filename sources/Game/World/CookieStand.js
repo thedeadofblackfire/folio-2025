@@ -3,7 +3,7 @@ import { Game } from '../Game.js'
 import { color, float, Fn, instancedArray, mix, normalWorld, positionGeometry, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
 import { InstancedGroup } from '../InstancedGroup.js'
 import gsap from 'gsap'
-import { InteractiveAreas } from '../InteractiveAreas.js'
+import { InteractivePoints } from '../InteractivePoints.js'
 
 export class CookieStand
 {
@@ -245,25 +245,25 @@ export class CookieStand
 
     setInteractiveArea()
     {
-        this.game.interactiveAreas.create(
+        this.game.interactivePoints.create(
             this.references.get('interactiveArea')[0].position,
             'Accept cookie',
-            InteractiveAreas.ALIGN_RIGHT,
+            InteractivePoints.ALIGN_RIGHT,
             () =>
             {
                 this.accept()
             },
             () =>
             {
-                this.game.inputs.touchButtons.addItems(['interact'])
+                this.game.inputs.interactiveButtons.addItems(['interact'])
             },
             () =>
             {
-                this.game.inputs.touchButtons.removeItems(['interact'])
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
             },
             () =>
             {
-                this.game.inputs.touchButtons.removeItems(['interact'])
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
             }
         )
     }

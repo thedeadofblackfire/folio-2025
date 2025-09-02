@@ -1,7 +1,7 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import { color, float, Fn, instancedArray, mix, normalWorld, positionGeometry, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
-import { InteractiveAreas } from '../InteractiveAreas.js'
+import { InteractivePoints } from '../InteractivePoints.js'
 
 export class Bonfire
 {
@@ -87,13 +87,13 @@ export class Bonfire
     
     setInteractiveArea()
     {
-        this.game.interactiveAreas.create(
+        this.game.interactivePoints.create(
             this.references.get('interactiveArea')[0].position,
             'Res(e)t',
-            InteractiveAreas.ALIGN_RIGHT,
+            InteractivePoints.ALIGN_RIGHT,
             () =>
             {
-                this.game.inputs.touchButtons.clearItems()
+                this.game.inputs.interactiveButtons.clearItems()
                 this.game.player.respawn(null, () =>
                 {
                     this.particles.visible = true
@@ -104,15 +104,15 @@ export class Bonfire
             },
             () =>
             {
-                this.game.inputs.touchButtons.addItems(['interact'])
+                this.game.inputs.interactiveButtons.addItems(['interact'])
             },
             () =>
             {
-                this.game.inputs.touchButtons.removeItems(['interact'])
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
             },
             () =>
             {
-                this.game.inputs.touchButtons.removeItems(['interact'])
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
             }
         )
     }

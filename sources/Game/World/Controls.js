@@ -1,6 +1,6 @@
 import { Game } from '../Game.js'
 import { Inputs } from '../Inputs/Inputs.js'
-import { InteractiveAreas } from '../InteractiveAreas.js'
+import { InteractivePoints } from '../InteractivePoints.js'
 import { Modals } from '../Modals.js'
 
 export class Controls
@@ -38,27 +38,27 @@ export class Controls
 
     setInteractiveArea()
     {
-        this.interactiveArea = this.game.interactiveAreas.create(
+        this.interactiveArea = this.game.interactivePoints.create(
             this.references.get('interactiveArea')[0].position,
             'Controls',
-            InteractiveAreas.ALIGN_RIGHT,
+            InteractivePoints.ALIGN_RIGHT,
             () =>
             {
-                this.game.inputs.touchButtons.clearItems()
+                this.game.inputs.interactiveButtons.clearItems()
                 this.game.modals.open('controls')
                 this.interactiveArea.hide()
             },
             () =>
             {
-                this.game.inputs.touchButtons.addItems(['interact'])
+                this.game.inputs.interactiveButtons.addItems(['interact'])
             },
             () =>
             {
-                this.game.inputs.touchButtons.removeItems(['interact'])
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
             },
             () =>
             {
-                this.game.inputs.touchButtons.removeItems(['interact'])
+                this.game.inputs.interactiveButtons.removeItems(['interact'])
             }
         )
     }
