@@ -7,9 +7,178 @@ export class Gamepad
     {
         this.events = new Events()
         
+        this.setMappings()
         this.setType()
-        this.setKeys()
+        this.setButtons()
         this.setJoysticks()
+    }
+
+    /**
+     * Actions:
+     * - buttonRaw: Take the value directly from the buttons at specified index
+     * - axesToCircle: Convert two axes at specified indexes to circle coordinates
+     * - axisToArrow: Convert axes at specified index according to specified angles
+     * - axisToTrigger: Convert axis at specified index to button with value from 0 to 1
+     */
+    setMappings()
+    {
+        this.mappings = {}
+        
+        this.mappings.list = {}
+        this.mappings.list.standard = [
+            { name: 'cross',    type: 'button', action: 'buttonRaw', index: 0 },
+            { name: 'circle',   type: 'button', action: 'buttonRaw', index: 1 },
+            { name: 'square',   type: 'button', action: 'buttonRaw', index: 2 },
+            { name: 'triangle', type: 'button', action: 'buttonRaw', index: 3 },
+            { name: 'l1',       type: 'button', action: 'buttonRaw', index: 4 },
+            { name: 'r1',       type: 'button', action: 'buttonRaw', index: 5 },
+            { name: 'l2',       type: 'button', action: 'buttonRaw', index: 6 },
+            { name: 'r2',       type: 'button', action: 'buttonRaw', index: 7 },
+            { name: 'select',   type: 'button', action: 'buttonRaw', index: 8 },
+            { name: 'start',    type: 'button', action: 'buttonRaw', index: 9 },
+            { name: 'l3',       type: 'button', action: 'buttonRaw', index: 10 },
+            { name: 'r3',       type: 'button', action: 'buttonRaw', index: 11 },
+            { name: 'up',       type: 'button', action: 'buttonRaw', index: 12 },
+            { name: 'down',     type: 'button', action: 'buttonRaw', index: 13 },
+            { name: 'left',     type: 'button', action: 'buttonRaw', index: 14 },
+            { name: 'right',    type: 'button', action: 'buttonRaw', index: 15 },
+
+            { name: 'left',  type: 'joystick', action: 'axesToCircle', indexes: [ 0, 1 ] },
+            { name: 'right', type: 'joystick', action: 'axesToCircle', indexes: [ 2, 3 ] },
+        ]
+        this.mappings.list.windowsFirefoxPS5 = [
+            { name: 'cross',    type: 'button', action: 'buttonRaw', index: 1 },
+            { name: 'circle',   type: 'button', action: 'buttonRaw', index: 2 },
+            { name: 'square',   type: 'button', action: 'buttonRaw', index: 0 },
+            { name: 'triangle', type: 'button', action: 'buttonRaw', index: 3 },
+            { name: 'l1',       type: 'button', action: 'buttonRaw', index: 4 },
+            { name: 'r1',       type: 'button', action: 'buttonRaw', index: 5 },
+            { name: 'l2',       type: 'button', action: 'axisToTrigger', index: 3 },
+            { name: 'r2',       type: 'button', action: 'axisToTrigger', index: 4 },
+            { name: 'select',   type: 'button', action: 'buttonRaw', index: 8 },
+            { name: 'start',    type: 'button', action: 'buttonRaw', index: 9 },
+            { name: 'l3',       type: 'button', action: 'buttonRaw', index: 10 },
+            { name: 'r3',       type: 'button', action: 'buttonRaw', index: 11 },
+            { name: 'up',       type: 'button', action: 'axisToArrow', index: 9, angles: [ -1, -0.7142857142857143, 1 ] },
+            { name: 'down',     type: 'button', action: 'axisToArrow', index: 9, angles: [ -0.1428571428571429, 0.1428571428571428, 0.4285714285714286  ] },
+            { name: 'left',     type: 'button', action: 'axisToArrow', index: 9, angles: [ 0.4285714285714286, 0.7142857142857142, 1 ] },
+            { name: 'right',    type: 'button', action: 'axisToArrow', index: 9, angles: [ -0.7142857142857143, -0.4285714285714286, -0.1428571428571429 ] },
+
+            { name: 'left',  type: 'joystick', action: 'axesToCircle', indexes: [ 0, 1 ] },
+            { name: 'right', type: 'joystick', action: 'axesToCircle', indexes: [ 2, 5 ] },
+        ]
+        this.mappings.list.macOSFirefoxPS5 = [
+            { name: 'cross',    type: 'button', action: 'buttonRaw', index: 1 },
+            { name: 'circle',   type: 'button', action: 'buttonRaw', index: 2 },
+            { name: 'square',   type: 'button', action: 'buttonRaw', index: 0 },
+            { name: 'triangle', type: 'button', action: 'buttonRaw', index: 3 },
+            { name: 'l1',       type: 'button', action: 'buttonRaw', index: 4 },
+            { name: 'r1',       type: 'button', action: 'buttonRaw', index: 5 },
+            { name: 'l2',       type: 'button', action: 'axisToTrigger', index: 4 },
+            { name: 'r2',       type: 'button', action: 'axisToTrigger', index: 5 },
+            { name: 'select',   type: 'button', action: 'buttonRaw', index: 8 },
+            { name: 'start',    type: 'button', action: 'buttonRaw', index: 9 },
+            { name: 'l3',       type: 'button', action: 'buttonRaw', index: 10 },
+            { name: 'r3',       type: 'button', action: 'buttonRaw', index: 11 },
+            { name: 'up',       type: 'button', action: 'axisToArrow', index: 6, angles: [ -1, -0.7142857142857143, 1 ] },
+            { name: 'down',     type: 'button', action: 'axisToArrow', index: 6, angles: [ -0.1428571428571429, 0.1428571428571428, 0.4285714285714286  ] },
+            { name: 'left',     type: 'button', action: 'axisToArrow', index: 6, angles: [ 0.4285714285714286, 0.7142857142857142, 1 ] },
+            { name: 'right',    type: 'button', action: 'axisToArrow', index: 6, angles: [ -0.7142857142857143, -0.4285714285714286, -0.1428571428571429 ] },
+
+            { name: 'left',  type: 'joystick', action: 'axesToCircle', indexes: [ 0, 1 ] },
+            { name: 'right', type: 'joystick', action: 'axesToCircle', indexes: [ 2, 3 ] },
+        ]
+
+        const joystickDeadZone = 0.2
+        const buttonPressedZone = 0.2
+
+        this.mappings.getNameForGamepad = (gamepad) =>
+        {
+            if(gamepad.mapping === 'standard')
+                return 'standard'
+
+            if(gamepad.axes.length === 10)
+                return 'windowsFirefoxPS5'
+            else if(gamepad.axes.length === 7)
+                return 'macOSFirefoxPS5'
+
+            return 'standard'
+        }
+
+        this.mappings.parseGamepad = (gamepad) =>
+        {
+            // Find mapping
+            const mappingName = this.mappings.getNameForGamepad(gamepad)
+            const mapping = this.mappings.list[mappingName]
+
+            // Data
+            const data = {}
+            data.buttons = {}
+            data.joysticks = {}
+
+            for(const map of mapping)
+            {
+                // Buttons
+                if(map.type === 'button')
+                {
+                    const button = { name: map.name, value: 0 }
+                    data.buttons[map.name] = button
+
+                    if(map.action === 'buttonRaw')
+                    {
+                        button.value = gamepad.buttons[map.index].value
+                    }
+
+                    else if(map.action === 'axisToTrigger')
+                    {
+                        button.value = gamepad.axes[map.index] * 0.5 + 0.5
+                    }
+
+                    else if(map.action === 'axisToArrow')
+                    {
+                        const arrowAngle = gamepad.axes[map.index]
+                        let isInAngles = false
+
+                        for(const angle of map.angles)
+                        {
+                            if(Math.abs(angle - arrowAngle) < 0.1)
+                                isInAngles = true
+                        }
+                        
+                        if(isInAngles)
+                            button.value = 1
+                    }
+
+                    button.pressed = button.value > buttonPressedZone
+                }
+
+                // Joysticks
+                if(map.type === 'joystick')
+                {
+                    // TODO: dead zone?
+                    const joystick = { name: map.name, x: 0, y: 0, safeX: 0, safeY: 0, angle: 0, radius: 0, safeRadius: 0, active: false  }
+                    data.joysticks[map.name] = joystick
+
+                    if(map.action === 'axesToCircle')
+                    {
+                        joystick.x = gamepad.axes[map.indexes[0]]
+                        joystick.safeX = remapClamp(Math.abs(joystick.x), joystickDeadZone, 1, 0, 1) * Math.sign(joystick.x)
+
+                        joystick.y = gamepad.axes[map.indexes[1]]
+                        joystick.safeY = remapClamp(Math.abs(joystick.y), joystickDeadZone, 1, 0, 1) * Math.sign(joystick.y)
+
+                        joystick.angle = Math.atan2(joystick.y, joystick.x)
+                        joystick.radius = Math.hypot(joystick.y, joystick.x)
+
+                        joystick.safeRadius = remapClamp(joystick.radius, joystickDeadZone, 1, 0, 1)
+
+                        joystick.active = joystick.radius > joystickDeadZone
+                    }
+                }
+            }
+
+            return data
+        }
     }
 
     setType()
@@ -18,181 +187,14 @@ export class Gamepad
         document.documentElement.classList.add(`is-gamepad-${this.type}`)
     }
 
-    setKeys()
+    setButtons()
     {
-        this.keys = {}
+        this.buttons = {}
 
-        const keysNames = [
-            'cross',
-            'circle',
-            'square',
-            'triangle',
-            'l1',
-            'r1',
-            'l2',
-            'r2',
-            'select',
-            'start',
-            'l3',
-            'r3',
-            'up',
-            'down',
-            'left',
-            'right',
-            'center',
-        ]
-        this.keys.items = {}
-
-        for(const keyName of keysNames)
+        for(const map of this.mappings.list.standard)
         {
-            this.keys.items[keyName] = {
-                name: keyName,
-                down: false,
-                value: 0
-            }
-        }
-
-        this.keys.mappings = {
-            '':
-            {
-                '1': 'cross',
-                '2': 'circle',
-                '0': 'square',
-                '3': 'triangle',
-                '4': 'l1',
-                '5': 'r1',
-                '6': 'l2',
-                '7': 'r2',
-                '8': 'select',
-                '9': 'start',
-                '10': 'l3',
-                '11': 'r3',
-                '12': 'center',
-                '13': 'up',
-                '14': 'down',
-                '15': 'left',
-                '16': 'right',
-            },
-            standard: // https://w3c.github.io/gamepad/#remapping
-            {
-                '0': 'cross',
-                '1': 'circle',
-                '2': 'square',
-                '3': 'triangle',
-                '4': 'l1',
-                '5': 'r1',
-                '6': 'l2',
-                '7': 'r2',
-                '8': 'select',
-                '9': 'start',
-                '10': 'l3',
-                '11': 'r3',
-                '12': 'up',
-                '13': 'down',
-                '14': 'left',
-                '15': 'right',
-                '16': 'center',
-            },
-        }
-        
-        this.keys.arrowsExceptions = [
-            { name: 'up',    index: 13, angles: [ -1, -0.7142857142857143, 1 ] },
-            { name: 'right', index: 16, angles: [ -0.7142857142857143, -0.4285714285714286, -0.1428571428571429 ] },
-            { name: 'down',  index: 14, angles: [ -0.1428571428571429, 0.1428571428571428, 0.4285714285714286  ] },
-            { name: 'left',  index: 15, angles: [ 0.4285714285714286, 0.7142857142857142, 1 ]  }
-        ]
-        
-        this.keys.triggerExceptions = [
-            { name: 'l2', axesIndex: 4, keyIndex: 6, oldValue: 0.5, changed: false },
-            { name: 'r2', axesIndex: 5, keyIndex: 7, oldValue: 0.5, changed: false },
-        ]
-
-        this.keys.fromIndex = (index, mappingName = 'standard') =>
-        {
-            // Mapping
-            let mapping = this.keys.mappings[mappingName]
-            
-            if(!mapping)
-                mapping = this.keys.mappings['standard']
-
-            // Key
-            let keyName = mapping[index]
-
-            if(!keyName)
-                return null
-
-            return this.keys.items[keyName]
-        }
-
-        this.keys.sanatizeButtons = (gamepad) =>
-        {
-            const sanatizedButtons = []
-
-            // Copy existing buttons
-            for(const buttonIndex in gamepad.buttons)
-            {
-                const button = gamepad.buttons[buttonIndex]
-            
-                sanatizedButtons[buttonIndex] = {
-                    pressed: button.pressed,
-                    touched: button.touched,
-                    value: button.value,
-                }
-            }
-
-            // Test if non-standard
-            if(gamepad.mapping === '')
-            {
-                // Arrows exception
-                const arrowAngle = gamepad.axes[6]
-
-                for(const nonStandardButton of this.keys.arrowsExceptions)
-                {
-                    const button = {
-                        pressed: false,
-                        touched: false,
-                        value: 0
-                    }
-
-                    let isInAngles = false
-
-                    for(const angle of nonStandardButton.angles)
-                    {
-                        if(Math.abs(angle - arrowAngle) < 0.1)
-                            isInAngles = true
-                    }
-                    
-                    if(isInAngles)
-                    {
-                        button.pressed = true
-                        button.touched = true
-                        button.value = 1
-                    }
-
-                    sanatizedButtons[nonStandardButton.index] = button
-                }
-
-                // Triggers exception
-                for(const trigger of this.keys.triggerExceptions)
-                {
-                    const button = { pressed: false, touched: false, value: gamepad.axes[trigger.axesIndex] * 0.5 + 0.5 }
-
-                    if(button.value > 0 && trigger.changed)
-                    {
-                        button.pressed = true
-                        button.touched = true
-                    }
-
-                    if(button.value !== trigger.oldValue)
-                    {
-                        trigger.changed = true
-                    }
-
-                    sanatizedButtons[trigger.keyIndex] = button
-                }
-            }
-
-            return sanatizedButtons
+            if(map.type === 'button')
+                this.buttons[ map.name ] = { name: map.name, value: 0, pressed: 0 }
         }
     }
 
@@ -200,21 +202,19 @@ export class Gamepad
     {
         this.joysticks = {}
 
-        this.joysticks.deadZone = 0.2
-        this.joysticks.items = {
-            left: { indexes: [ 0, 1 ] },
-            right: { indexes: [ 2, 3 ] },
-        }
-
-        for(const joystickName in this.joysticks.items)
+        for(const map of this.mappings.list.standard)
         {
-            const joystick = this.joysticks.items[joystickName]
-            joystick.name = joystickName,
-            joystick.x = 0,
-            joystick.y = 0,
-            joystick.radius = 0,
-            joystick.angle = 0,
-            joystick.active = false
+            if(map.type === 'joystick')
+            {
+                this.joysticks[ map.name ] = {
+                    name: map.name,
+                    x: 0,
+                    y: 0,
+                    radius: 0,
+                    angle: 0,
+                    active: false
+                }
+            }
         }
     }
 
@@ -232,75 +232,46 @@ export class Gamepad
         if(gamepad === null)
             return
 
+        // Parse gamepad data
+        const gamepadData = this.mappings.parseGamepad(gamepad)
+
         /**
-         * Keys
+         * Buttons
          */
-        const buttons = this.keys.sanatizeButtons(gamepad)
-
-        for(let i = 0; i < buttons.length; i++)
+        for(const buttonName in this.buttons)
         {
-            const button = buttons[i]
-            const key = this.keys.fromIndex(i, gamepad.mapping)
+            const savedButton = this.buttons[ buttonName ]
+            const newButton = gamepadData.buttons[ buttonName ]
 
-            if(key)
+            const oldValue = savedButton.value
+            const oldPressed = savedButton.pressed
+
+            Object.assign(savedButton, newButton)
+
+            if(newButton.pressed)
             {
-                const oldValue = key.value
-                key.value = button.value
-
-                if(button.pressed)
-                {
-                    if(!key.down)
-                    {
-                        key.down = true
-                        this.events.trigger('down', [ key ])
-                    }
-                    else
-                    {
-                        if(key.value !== oldValue)
-                        {
-                            this.events.trigger('change', [ key ])
-                        }
-                    }
-                }
-                else
-                {
-                    if(key.down)
-                    {
-                        key.down = false
-                        this.events.trigger('up', [ key ])
-                    }
-                }
+                if(!oldPressed)
+                    this.events.trigger('down', [ savedButton ])
             }
+            else
+            {
+                if(oldPressed)
+                    this.events.trigger('up', [ savedButton ])
+            }
+
+            if(newButton.value !== oldValue)
+                this.events.trigger('change', [ savedButton ])
         }
 
         /**
          * Joysticks
          */
-        for(const joystickName in this.joysticks.items)
+        for(const joystickName in this.joysticks)
         {
-            const joystick = this.joysticks.items[joystickName]
+            const savedJoystick = this.joysticks[ joystickName ]
+            const newJoystick = gamepadData.joysticks[ joystickName ]
 
-            let oldX = joystick.x
-            let oldY = joystick.y
-            let oldActive = joystick.active
-
-            joystick.x = gamepad.axes[joystick.indexes[0]]
-            joystick.safeX = remapClamp(Math.abs(joystick.x), this.joysticks.deadZone, 1, 0, 1) * Math.sign(joystick.x)
-
-            joystick.y = gamepad.axes[joystick.indexes[1]]
-            joystick.safeY = remapClamp(Math.abs(joystick.y), this.joysticks.deadZone, 1, 0, 1) * Math.sign(joystick.y)
-
-            joystick.angle = Math.atan2(joystick.y, joystick.x)
-            joystick.radius = Math.hypot(joystick.y, joystick.x)
-
-            joystick.safeRadius = remapClamp(joystick.radius, this.joysticks.deadZone, 1, 0, 1)
-
-            joystick.active = joystick.radius > this.joysticks.deadZone
-
-            if(oldActive !== joystick.active || oldX !== joystick.x || oldY !== joystick.y)
-            {
-                this.events.trigger('joystickChange', [ joystick ])
-            }
+            Object.assign(savedJoystick, newJoystick)
         }
 
         /**
@@ -323,3 +294,124 @@ export class Gamepad
         }
     }
 }
+
+/*
+    https://w3c.github.io/gamepad/#remapping
+    PS5
+        Firefox on Windows
+            Mapping
+                ""
+            Axes
+                0: Left joystick H [-1, +1]
+                1: Left joystick V [-1, +1]
+                2: Right joystick H [-1, +1]
+                3: L2 [-1, +1]
+                4: L2 [-1, +1]
+                5: Right joystick V [-1, +1]
+                6: ???
+                7: ???
+                8: ???
+                9: Arrows (-1, 1.2857, -0.4286, 0.7142, 0.1429)
+            Buttons
+                0: square
+                1: cross
+                2: circle
+                3: triangle
+                4: l1
+                5: r1
+                6: l2
+                7: r2
+                8: select
+                9: start
+                10: l3
+                11: r3
+                12: home
+                13: pad
+                14: microphone
+                15: ???
+
+        Firefox on MacOS
+            Mapping
+                ""
+            Axes
+                0: Left joystick H [-1, +1]
+                1: Left joystick V [-1, +1]
+                2: Right joystick H [-1, +1]
+                3: Right joystick V [-1, +1]
+                4: L2 [-1, +1]
+                5: R2 [-1, +1]
+                6: Arrows (-1, 1.2857, -0.4286, 0.7142, 0.1429)
+            Buttons
+                0: square
+                1: cross
+                2: circle
+                3: triangle
+                4: l1
+                5: r1
+                6: l2
+                7: r2
+                8: select
+                9: start
+                10: l3
+                11: r3
+                12: home
+                13: pad
+                14: microphone
+
+        Chrome & Safari on MacOS & Windows
+            Mapping
+                "standard"
+            Axes
+                0: Left joystick H [-1, +1]
+                1: Left joystick V [-1, +1]
+                2: Right joystick H [-1, +1]
+                3: Right joystick V [-1, +1]
+            Buttons
+                0: cross
+                1: circle
+                2: square
+                3: triangle
+                4: l1
+                5: r1
+                6: l2
+                7: r2
+                8: select
+                9: start
+                10: l3
+                11: r3
+                12: up
+                13: down
+                14: left
+                15: right
+                16: home
+                17: pad
+
+    Xbox
+        *
+            Mapping
+                "standard"
+            Axes
+                0: Left joystick H [-1, +1]
+                1: Left joystick V [-1, +1]
+                2: Right joystick H [-1, +1]
+                3: Right joystick V [-1, +1]
+            Buttons
+                0: cross
+                1: circle
+                2: square
+                3: triangle
+                4: l1
+                5: r1
+                6: l2
+                7: r2
+                8: select
+                9: start
+                10: l3
+                11: r3
+                12: up
+                13: down
+                14: left
+                15: right
+                16: home
+
+*/

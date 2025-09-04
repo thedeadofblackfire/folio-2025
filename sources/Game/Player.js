@@ -248,8 +248,8 @@ export class Player
             this.steering += 1
 
         // Gamepad joystick
-        if(this.steering === 0 && this.game.inputs.gamepad.joysticks.items.left.active)
-            this.steering = - this.game.inputs.gamepad.joysticks.items.left.safeX
+        if(this.steering === 0 && this.game.inputs.gamepad.joysticks.left.active)
+            this.steering = - this.game.inputs.gamepad.joysticks.left.safeX
 
         /**
          * Nipple

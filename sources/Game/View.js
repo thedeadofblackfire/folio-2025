@@ -250,7 +250,7 @@ export class View
 
         this.game.inputs.addActions([
             { name: 'zoom',    categories: [ 'playing' ], keys: [ 'Wheel.roll' ] },
-            { name: 'zoomToggle',  categories: [ 'playing' ], keys: [ 'Gamepad.l3', 'Gamepad.r3' ] },
+            { name: 'zoomToggle',  categories: [ 'playing' ], keys: [ 'Gamepad.r3' ] },
         ])
 
         this.game.inputs.events.on('zoom', (action) =>
@@ -533,7 +533,6 @@ export class View
     {
         this.game.inputs.addActions([
             { name: 'viewMapPointer', categories: [ 'playing' ], keys: [ 'Pointer.any' ] },
-            // { name: 'viewMapJoystick', categories: [ 'playing' ], keys: [ 'Gamepad.joystickRight' ] },
         ])
 
         this.game.inputs.events.on('viewMapPointer', (action) =>
@@ -569,11 +568,11 @@ export class View
     update()
     {
         // Gamepad Joystick map controls
-        if(this.mode === View.MODE_DEFAULT && this.game.inputs.gamepad.joysticks.items.right.active)
+        if(this.mode === View.MODE_DEFAULT && this.game.inputs.gamepad.joysticks.right.active)
         {
             this.focusPoint.isTracking = false
 
-            const mapMovement = new THREE.Vector2(this.game.inputs.gamepad.joysticks.items.right.x, this.game.inputs.gamepad.joysticks.items.right.y)
+            const mapMovement = new THREE.Vector2(this.game.inputs.gamepad.joysticks.right.x, this.game.inputs.gamepad.joysticks.right.y)
             mapMovement.rotateAround(new THREE.Vector2(), -this.spherical.theta)
             mapMovement.multiplyScalar(20 * this.game.ticker.delta)
 
