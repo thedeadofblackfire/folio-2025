@@ -112,40 +112,26 @@ export class Foliage
         this.material.seeThroughPosition = uniform(vec2())
         this.material.seeThroughEdgeMin = uniform(0.25)
         this.material.seeThroughEdgeMax = uniform(0.5)
-        this.material.seeThroughTresholdAmplitude = uniform(0.7)
-        this.material.seeThroughNoiseFrequency = uniform(0.335)
-        this.material.seeThroughNoiseStrength = uniform(0.5)
 
         this.material.instance.outputNode = Fn(() =>
         {
             // XRay around the vehicle
             if(this.seeThrough)
             {
+                // Distance to vehicle fade
                 const toVehicle = screenUV.sub(this.material.seeThroughPosition).toVar()
                 toVehicle.mulAssign(vec2(screenSize.x.div(screenSize.y), 1))
                 const distanceToVehicle = toVehicle.length()
-
-                // Apply noise to add variations
-                const noiseUv = screenUV.toVar()
-                noiseUv.x.mulAssign(screenSize.x.div(screenSize.y))
-                noiseUv.addAssign(vec2(range(0, 100).mul(0.1)))
-                const noise = texture(this.game.noises.others, noiseUv.mul(this.material.seeThroughNoiseFrequency)).r
-
-                distanceToVehicle.addAssign(noise.sub(0.5).mul(this.material.seeThroughNoiseStrength))
-
-                // Visibility threshold
-                const visibilityThreshold = distanceToVehicle.remapClamp(
-                    this.material.seeThroughEdgeMin,
-                    this.material.seeThroughEdgeMax,
-                    this.material.threshold.add(this.material.seeThroughTresholdAmplitude),
-                    this.material.threshold
-                ).toVar()
+                const distanceFade = smoothstep(this.material.seeThroughEdgeMin, this.material.seeThroughEdgeMax, distanceToVehicle)
 
                 // Foliage texture
-                const visibility = texture(this.game.resources.foliageTexture).r
+                const foliageSDF = texture(this.game.resources.foliageTexture).r
+
+                // Visibility
+                const visibility = foliageSDF.mul(distanceFade.mul(this.material.threshold.oneMinus()).add(this.material.threshold))
 
                 // Discard
-                visibility.lessThan(visibilityThreshold).discard()
+                visibility.lessThan(this.material.threshold).discard()
             }
             else
             {
@@ -214,5 +200,8 @@ export class Foliage
     update()
     {
         this.material.seeThroughPosition.value.copy(this.game.world.visualVehicle.screenPosition)
+
+        this.material.seeThroughEdgeMin.value = 3 / this.game.view.spherical.radius.current
+        this.material.seeThroughEdgeMax.value = 15 / this.game.view.spherical.radius.current
     }
 }

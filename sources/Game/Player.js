@@ -20,7 +20,7 @@ export class Player
         this.braking = 0
         this.suspensions = ['low', 'low', 'low', 'low']
 
-        const respawn = this.game.respawns.getByName('lab')
+        const respawn = this.game.respawns.getByName('bridge')
 
         this.position = respawn.position.clone()
         this.rotationY = 0
