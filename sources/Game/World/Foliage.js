@@ -3,6 +3,7 @@ import { Game } from '../Game.js'
 import { color, uniform, mix, output, instance, smoothstep, min, vec4, PI, vertexIndex, rotateUV, sin, uv, texture, float, Fn, positionLocal, vec3, transformNormalToView, normalWorld, positionWorld, frontFacing, If, screenUV, vec2, viewportResolution, screenSize, instanceIndex, varying, range } from 'three/tsl'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { remap } from '../utilities/maths.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Foliage
 {
@@ -83,38 +84,18 @@ export class Foliage
     setMaterial()
     {
         this.material = {}
-        this.material.instance = new THREE.MeshLambertNodeMaterial()
-    
-        // Position
-        const wind = this.game.wind.offsetNode(positionLocal.xz)
-        const multiplier = positionLocal.y.clamp(0, 1).mul(1)
-
-        this.material.instance.positionNode = Fn( ( { object } ) =>
-        {
-            // Sending "instanceMatrix" twice because mandatory 3 parameters
-            // TODO: Update after Three.js fix
-            instance(object.count, this.instanceMatrix, this.instanceMatrix).toStack()
-
-            return positionLocal.add(vec3(wind.x, 0, wind.y).mul(multiplier))
-        })()
-
-        // Received shadow position
-        this.material.shadowOffset = uniform(1)
-        this.material.instance.receivedShadowPositionNode = positionLocal.add(this.game.lighting.directionUniform.mul(this.material.shadowOffset))
-
-        // Shadow receive
-        const totalShadows = this.game.lighting.addTotalShadowToMaterial(this.material.instance)
-
-        // Output
-        const uniformColor = uniform(this.color)
+        
+        // Alpha
         this.material.threshold = uniform(0.3)
 
         this.material.seeThroughPosition = uniform(vec2())
         this.material.seeThroughEdgeMin = uniform(0.25)
         this.material.seeThroughEdgeMax = uniform(0.5)
 
-        this.material.instance.outputNode = Fn(() =>
+        const alphaNode = Fn(() =>
         {
+            let alpha = float(1)
+
             // XRay around the vehicle
             if(this.seeThrough)
             {
@@ -127,28 +108,47 @@ export class Foliage
                 // Foliage texture
                 const foliageSDF = texture(this.game.resources.foliageTexture).r
 
-                // Visibility
-                const visibility = foliageSDF.mul(distanceFade.mul(this.material.threshold.oneMinus()).add(this.material.threshold))
-
-                // Discard
-                visibility.lessThan(this.material.threshold).discard()
+                // Alpha
+                alpha.assign(foliageSDF.mul(distanceFade.mul(this.material.threshold.oneMinus()).add(this.material.threshold)))
             }
             else
             {
-                // Discard
-                const visibility = texture(this.game.resources.foliageTexture).r
-                visibility.lessThan(this.material.threshold).discard()
+                // Alpha
+                alpha.assign(texture(this.game.resources.foliageTexture).r)
             }
 
-            // Lighting
-            return this.game.lighting.lightOutputNodeBuilder(uniformColor, float(1), normalWorld, totalShadows)
+            alpha.subAssign(this.material.threshold)
+            return alpha
         })()
+        
+        // Instance
+        this.material.instance = new MeshDefaultMaterial({
+            // shadowSide: THREE.FrontSide,
+            colorNode: color(this.color),
+            alphaNode: alphaNode,
+            hasWater: false
+        })
+    
+        // Position
+        const wind = this.game.wind.offsetNode(positionLocal.xz)
+        const multiplier = positionLocal.y.clamp(0, 1).mul(1)
+
+        this.material.instance.positionNode = Fn( ( { object } ) =>
+        {
+            instance(object.count, this.instanceMatrix).toStack()
+
+            return positionLocal.add(vec3(wind.x, 0, wind.y).mul(multiplier))
+        })()
+
+        // Received shadow position
+        this.material.shadowOffset = uniform(1)
+        this.material.instance.receivedShadowPositionNode = positionLocal.add(this.game.lighting.directionUniform.mul(this.material.shadowOffset))
 
         this.material.instance.castShadowNode = Fn(() =>
         {
             const alphaColor = texture(this.game.resources.foliageTexture).r
             alphaColor.lessThan(0.5).discard()
-            return vec4(0.0)
+            return vec4(0, 1, 1, 1)
         })()
     }
 
@@ -179,7 +179,7 @@ export class Foliage
     
     setInstancedMesh()
     {
-        this.mesh = new THREE.Mesh(this.geometry, this.material.instance)
+        this.mesh = new THREE.InstancedMesh(this.geometry, this.material.instance, this.transformMatrices.length)
         this.mesh.receiveShadow = true
         this.mesh.castShadow = true
         this.mesh.count = this.transformMatrices.length
@@ -190,9 +190,10 @@ export class Foliage
         this.instanceMatrix.setUsage(THREE.StaticDrawUsage)
 
         let i = 0
-        for(const _item of this.transformMatrices)
+        for(const matrix of this.transformMatrices)
         {
-            _item.toArray(this.instanceMatrix.array, i * 16)
+            // this.mesh.setMatrixAt(i, matrix)
+            matrix.toArray(this.instanceMatrix.array, i * 16)
             i++
         }
     }

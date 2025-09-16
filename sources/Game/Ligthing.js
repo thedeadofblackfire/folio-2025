@@ -89,85 +89,6 @@ export class Lighting
         this.coreShadowEdgeLow = uniform(float(-0.25))
         this.coreShadowEdgeHigh = uniform(float(1))
 
-        this.waterThreshold = uniform(-0.3)
-        this.waterAmplitude = uniform(0.013)
-
-        // Get total shadow
-        this.addTotalShadowToMaterial = (material) =>
-        {
-            const totalShadows = float(1).toVar()
-
-            material.receivedShadowNode = Fn(([ shadow ]) => 
-            {
-                totalShadows.mulAssign(shadow)
-                return float(1)
-            })
-
-            return totalShadows
-        }
-
-        // Light output
-        this.lightOutputNodeBuilder = (inputColor, alpha, normal, totalShadows, withBounce = true, withWater = true) =>
-        {
-            return Fn(([inputColor, alpha, totalShadows]) =>
-            {
-                const baseColor = vec3(inputColor.r, inputColor.g, inputColor.b)
-                // const baseColor = vec3(0)
-                // baseColor.assign(vec3(0.8))
-
-                const reorientedNormal = normal
-                // If(frontFacing.not(), () =>
-                // {
-                //     reorientedNormal.mulAssign(-1)
-                // })
-
-                if(withBounce)
-                {
-                    // const terrainUv = this.game.terrainData.worldPositionToUvNode(positionWorld.xz)
-                    // const terrainData = this.game.terrainData.terrainDataNode(positionWorld.xz)
-
-                    // Bounce color
-                    const bounceOrientation = reorientedNormal.dot(vec3(0, - 1, 0)).smoothstep(this.lightBounceEdgeLow, this.lightBounceEdgeHigh)
-                    const bounceDistance = this.lightBounceDistance.sub(max(0, positionWorld.y)).div(this.lightBounceDistance).max(0).pow(2)
-                    // const bounceColor = this.game.terrainData.colorNode(terrainData)
-                    // const bounceColor = color('#ff0000')
-                    baseColor.assign(mix(baseColor, this.bounceColor, bounceOrientation.mul(bounceDistance).mul(this.lightBounceMultiplier)))
-                }
-
-                // Water
-                if(withWater)
-                {
-                    const nearWaterSurface = positionWorld.y.sub(this.waterThreshold).abs().greaterThan(this.waterAmplitude)
-                    baseColor.assign(nearWaterSurface.select(baseColor, color('#ffffff')))
-                }
-
-                // Light
-                const lightenColor = baseColor.mul(this.game.lighting.colorUniform.mul(this.game.lighting.intensityUniform))
-
-                // Core shadow
-                const coreShadowMix = reorientedNormal.dot(this.game.lighting.directionUniform).smoothstep(this.coreShadowEdgeHigh, this.coreShadowEdgeLow)
-                
-                // Cast shadow
-                const castShadowMix = totalShadows.oneMinus()
-                // const castShadowMix = float(0)
-
-                // Combined shadows
-                const combinedShadowMix = max(coreShadowMix, castShadowMix).clamp(0, 1)
-                
-                const shadowColor = baseColor.rgb.mul(this.shadowColor).rgb
-                const shadedColor = mix(lightenColor, shadowColor, combinedShadowMix)
-                
-                // Fog
-                const foggedColor = this.game.fog.strength.mix(shadedColor, this.game.fog.color)
-
-                // Alpha discard
-                alpha.lessThan(0.1).discard()
-
-                // Output
-                return vec4(foggedColor.rgb, alpha)
-            })(inputColor, alpha, totalShadows)
-        }
-
         // Debug
         if(this.game.debug.active)
         {
@@ -180,10 +101,6 @@ export class Lighting
             this.debugPanel.addBlade({ view: 'separator' })
             this.debugPanel.addBinding(this.coreShadowEdgeLow, 'value', { label: 'coreShadowEdgeLow', min: - 1, max: 1, step: 0.01 })
             this.debugPanel.addBinding(this.coreShadowEdgeHigh, 'value', { label: 'coreShadowEdgeHigh', min: - 1, max: 1, step: 0.01 })
-
-            this.debugPanel.addBlade({ view: 'separator' })
-            this.debugPanel.addBinding(this.waterThreshold, 'value', { label: 'waterThreshold', min: -1, max: 0, step: 0.001 })
-            this.debugPanel.addBinding(this.waterAmplitude, 'value', { label: 'waterAmplitude', min: 0, max: 0.5, step: 0.001 })
         }
     }
 

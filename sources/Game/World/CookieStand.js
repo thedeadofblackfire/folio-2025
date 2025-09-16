@@ -4,6 +4,7 @@ import { color, float, Fn, instancedArray, mix, normalWorld, positionGeometry, s
 import { InstancedGroup } from '../InstancedGroup.js'
 import gsap from 'gsap'
 import { InteractivePoints } from '../InteractivePoints.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class CookieStand
 {
@@ -43,12 +44,18 @@ export class CookieStand
 
     setBanner()
     {
-        const material = new THREE.MeshBasicNodeMaterial()
-
-        // Shadow receive
-        const totalShadows = this.game.lighting.addTotalShadowToMaterial(material)
         const windStrength = float(0).toVarying()
 
+        // Color
+        const baseColor = texture(this.game.resources.cookieBannerTexture).rgb.mul(windStrength.mul(4).add(1))
+
+        // Material
+        const material = new MeshDefaultMaterial({
+            colorNode: baseColor,
+            hasWater: false,
+        })
+
+        // Position
         material.positionNode = Fn(() =>
         {
             const baseUv = uv()
@@ -65,14 +72,6 @@ export class CookieStand
             newPosition.addAssign(windDirection.mul(windStrength))
 
             return newPosition
-        })()
-
-        material.outputNode = Fn(() =>
-        {
-            const baseColor = texture(this.game.resources.cookieBannerTexture)
-            baseColor.mulAssign(windStrength.mul(4).add(1))
-
-            return this.game.lighting.lightOutputNodeBuilder(baseColor, float(1), normalWorld, totalShadows, true, false)
         })()
 
         const mesh = this.references.get('banner')[0]
@@ -322,14 +321,11 @@ export class CookieStand
             const geometry = new THREE.PlaneGeometry(1, 1)
 
             // Material
-            const material = new THREE.MeshLambertNodeMaterial({
-                alphaMap: this.counter.texture,
-                alphaTest: 0.01
+            const material = new MeshDefaultMaterial({
+                alphaNode: texture(this.counter.texture).r,
+                hasWater: false,
+                hasLightBounce: false
             })
-        
-            const totalShadows = this.game.lighting.addTotalShadowToMaterial(material)
-
-            material.outputNode = this.game.lighting.lightOutputNodeBuilder(color('#ffffff'), float(1), normalWorld, totalShadows)
 
             // Mesh
             const mesh = new THREE.Mesh(geometry, material)

@@ -3,7 +3,7 @@ import { Game } from './Game.js'
 import MeshGridMaterial, { MeshGridMaterialLine } from './Materials/MeshGridMaterial.js'
 import { color, Fn, mix, round, smoothstep, texture, uniform, uv, vec2 } from 'three/tsl'
 
-export class TerrainData
+export class Terrain
 {
     constructor()
     {
@@ -83,22 +83,22 @@ export class TerrainData
     setNodes()
     {
         this.grassColorUniform = uniform(color('#b8b62e'))
-        this.groundDataDelta = uniform(vec2(0))
+        this.tracksDelta = uniform(vec2(0))
 
         const worldPositionToUvNode = Fn(([position]) =>
         {
             return position.div(this.subdivision).add(0.5)
         })
 
-        this.terrainDataNode = Fn(([position]) =>
+        this.terrainNode = Fn(([position]) =>
         {
             const textureUv = worldPositionToUvNode(position)
             const data = texture(this.game.resources.terrainTexture, textureUv)
 
             // Wheel tracks
             const groundDataColor = texture(
-                this.game.groundData.renderTarget.texture,
-                position.sub(- this.game.groundData.halfSize).sub(this.groundDataDelta).div(this.game.groundData.size)
+                this.game.tracks.renderTarget.texture,
+                position.sub(- this.game.tracks.halfSize).sub(this.tracksDelta).div(this.game.tracks.size)
             )
             data.g.mulAssign(groundDataColor.r.oneMinus())
 
@@ -124,10 +124,10 @@ export class TerrainData
     
     update()
     {
-        // Ground data delta
-        this.groundDataDelta.value.set(
-            this.game.groundData.focusPoint.x,
-            this.game.groundData.focusPoint.y
+        // Tracks delta
+        this.tracksDelta.value.set(
+            this.game.tracks.focusPoint.x,
+            this.game.tracks.focusPoint.y
         )
     }
 }

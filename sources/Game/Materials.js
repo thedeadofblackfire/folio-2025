@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu'
 import { positionLocal, varying, uv, max, positionWorld, float, Fn, uniform, color, mix, vec3, vec4, normalWorld, texture, vec2, time, smoothstep, luminance } from 'three/tsl'
 import { Game } from './Game.js'
+import { MeshDefaultMaterial } from './Materials/MeshDefaultMaterial.js'
 
 export class Materials
 {
@@ -162,13 +163,14 @@ export class Materials
 
     createGradient(_name = 'material', _colorA = 'red', _colorB = 'blue', debugPanel = null)
     {
-        const material = new THREE.MeshLambertNodeMaterial()
-        // material.shadowSide = THREE.BackSide
-        
         const colorA = uniform(new THREE.Color(_colorA))
         const colorB = uniform(new THREE.Color(_colorB))
         const baseColor = mix(colorA, colorB, uv().y)
-        material.outputNode = this.game.lighting.lightOutputNodeBuilder(baseColor, float(1), normalWorld, this.game.lighting.addTotalShadowToMaterial(material))
+
+        const material = new MeshDefaultMaterial({
+            colorNode: baseColor
+        })
+        // material.shadowSide = THREE.BackSide
         
         this.save(_name, material)
 
@@ -265,15 +267,7 @@ export class Materials
 
     createFromMaterial(baseMaterial)
     {
-        let material = baseMaterial
-
-        if(baseMaterial.isMeshStandardMaterial)
-        {
-            material = new THREE.MeshLambertNodeMaterial()
-            this.copy(baseMaterial, material)
-        }
-        
-        if(material.isMeshLambertNodeMaterial)
+        if(baseMaterial.isMeshLambertNodeMaterial || baseMaterial.isMeshStandardMaterial)
         {
             // Shadow
             // material.shadowSide = THREE.BackSide
@@ -282,17 +276,23 @@ export class Materials
             let baseColor = null
             
             if(baseMaterial.map)
-                baseColor = texture(baseMaterial.map)
+                baseColor = texture(baseMaterial.map).rgb
             else
-                baseColor = baseMaterial.color
+                baseColor = color(baseMaterial.color)
             
             // Alpha
-            let alpha = null
+            let alphaNode = null
             
             if(baseMaterial.alphaMap)
-                alpha = texture(baseMaterial.alphaMap)
+                alphaNode = texture(baseMaterial.alphaMap)
             else
-                alpha = float(baseMaterial.opacity)
+                alphaNode = float(baseMaterial.opacity)
+
+            // Transparent
+            let transparent = baseMaterial.transparent
+
+            // Premultiplied alpha
+            let premultipliedAlpha = false
 
             // Exceptions
             if(
@@ -300,16 +300,26 @@ export class Materials
                 baseMaterial.name === 'blackboardLabels'
             )
             {
-                material.premultipliedAlpha = true
-                material.transparent = true
-                alpha = texture(baseMaterial.map).r
+                premultipliedAlpha = true
+                transparent = true
+                alphaNode = texture(baseMaterial.map).r
             }
 
-            // Output
-            material.outputNode = this.game.lighting.lightOutputNodeBuilder(baseColor, alpha, normalWorld, this.game.lighting.addTotalShadowToMaterial(material))
+            // Material
+            const material = new MeshDefaultMaterial({
+                colorNode: baseColor,
+                alphaNode: alphaNode,
+                hasCoreShadows: true,
+                hasDropShadows: true,
+                transparent: transparent
+            })
+            material.premultipliedAlpha = premultipliedAlpha
+            
+            return material
         }
 
-        return material
+        return baseMaterial
+
     }
 
     copy(baseMaterial, targetMaterial)

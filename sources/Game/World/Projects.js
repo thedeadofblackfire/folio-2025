@@ -6,6 +6,7 @@ import projectsData from '../../data/projects.js'
 import { TextCanvas } from '../TextCanvas.js'
 import { add, color, float, Fn, If, luminance, mix, mul, normalWorld, positionGeometry, sin, step, texture, uniform, uv, vec3, vec4 } from 'three/tsl'
 import { Inputs } from '../Inputs/Inputs.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Projects
 {
@@ -198,12 +199,12 @@ export class Projects
         this.shadeMix.images = {}
         this.shadeMix.images.min = 0.1
         this.shadeMix.images.max = 0.65
-        this.shadeMix.images.uniform = uniform(this.shadeMix.images.min)
+        this.shadeMix.images.mixUniform = uniform(this.shadeMix.images.min)
 
         this.shadeMix.texts = {}
         this.shadeMix.texts.min = 0.1
         this.shadeMix.texts.max = 0.3
-        this.shadeMix.texts.uniform = uniform(this.shadeMix.texts.min)
+        this.shadeMix.texts.mixUniform = uniform(this.shadeMix.texts.min)
 
         // Debug
         if(this.game.debug.active)
@@ -217,13 +218,13 @@ export class Projects
             {
                 if(this.state === Projects.STATE_OPEN || this.state === Projects.STATE_OPENING)
                 {
-                    this.shadeMix.images.uniform.value = this.shadeMix.images.max
-                    this.shadeMix.texts.uniform.value = this.shadeMix.texts.max
+                    this.shadeMix.images.mixUniform.value = this.shadeMix.images.max
+                    this.shadeMix.texts.mixUniform.value = this.shadeMix.texts.max
                 }
                 else
                 {
-                    this.shadeMix.images.uniform.value = this.shadeMix.images.min
-                    this.shadeMix.texts.uniform.value = this.shadeMix.texts.min
+                    this.shadeMix.images.mixUniform.value = this.shadeMix.images.min
+                    this.shadeMix.texts.mixUniform.value = this.shadeMix.texts.min
                 }
             }
             
@@ -246,20 +247,25 @@ export class Projects
 
         this.texts.createMaterialOnMesh = (mesh, textTexture) =>
         {
-            // Material
-            const material = new THREE.MeshLambertNodeMaterial({ transparent: true })
-
-            const alpha = texture(textTexture).r
-
-            const shadedOutput = this.game.lighting.lightOutputNodeBuilder(this.texts.baseColor, float(1), normalWorld, float(1)).rgb
-            material.outputNode = vec4(
-                mix(
-                    shadedOutput,
-                    this.texts.baseColor,
-                    this.shadeMix.texts.uniform
-                ),
-                alpha
-            )
+            const material = new MeshDefaultMaterial({
+                hasWater: false,
+                alphaNode: texture(textTexture).r,
+                transparent: true
+            })
+            
+            const baseOutput = material.outputNode
+            
+            material.outputNode = Fn(() =>
+            {
+                return vec4(
+                    mix(
+                        baseOutput.rgb,
+                        this.texts.baseColor,
+                        this.shadeMix.texts.mixUniform
+                    ),
+                    baseOutput.a
+                )
+            })()
 
             // Mesh
             mesh.castShadow = false
@@ -274,19 +280,27 @@ export class Projects
         this.hover.baseColor = color('#ffffff')
 
         // Default
-        this.hover.inactiveMaterial = new THREE.MeshLambertNodeMaterial({ transparent: true })
-        const shadedOutput = this.game.lighting.lightOutputNodeBuilder(this.hover.baseColor, float(1), normalWorld, float(1)).rgb
-        this.hover.inactiveMaterial.outputNode = vec4(
-            mix(
-                shadedOutput,
-                this.hover.baseColor,
-                this.shadeMix.texts.uniform
-            ),
-            float(1)
-        )
+        this.hover.inactiveMaterial = new MeshDefaultMaterial({
+            colorNode: this.hover.baseColor,
+            hasWater: false
+        })
+        
+        const baseOutput = this.hover.inactiveMaterial.outputNode
+        
+        this.hover.inactiveMaterial.outputNode = Fn(() =>
+        {
+            return vec4(
+                mix(
+                    baseOutput.rgb,
+                    this.texts.baseColor,
+                    this.shadeMix.texts.mixUniform
+                ),
+                1
+            )
+        })()
 
         // Active
-        this.hover.activeMaterial = new THREE.MeshLambertNodeMaterial({ transparent: true })
+        this.hover.activeMaterial = new THREE.MeshBasicNodeMaterial({ transparent: true })
         this.hover.activeMaterial.outputNode = vec4(this.hover.baseColor.mul(1.5), float(1))
     }
 
@@ -340,16 +354,13 @@ export class Projects
         this.images.textureNew.generateMipmaps = false
 
         this.images.oldResource = this.images.textureNew.source
-        
-        // Material
-        this.images.material = new THREE.MeshLambertNodeMaterial()
+
         this.images.loadProgress = uniform(0)
         this.images.animationProgress = uniform(0)
         this.images.animationDirection = uniform(0)
 
-        const totalShadows = this.game.lighting.addTotalShadowToMaterial(this.images.material)
-
-        this.images.material.outputNode = Fn(() =>
+        // Color node
+        const colorNode = Fn(() =>
         {
             const uvOld = uv().toVar()
             const uvNew = uv().toVar()
@@ -374,11 +385,30 @@ export class Projects
             const threshold = step(this.images.animationProgress, reveal)
 
             const textureColor = mix(textureNewColor, textureOldColor, threshold)
+            return textureColor
 
-            const shadedOutput = this.game.lighting.lightOutputNodeBuilder(textureColor, float(1), normalWorld, totalShadows)
-            return vec4(mix(shadedOutput.rgb, textureColor, this.shadeMix.images.uniform), 1)
         })()
+        
+        // Material
+        this.images.material = new MeshDefaultMaterial({
+            colorNode: colorNode,
+            hasWater: false
+        })
 
+        const baseOutput = this.images.material.outputNode
+        
+        this.images.material.outputNode = Fn(() =>
+        {
+            return vec4(
+                mix(
+                    baseOutput.rgb,
+                    colorNode,
+                    this.shadeMix.images.mixUniform
+                ),
+                baseOutput.a
+            )
+        })()
+        
         this.images.mesh.material = this.images.material
 
         // Load ended
@@ -924,23 +954,30 @@ export class Projects
         this.url.mixStrength = uniform(0)
 
         // Material
-        const material = new THREE.MeshLambertNodeMaterial({ transparent: true })
-
-        const alpha = texture(this.url.textCanvas.texture).r
-
-        const shadedOutput = this.game.lighting.lightOutputNodeBuilder(this.texts.baseColor, float(1), normalWorld, float(1)).rgb
-        material.outputNode = vec4(
-            mix(
+        const material = new MeshDefaultMaterial({
+            colorNode: this.texts.baseColor,
+            hasWater: false,
+            alphaNode: texture(this.url.textCanvas.texture).r,
+            transparent: true
+        })
+        
+        const baseOutput = material.outputNode
+        
+        material.outputNode = Fn(() =>
+        {
+            return vec4(
                 mix(
-                    shadedOutput,
-                    this.texts.baseColor,
-                    this.shadeMix.texts.uniform
+                    mix(
+                        baseOutput.rgb,
+                        this.texts.baseColor,
+                        this.shadeMix.texts.mixUniform
+                    ),
+                    this.texts.baseColor.mul(1.5),
+                    this.url.mixStrength
                 ),
-                this.texts.baseColor.mul(1.5),
-                this.url.mixStrength
-            ),
-            alpha
-        )
+                baseOutput.a
+            )
+        })()
 
         // Mesh
         this.url.textMesh.castShadow = false
@@ -1222,26 +1259,28 @@ export class Projects
         // Charcoal
         this.oven.charcoal = this.references.get('charcoal')[0]
 
-        const material = new THREE.MeshLambertNodeMaterial()
-        const totalShadows = this.game.lighting.addTotalShadowToMaterial(material)
         this.oven.threshold = uniform(0.2)
 
-        material.outputNode = Fn(() =>
+        const alphaNode = Fn(() =>
         {
-            const baseUv = uv().toVar()
-
-            const baseColor = color('#6F6A87')
-            const lightOutput = this.game.lighting.lightOutputNodeBuilder(baseColor, float(1), vec3(0, 1, 0), totalShadows, true, false)
+            const baseUv = uv()
 
             const voronoi = texture(
                 this.game.noises.voronoi,
                 baseUv
             ).g
 
-            voronoi.lessThan(this.oven.threshold).discard()
+            voronoi.subAssign(this.oven.threshold)
 
-            return lightOutput
+            return voronoi
         })()
+
+        const material = new MeshDefaultMaterial({
+            colorNode: color(0x6F6A87),
+            alphaNode: alphaNode,
+            hasWater: false,
+            hasLightBounce: false
+        })
 
         this.oven.charcoal.material = material
 
@@ -1271,25 +1310,24 @@ export class Projects
         // Blade
         this.anvil.blade = this.references.get('blade')[0]
 
-        const material = new THREE.MeshLambertNodeMaterial()
-        const totalShadows = this.game.lighting.addTotalShadowToMaterial(material)
-
+        const material = new MeshDefaultMaterial({
+            colorNode: color('#a88c7f')
+        })
+        
         const colorA = uniform(color('#ff8641'))
         const colorB = uniform(color('#ff3e00'))
         const intensity = uniform(1.7)
 
+        const baseOutput = material.outputNode
         material.outputNode = Fn(() =>
         {
             const baseUv = uv().toVar()
-
-            const baseColor = color('#a88c7f')
-            const lightOutput = this.game.lighting.lightOutputNodeBuilder(baseColor, float(1), vec3(0, 1, 0), totalShadows, true, false)
 
             const emissiveColor = mix(colorA, colorB, uv().sub(0.5).length().mul(2))
             const emissiveOutput = emissiveColor.div(luminance(emissiveColor)).mul(intensity)
 
             const mixStrength = baseUv.y.smoothstep(0.4, 0.9)
-            const output = mix(lightOutput, emissiveOutput, mixStrength)
+            const output = mix(baseOutput.rgb, emissiveOutput, mixStrength)
 
             return vec4(output.rgb, 1)
         })()
@@ -1325,8 +1363,8 @@ export class Projects
         this.interactiveArea.hide()
 
         // Shade mix
-        gsap.to(this.shadeMix.images.uniform, { value: this.shadeMix.images.max, duration: 2, ease: 'power2.inOut', overwrite: true })
-        gsap.to(this.shadeMix.texts.uniform, { value: this.shadeMix.texts.max, duration: 2, ease: 'power2.inOut', overwrite: true })
+        gsap.to(this.shadeMix.images.mixUniform, { value: this.shadeMix.images.max, duration: 2, ease: 'power2.inOut', overwrite: true })
+        gsap.to(this.shadeMix.texts.mixUniform, { value: this.shadeMix.texts.max, duration: 2, ease: 'power2.inOut', overwrite: true })
 
         // Board
         if(this.blackBoard.active)
@@ -1378,8 +1416,8 @@ export class Projects
         this.game.view.cinematic.end()
 
         // Shade mix
-        gsap.to(this.shadeMix.images.uniform, { value: this.shadeMix.images.min, duration: 1.5, ease: 'power2.inOut', overwrite: true })
-        gsap.to(this.shadeMix.texts.uniform, { value: this.shadeMix.texts.min, duration: 1.5, ease: 'power2.inOut', overwrite: true })
+        gsap.to(this.shadeMix.images.mixUniform, { value: this.shadeMix.images.min, duration: 1.5, ease: 'power2.inOut', overwrite: true })
+        gsap.to(this.shadeMix.texts.mixUniform, { value: this.shadeMix.texts.min, duration: 1.5, ease: 'power2.inOut', overwrite: true })
 
         // Interactive area
         gsap.delayedCall(1, () =>

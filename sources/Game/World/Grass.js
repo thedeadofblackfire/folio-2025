@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import { mul, max, step, output, color, sin, smoothstep, mix, matcapUV, float, mod, texture, transformNormalToView, uniformArray, varying, vertexIndex, rotateUV, cameraPosition, vec4, atan, vec3, vec2, modelWorldMatrix, Fn, attribute, uniform, normalWorld } from 'three/tsl'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Grass
 {
@@ -90,9 +91,8 @@ export class Grass
 
     setMaterial()
     {
-        this.material = new THREE.MeshLambertMaterial()
         this.center = uniform(new THREE.Vector2())
-        // this.groundDataDelta = uniform(new THREE.Vector2())
+        // this.tracksDelta = uniform(new THREE.Vector2())
 
         const vertexLoopIndex = varying(vertexIndex.toFloat().mod(3))
         const tipness = varying(step(vertexLoopIndex, 0.5))
@@ -120,10 +120,21 @@ export class Grass
         ])
 
         const hiddenThreshold = 0.1
-        // const terrainUv = this.game.terrainData.worldPositionToUvNode(bladePosition)
-        const terrainData = this.game.terrainData.terrainDataNode(bladePosition)
+        // const terrainUv = this.game.terrain.worldPositionToUvNode(bladePosition)
+        const terrainData = this.game.terrain.terrainNode(bladePosition)
         const terrainDataGrass = terrainData.g.smoothstep(0.4, 0.6)
         const hidden = step(terrainData.g.sub(0.4), hiddenThreshold)
+
+        // Instance
+        const tipnessShadowMix = tipness.oneMinus().mul(terrainDataGrass)
+
+        this.material = new MeshDefaultMaterial({
+            colorNode: this.game.terrain.colorNode(terrainData),
+            normalNode: vec3(0, 1, 0),
+            hasWater: false,
+            hasLightBounce: false,
+            shadowNode: tipnessShadowMix
+        })
 
         this.material.positionNode = Fn(() =>
         {
@@ -171,29 +182,6 @@ export class Grass
             return vertexPosition
         })()
 
-        // Shadow
-        const totalShadows = this.game.lighting.addTotalShadowToMaterial(this.material)
-
-        let baseColor = this.game.terrainData.colorNode(terrainData)
-        // let baseColor = vec3(0.8)
-
-        this.material.normalNode = vec3(0, 1, 0)
-        
-        const lightenColor = baseColor.mul(this.game.lighting.colorUniform.mul(this.game.lighting.intensityUniform))
-
-        const coreShadowMix = this.material.normalNode.dot(this.game.lighting.directionUniform).smoothstep(this.game.lighting.coreShadowEdgeHigh, this.game.lighting.coreShadowEdgeLow)
-        const castShadowMix = totalShadows.oneMinus()
-        const tipnessShadowMix = tipness.oneMinus().mul(terrainDataGrass)
-        const combinedShadowMix = max(max(coreShadowMix, castShadowMix), tipnessShadowMix).clamp(0, 1)
-        
-        const shadowColor = baseColor.rgb.mul(this.game.lighting.shadowColor).rgb
-        const shadedColor = mix(lightenColor, shadowColor, combinedShadowMix)
-
-        const foggedColor = this.game.fog.strength.mix(shadedColor, this.game.fog.color)
-
-        this.material.outputNode = vec4(foggedColor, 1)
-        // this.material.outputNode = vec4(this.game.lighting.lightOutputNodeBuilder(baseColor, normalWorld), this.game.lighting.addTotalShadowToMaterial(this.material))
-        
         // Debug
         if(this.game.debug.active)
         {
@@ -219,11 +207,5 @@ export class Grass
     update()
     {
         this.center.value.set(this.game.view.optimalArea.position.x, this.game.view.optimalArea.position.z)
-
-        // // Ground data delta
-        // this.groundDataDelta.value.set(
-        //     this.center.value.x - this.game.groundData.focusPoint.x,
-        //     this.center.value.y - this.game.groundData.focusPoint.y
-        // )
     }
 }

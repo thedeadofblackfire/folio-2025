@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import { color, float, Fn, hash, instancedArray, instanceIndex, max, mod, normalWorld, positionGeometry, rotateUV, sin, smoothstep, step, texture, uniform, vec2, vec3, vec4 } from 'three/tsl'
 import { remapClamp } from '../utilities/maths.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Rain
 {
@@ -37,8 +38,6 @@ export class Rain
 
     setMaterial()
     {
-        this.material = new THREE.SpriteNodeMaterial({ side: THREE.DoubleSide })
-
         this.size = float(this.game.view.optimalArea.radius)
         this.elevation = float(15)
 
@@ -62,8 +61,17 @@ export class Rain
             scaleArray[i] = Math.random() * 0.5 + 0.5
         const scaleBuffer = instancedArray(scaleArray, 'float').toAttribute()
         
-        // Output color
-        this.material.outputNode = this.game.lighting.lightOutputNodeBuilder(color('#ffffff'), float(1), vec3(1, 1, 1), this.game.lighting.addTotalShadowToMaterial(this.material))
+        // Material
+        this.material = new THREE.SpriteNodeMaterial({ side: THREE.DoubleSide })
+
+        // Output color from default
+        const defaultMaterial = new MeshDefaultMaterial({
+            normalNode: vec3(1, 1, 1),
+            hasWater: false,
+            hasLightBounce: false,
+            hasFog: true
+        })
+        this.material.outputNode = defaultMaterial.outputNode
 
         // Position
         this.material.positionNode = Fn(() =>

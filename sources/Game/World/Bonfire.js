@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import { color, float, Fn, instancedArray, mix, normalWorld, positionGeometry, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
 import { InteractivePoints } from '../InteractivePoints.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Bonfire
 {
@@ -119,18 +120,9 @@ export class Bonfire
 
     setHashes()
     {
-        const material = new THREE.MeshLambertNodeMaterial()
-
-        // Shadow receive
-        const totalShadows = this.game.lighting.addTotalShadowToMaterial(material)
-
-        material.outputNode = Fn(() =>
+        const alphaNode = Fn(() =>
         {
             const baseUv = uv()
-
-            const baseColor = color('#6F6A87')
-            const lightOutput = this.game.lighting.lightOutputNodeBuilder(baseColor, float(1), vec3(0, 1, 0), totalShadows, true, false)
-
             const distanceToCenter = baseUv.sub(0.5).length()
 
             const voronoi = texture(
@@ -138,10 +130,17 @@ export class Bonfire
                 baseUv
             ).g
 
-            voronoi.lessThan(distanceToCenter.remap(0, 0.5, 0.3, 0)).discard()
+            voronoi.subAssign(distanceToCenter.remap(0, 0.5, 0.3, 0))
 
-            return lightOutput
+            return voronoi
         })()
+
+        const material = new MeshDefaultMaterial({
+            colorNode: color(0x6F6A87),
+            alphaNode: alphaNode,
+            hasWater: false,
+            hasLightBounce: false
+        })
 
         const mesh = this.references.get('hashes')[0]
         mesh.material = material

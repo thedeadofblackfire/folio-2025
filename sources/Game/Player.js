@@ -20,7 +20,7 @@ export class Player
         this.braking = 0
         this.suspensions = ['low', 'low', 'low', 'low']
 
-        const respawn = this.game.respawns.getByName('projects')
+        const respawn = this.game.respawns.getByName('landing')
 
         this.position = respawn.position.clone()
         this.basePosition = this.position.clone()
@@ -296,8 +296,8 @@ export class Player
 
         this.game.view.speedLines.worldTarget.copy(this.position)
 
-        // Ground data > Focus point
-        this.game.groundData.focusPoint.set(this.position.x, this.position.z)
+        // Tracks > Focus point
+        this.game.tracks.focusPoint.set(this.position.x, this.position.z)
 
         // Inputs touch joystick
         this.rotationY = Math.atan2(this.game.physicalVehicle.forward.z, this.game.physicalVehicle.forward.x)

@@ -3,6 +3,7 @@ import { Game } from '../Game.js'
 import { attribute, color, float, Fn, instance, instancedBufferAttribute, instanceIndex, luminance, mix, normalWorld, positionLocal, texture, uniform, uniformArray, uv, vec3, vec4 } from 'three/tsl'
 import { remap, smoothstep } from '../utilities/maths.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Flowers
 {
@@ -166,9 +167,26 @@ export class Flowers
 
     setMaterial()
     {
-        // this.material = new THREE.MeshNormalNodeMaterial({ wireframe: false })
-        // this.material = new THREE.MeshLambertNodeMaterial({ wireframe: true })
-        this.material = new THREE.MeshLambertNodeMaterial({ side: THREE.DoubleSide })
+        const colorNode = Fn(() =>
+        {
+            const colorIndex = instancedBufferAttribute(this.instanceColorIndex, 'float', 1)
+
+            const baseColor = vec3(
+                this.colors.uniform.element(colorIndex.mul(3).add(0)),
+                this.colors.uniform.element(colorIndex.mul(3).add(1)),
+                this.colors.uniform.element(colorIndex.mul(3).add(2))
+            )
+            const colorMixer = attribute('colorMixer')
+            const mixedColor = mix(baseColor, this.game.terrain.grassColorUniform, colorMixer)
+
+            return mixedColor
+        })()
+
+        this.material = new MeshDefaultMaterial({
+            side: THREE.DoubleSide,
+            colorNode: colorNode,
+            hasWater: false
+        })
     
         // Received shadow position
         const shadowOffset = uniform(0.25)
@@ -180,32 +198,9 @@ export class Flowers
 
         this.material.positionNode = Fn( ( { object } ) =>
         {
-            // Sending "instanceMatrix" twice because mandatory 3 parameters
-            // TODO: Update after Three.js fix
-            instance(object.count, this.instanceMatrix, this.instanceMatrix).toStack()
+            instance(object.count, this.instanceMatrix).toStack()
 
             return positionLocal.add(vec3(wind.x, 0, wind.y).mul(multiplier))
-        })()
-
-        // Shadow receive
-        const totalShadows = this.game.lighting.addTotalShadowToMaterial(this.material)
-
-        // Output
-        this.material.outputNode = Fn(() =>
-        {
-            // Color
-            const colorIndex = instancedBufferAttribute(this.instanceColorIndex, 'float', 1)
-            colorIndex.setUsage(THREE.StaticDrawUsage)
-            const baseColor = vec3(
-                this.colors.uniform.element(colorIndex.mul(3).add(0)),
-                this.colors.uniform.element(colorIndex.mul(3).add(1)),
-                this.colors.uniform.element(colorIndex.mul(3).add(2))
-            )
-            const colorMixer = attribute('colorMixer')
-            const mixedColor = mix(baseColor, this.game.terrainData.grassColorUniform, colorMixer)
-
-            // Light
-            return this.game.lighting.lightOutputNodeBuilder(mixedColor, float(1), normalWorld, totalShadows, true, false)
         })()
     }
 

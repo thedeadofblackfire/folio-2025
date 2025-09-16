@@ -3,6 +3,7 @@ import { Game } from '../Game.js'
 import { blendOverlay, color, float, Fn, hash, linearDepth, max, mix, output, positionGeometry, positionLocal, positionWorld, screenUV, select, sin, smoothstep, step, texture, uniform, uv, vec2, vec3, vec4, viewportLinearDepth, viewportSharedTexture } from 'three/tsl'
 import { remap, remapClamp } from '../utilities/maths.js'
 import { hashBlur } from 'three/examples/jsm/tsl/display/hashBlur.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class WaterSurface
 {
@@ -241,8 +242,8 @@ export class WaterSurface
             return Fn(() =>
             {
                 // Terrain data
-                // const terrainUv = this.game.terrainData.worldPositionToUvNode(positionWorld.xz)
-                const terrainData = this.game.terrainData.terrainDataNode(positionWorld.xz)
+                // const terrainUv = this.game.terrain.worldPositionToUvNode(positionWorld.xz)
+                const terrainData = this.game.terrain.terrainNode(positionWorld.xz)
                 const value = float(0)
 
                 // Ripples
@@ -289,21 +290,29 @@ export class WaterSurface
 
     setMaterial()
     {
-        const material = new THREE.MeshLambertNodeMaterial({ color: '#ffffff', wireframe: false, depthWrite: false, transparent: true })
+        const material = new MeshDefaultMaterial({
+            depthWrite: false,
+            colorNode: color(0xffffff),
+            alphaNode: this.detailsMask(),
+            alphaTest: 0,
+            hasCoreShadows: false,
+            hasDropShadows: false,
+            hasLightBounce: false,
+            hasFog: true,
+            hasWater: false,
+            transparent: true
+        })
 
-        const totalShadow = this.game.lighting.addTotalShadowToMaterial(material)
-
+        const baseOutput = material.outputNode
         material.outputNode = Fn(() =>
         {
-            const lightOutput = this.game.lighting.lightOutputNodeBuilder(vec3(1), float(1), vec3(0, 1, 0), totalShadow, false, false).rgb
-
             const blurOutput = this.blurOutputNode()
 
-            const finalOuput = select(this.detailsMask().lessThan(0.5), blurOutput, lightOutput);
+            const finalOuput = select(baseOutput.a.lessThan(0.5), blurOutput, baseOutput);
 
-            return vec4(finalOuput, 1)
+            return finalOuput
         })()
-
+        
         material.castShadowNode = Fn(() =>
         {
             this.detailsMask().lessThan(0.5).discard()
@@ -354,6 +363,7 @@ export class WaterSurface
 
         this.mesh.position.x = this.game.view.optimalArea.position.x
         this.mesh.position.z = this.game.view.optimalArea.position.z
+        this.mesh.renderOrder = 1
 
         const hasRipples = this.ripplesRatio.value > 0.0001
         const hasIce = this.iceRatio.value > 0.0001

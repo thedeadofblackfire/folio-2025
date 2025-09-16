@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { Track } from '../GroundData/Track.js'
+import { Track } from '../Tracks.js'
 import { Trails } from '../Trails.js'
 import { remapClamp } from '../utilities/maths.js'
 
@@ -66,7 +66,7 @@ export class VisualVehicle
 
     setMainGroundTrack()
     {
-        this.mainGroundTrack = this.game.groundData.addTrack(new Track(1.5, 'g'))
+        this.mainGroundTrack = this.game.tracks.add(new Track(1.5, 'g'))
 
     }
 
@@ -96,8 +96,8 @@ export class VisualVehicle
             if(i === 0 || i === 2)
                 wheel.container.rotation.y = Math.PI
 
-            // Add track to ground data
-            wheel.groundTrack = this.game.groundData.addTrack(new Track(0.5, 'r'))
+            // Add new track
+            wheel.groundTrack = this.game.tracks.add(new Track(0.5, 'r'))
 
             this.wheels.items.push(wheel)
         }

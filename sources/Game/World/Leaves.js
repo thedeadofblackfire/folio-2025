@@ -3,6 +3,7 @@ import { Game } from '../Game.js'
 import { float, Fn, hash, instancedArray, instanceIndex, materialNormal, max, mod, modelViewMatrix, normalWorld, positionGeometry, remapClamp, rotateUV, sin, smoothstep, step, texture, uniform, vec2, vec3, vec4 } from 'three/tsl'
 import { remap } from '../utilities/maths.js'
 import gsap from 'gsap'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Leaves
 {
@@ -52,8 +53,6 @@ export class Leaves
 
     setMaterial()
     {
-        this.material = new THREE.MeshLambertNodeMaterial({ side: THREE.DoubleSide })
-
         // Uniforms
         this.focusPoint = uniform(vec2())
         this.vehicleVelocity = uniform(vec3())
@@ -116,8 +115,12 @@ export class Leaves
         }
         const normalBuffer = instancedArray(normalArray, 'vec3').toAttribute()
 
-        // Output color
-        this.material.outputNode = this.game.lighting.lightOutputNodeBuilder(colorBuffer, float(1), normalWorld, this.game.lighting.addTotalShadowToMaterial(this.material))
+        this.material = new MeshDefaultMaterial({
+            side: THREE.DoubleSide,
+            colorNode: colorBuffer,
+            normalNode: normalWorld,
+            hasWater: false,
+        })
 
         // Position
         this.material.positionNode = Fn(() =>
@@ -174,8 +177,8 @@ export class Leaves
             const inverseWeight = weight.oneMinus()
 
             // Terrain
-            // const terrainUv = this.game.terrainData.worldPositionToUvNode(position.xz)
-            const terrainData = this.game.terrainData.terrainDataNode(position.xz)
+            // const terrainUv = this.game.terrain.worldPositionToUvNode(position.xz)
+            const terrainData = this.game.terrain.terrainNode(position.xz)
             
             // Push from vehicle
             const vehicleDelta = position.sub(this.vehiclePosition)

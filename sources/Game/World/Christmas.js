@@ -76,16 +76,16 @@ export class Christmas
         // Shadow receive
         const totalShadows = this.game.lighting.addTotalShadowToMaterial(this.emissiveMaterial)
 
-        // Output
-        this.emissiveMaterial.outputNode = Fn(() =>
-        {
-            const baseColor = attribute('color')
+        // // Output
+        // this.emissiveMaterial.outputNode = Fn(() =>
+        // {
+        //     const baseColor = attribute('color')
 
-            const lightOutputColor = this.game.lighting.lightOutputNodeBuilder(baseColor, float(1), normalWorld, totalShadows, false, false)
+        //     const lightOutputColor = this.game.lighting.lightOutputNodeBuilder(baseColor, float(1), normalWorld, totalShadows, false, false)
 
-            const emissiveColor = baseColor.div(luminance(baseColor)).mul(2)
-            return mix(lightOutputColor, emissiveColor, this.emissiveIntensity)
-        })()
+        //     const emissiveColor = baseColor.div(luminance(baseColor)).mul(2)
+        //     return mix(lightOutputColor, emissiveColor, this.emissiveIntensity)
+        // })()
 
         const object = this.game.resources.christmasTreeVisualModel.scene.getObjectByName('emissive')
         object.receiveShadow = false

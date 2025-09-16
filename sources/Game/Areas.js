@@ -19,7 +19,7 @@ export class Areas
 
         this.previewGroup = new THREE.Group()
         this.previewGroup.visible = false
-        // this.game.scene.add(this.previewGroup)
+        this.game.scene.add(this.previewGroup)
 
         if(this.game.debug.active)
         {

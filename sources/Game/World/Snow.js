@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import { attribute, cameraNormalMatrix, color, cross, dot, float, Fn, hash, If, materialNormal, min, mix, modelNormalMatrix, modelViewMatrix, normalWorld, PI, positionGeometry, positionLocal, positionWorld, rotateUV, step, texture, time, uniform, uv, uvec4, varying, vec2, vec3, vec4, viewportSize } from 'three/tsl'
 import { clamp, remapClamp } from '../utilities/maths.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Snow
 {
@@ -41,7 +42,7 @@ export class Snow
     setNodes()
     {
         this.roundedPosition = uniform(vec2(0))
-        this.groundDataDelta = uniform(vec2(0))
+        this.tracksDelta = uniform(vec2(0))
         this.elevation = uniform(-1)
         this.noiseMultiplier = uniform(1)
         this.noise1Frequency = uniform(0.1)
@@ -61,8 +62,8 @@ export class Snow
             const elevation = this.elevation.toVar()
 
             // Terrain
-            // const terrainUv = this.game.terrainData.worldPositionToUvNode(position.xy)
-            const terrainData = this.game.terrainData.terrainDataNode(position.xy)
+            // const terrainUv = this.game.terrain.worldPositionToUvNode(position.xy)
+            const terrainData = this.game.terrain.terrainNode(position.xy)
 
             // Noise
             const noiseUv1 = position.mul(this.noise1Frequency).xy
@@ -75,8 +76,8 @@ export class Snow
 
             // Wheel tracks
             const groundDataColor = texture(
-                this.game.groundData.renderTarget.texture,
-                position.xy.sub(- this.game.groundData.halfSize).sub(this.roundedPosition).add(this.groundDataDelta).div(this.game.groundData.size)
+                this.game.tracks.renderTarget.texture,
+                position.xy.sub(- this.game.tracks.halfSize).sub(this.roundedPosition).add(this.tracksDelta).div(this.game.tracks.size)
             )
 
             const wheelsTracksHeight = groundDataColor.r.oneMinus()
@@ -245,9 +246,6 @@ export class Snow
 
     setMaterial()
     {
-        this.material = new THREE.MeshLambertNodeMaterial({ color: '#ffffff', transparent: true, wireframe: false })
-
-
         this.color = uniform(color('#ffffff'))
         this.fadeEdgeHigh = uniform(0.5)
         this.fadeEdgeLow = uniform(0.022)
@@ -262,8 +260,6 @@ export class Snow
         const worldUv = varying(vec2())
         const computeNormal = varying(vec3())
 
-        this.material.normalNode = computeNormal
-
         const pivot = attribute('pivot')
         // const debugColor = varying(color('red'))
 
@@ -274,9 +270,15 @@ export class Snow
             const newUv = position.sub(this.roundedPosition).div(this.size).add(0.5)
             const snowTextureElevation = texture(this.snowElevation.texture, newUv).r
 
-            const furnitureTextureElevation = this.game.terrainData.terrainDataNode(position).r
+            const furnitureTextureElevation = this.game.terrain.terrainNode(position).r
 
             return snowTextureElevation.mul(furnitureTextureElevation.oneMinus())
+        })
+
+        this.material = new MeshDefaultMaterial({
+            normalNode: computeNormal,
+            alphaNode: deltaY.smoothstep(this.fadeEdgeLow, this.fadeEdgeHigh),
+            transparent: true
         })
 
         this.material.positionNode = Fn(() =>
@@ -324,9 +326,9 @@ export class Snow
             positionC.y.assign(elevationFromTexture(positionC.xz))
 
             // Terrain data
-            // const terrainUv = this.game.terrainData.worldPositionToUvNode(positionA.xz)
-            const terrainData = this.game.terrainData.terrainDataNode(positionA.xz)
-            const terrainColor = this.game.terrainData.colorNode(terrainData)
+            // const terrainUv = this.game.terrain.worldPositionToUvNode(positionA.xz)
+            const terrainData = this.game.terrain.terrainNode(positionA.xz)
+            const terrainColor = this.game.terrain.colorNode(terrainData)
 
             // Normal
             const newNormal = cross(positionA.sub(positionB), positionA.sub(positionC)).normalize()
@@ -345,15 +347,11 @@ export class Snow
             return positionA
         })()
 
-        const totalShadow = this.game.lighting.addTotalShadowToMaterial(this.material)
-
+        const baseOutput = this.material.outputNode
+        
         this.material.outputNode = Fn(() =>
         {
-            const lightOutput = this.game.lighting.lightOutputNodeBuilder(this.color, float(1), computeNormal, totalShadow, false, false).rgb
-            
-            const alpha = deltaY.smoothstep(this.fadeEdgeLow, this.fadeEdgeHigh)
-
-            // Twinkle
+            // Glitter
             const glittersUv = worldUv.mul(this.glittersPositionFrequency)
             const glittersUvLoop = glittersUv.fract()
 
@@ -364,18 +362,12 @@ export class Snow
             const glittersProgress = this.glittersProgress.mul(this.glittersVariationFrequency)
             const glittersStrength = glittersProgress.sub(glittersRandom1).fract().sub(0.5).abs().remapClamp(0, this.glittersScarcity, 1, 0).toVar()
             
-
             const glittersShape = glittersUvLoop.sub(0.5).length()
             glittersShape.assign(step(glittersShape, glittersRandom2.mul(0.5)))
             glittersStrength.mulAssign(glittersShape.mul(this.glittersStrength))
 
-            return vec4(lightOutput.add(glittersStrength), alpha)
+            return vec4(baseOutput.rgb.add(glittersStrength), baseOutput.a)
         })()
-
-        // this.material.outputNode = vec4(debugColor, 1)
-
-        // this.shadowOffset = uniform(0.1)
-        // this.material.receivedShadowPositionNode = positionLocal.add(this.game.lighting.directionUniform.mul(this.shadowOffset))
 
         // Debug
         if(this.game.debug.active)
@@ -423,10 +415,10 @@ export class Snow
         this.roundedPosition.value.x = Math.round(this.game.view.optimalArea.position.x / this.subdivisionSize) * this.subdivisionSize
         this.roundedPosition.value.y = Math.round(this.game.view.optimalArea.position.z / this.subdivisionSize) * this.subdivisionSize
 
-        // Ground data delta
-        this.groundDataDelta.value.set(
-            this.roundedPosition.value.x - this.game.groundData.focusPoint.x,
-            this.roundedPosition.value.y - this.game.groundData.focusPoint.y
+        // Tracks delta
+        this.tracksDelta.value.set(
+            this.roundedPosition.value.x - this.game.tracks.focusPoint.x,
+            this.roundedPosition.value.y - this.game.tracks.focusPoint.y
         )
 
         this.game.rendering.renderer.setRenderTarget(this.snowElevation.renderTarget)

@@ -3,7 +3,7 @@ import { Game } from '../Game.js'
 import { Field } from './Field.js'
 import { Grid } from './Grid.js'
 import { Grass } from './Grass.js'
-import { float, Fn, instance, normalWorld, positionLocal, vec3 } from 'three/tsl'
+import { color, float, Fn, instance, normalWorld, positionLocal, texture, vec3, vec4 } from 'three/tsl'
 import { WaterSurface } from './WaterSurface.js'
 import { Scenery } from './Scenery.js'
 import { WindLines } from './WindLines.js'
@@ -15,6 +15,7 @@ import { Whispers } from './Whispers.js'
 import { VisualVehicle } from './VisualVehicle.js'
 import { Tornado } from './Tornado.js'
 import { Easter } from '../Easter.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class World
 {
@@ -41,7 +42,35 @@ export class World
         // this.setAxesHelper()
         // this.setCollisionGroupsTest()
         // this.setNormalTest()
-        // this.setTestCube()
+        // this.setTestMesh()
+        // this.setTestInstances()
+    }
+
+    setTestInstances()
+    {
+        // Geometry
+        const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+
+        // Material
+        const material = new THREE.MeshLambertNodeMaterial()
+        material.castShadowNode = vec4(0, 1, 1, 1)
+
+        // Mesh
+        const mesh = new THREE.Mesh(geometry, material)
+        mesh.position.y = 2
+        mesh.receiveShadow = true
+        mesh.castShadow = true
+        this.game.scene.add(mesh)
+
+        // for(let i = 0; i < count; i++)
+        // {
+        //     const object = new THREE.Object3D()
+            
+        //     object.position.set(i * 2, 2, 0)
+        //     object.updateMatrix()
+
+        //     mesh.setMatrixAt(i, object.matrix)
+        // }
     }
 
     setTestShadow()
@@ -92,38 +121,33 @@ export class World
         this.game.scene.add(dummy)
     }
 
-    setTestCube()
+    setTestMesh()
     {
-        const caster = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 1, 1),
-            new THREE.MeshBasicNodeMaterial()
+        const testMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(1, 32, 32),
+            new MeshDefaultMaterial({
+                alphaNode: texture(this.game.resources.foliageTexture).r,
+                colorNode: color(0xff0000),
+                hasCoreShadows: true,
+                hasDropShadows: true,
+                transparent: true
+            })
         )
-        caster.position.y = 1.5
-        caster.position.x = 1
-        caster.castShadow = true
-        this.game.scene.add(caster)
+        testMesh.receiveShadow = true
+        testMesh.position.z = 3
+        this.game.scene.add(testMesh)
 
-        const visualCube = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 1, 1),
-            new THREE.MeshLambertNodeMaterial()
+        const testMesh2 = new THREE.Mesh(
+            new THREE.SphereGeometry(1, 32, 32),
+            new MeshDefaultMaterial({
+                colorNode: color(0xffffff),
+                hasCoreShadows: true,
+                hasDropShadows: true,
+            })
         )
-        visualCube.receiveShadow = true
-        this.game.scene.add(visualCube)
-
-        // uvGridMaterial.outputNode = this.game.lighting.lightOutputNodeBuilder(vec3(1), float(1), normalWorld, this.game.lighting.addTotalShadowToMaterial(uvGridMaterial))
-        
-        const totalShadow = this.game.lighting.addTotalShadowToMaterial(visualCube.material)
-
-        visualCube.material.outputNode = this.game.lighting.lightOutputNodeBuilder(vec3(1), float(1), normalWorld, totalShadow)
-
-        this.game.entities.add(
-            visualCube,
-            {
-                type: 'dynamic',
-                position: { x: 0, y: 4, z: 0 },
-                colliders: [ { shape: 'cuboid', parameters: [ 0.5, 0.5, 0.5 ] } ]
-            }
-        )
+        testMesh2.receiveShadow = true
+        testMesh2.position.x = 3
+        this.game.scene.add(testMesh2)
     }
 
     setAxesHelper()

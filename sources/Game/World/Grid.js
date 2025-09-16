@@ -2,6 +2,7 @@ import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import MeshGridMaterial, { MeshGridMaterialLine } from '../Materials/MeshGridMaterial.js'
 import { float, normalWorld, vec3, vec4 } from 'three/tsl'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Grid
 {
@@ -10,8 +11,8 @@ export class Grid
         this.game = Game.getInstance()
 
         this.geometry = this.game.resources.terrainModel.scene.children[0].geometry
-        // this.geometry = new THREE.PlaneGeometry(this.game.terrainData.subdivision, this.game.terrainData.subdivision).rotateX(-Math.PI * 0.5)
-        this.subdivision = this.game.terrainData.subdivision
+        // this.geometry = new THREE.PlaneGeometry(this.game.terrain.subdivision, this.game.terrain.subdivision).rotateX(-Math.PI * 0.5)
+        this.subdivision = this.game.terrain.subdivision
 
         if(this.game.debug.active)
         {
@@ -43,10 +44,11 @@ export class Grid
             lines
         })
 
-        // uvGridMaterial.outputNode = vec4(1)
-        // uvGridMaterial.outputNode = this.game.lighting.lightOutputNodeBuilder(vec3(1), float(1), vec3(0, 1, 0))
-        // uvGridMaterial.outputNode = this.game.lighting.lightOutputNodeBuilder(uvGridMaterial.outputNode.rgb, float(1), normalWorld)
-        uvGridMaterial.outputNode = this.game.lighting.lightOutputNodeBuilder(uvGridMaterial.outputNode.rgb, float(1), normalWorld, this.game.lighting.addTotalShadowToMaterial(uvGridMaterial))
+        const defaultMaterial = new MeshDefaultMaterial({
+            colorNode: uvGridMaterial.outputNode.rgb,
+            hasWater: false
+        })
+        uvGridMaterial.outputNode = defaultMaterial.outputNode
 
         const ground = new THREE.Mesh(
             new THREE.PlaneGeometry(1000, 1000),

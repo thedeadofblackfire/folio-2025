@@ -4,6 +4,7 @@ import { attribute, cameraNormalMatrix, cameraPosition, cameraProjectionMatrix, 
 import gsap from 'gsap'
 import { WindLineGeometry } from '../Geometries/WindLineGeometry.js'
 import { remapClamp } from '../utilities/maths.js'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 class WindLine
 {
@@ -15,7 +16,15 @@ class WindLine
 
         const geometry = new WindLineGeometry()
 
-        const material = new THREE.MeshBasicNodeMaterial({ wireframe: false })
+        const material = new MeshDefaultMaterial({
+            colorNode: color(0xffffff),
+            normalNode: vec3(0, 1, 0),
+            hasCoreShadows: false,
+            hasDropShadows: false,
+            hasLightBounce: false,
+            hasFog: false,
+            hasWater: false
+        })
 
         this.thickness = uniform(thickness)
         this.progress = uniform(0)
@@ -44,8 +53,6 @@ class WindLine
             const viewPosition = cameraViewMatrix.mul(worldPosition)
             return cameraProjectionMatrix.mul(viewPosition)
         })()
-
-        material.outputNode = this.game.lighting.lightOutputNodeBuilder(color('#ffffff'), float(1), vec3(0, 1, 0), this.game.lighting.addTotalShadowToMaterial(material))
 
         this.mesh = new THREE.Mesh(geometry, material)
         this.mesh.position.y = 2

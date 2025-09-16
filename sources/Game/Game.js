@@ -12,7 +12,7 @@ import { Player } from './Player.js'
 import { View } from './View.js'
 import { Viewport } from './Viewport.js'
 import { World } from './World/World.js'
-import { GroundData } from './GroundData/GroundData.js'
+import { Tracks } from './Tracks.js'
 import { Monitoring } from './Monitoring.js'
 import { Lighting } from './Ligthing.js'
 import { Materials } from './Materials.js'
@@ -22,7 +22,7 @@ import { DayCycles } from './Cycles/DayCycles.js'
 import { Weather } from './Weather.js'
 import { Noises } from './Noises.js'
 import { Wind } from './Wind.js'
-import { TerrainData } from './TerrainData.js'
+import { Terrain } from './Terrain.js'
 import { Explosions } from './Explosions.js'
 import { YearCycles } from './Cycles/YearCycles.js'
 import { Server } from './Server.js'
@@ -37,6 +37,7 @@ import { Respawns } from './Respawns.js'
 import { Audio } from './Audio.js'
 import { ClosingManager } from './ClosingManager.js'
 import { RayCursor } from './RayCursor.js'
+import { Water } from './Water.js'
 
 export class Game
 {
@@ -143,20 +144,21 @@ export class Game
             this.yearCycles = new YearCycles()
             this.weather = new Weather()
             this.wind = new Wind()
-            this.groundData = new GroundData()
-            this.terrainData = new TerrainData()
+            this.tracks = new Tracks()
+            this.terrain = new Terrain()
             this.lighting = new Lighting()
             this.fog = new Fog()
+            this.water = new Water()
             this.materials = new Materials()
             this.entities = new Entities()
             this.explosions = new Explosions()
-            this.tornado = new Tornado()
             this.physics = new Physics()
             this.wireframe = new PhysicsWireframe()
             this.physicalVehicle = new PhysicsVehicle()
             this.areas = new Areas()
             this.respawns = new Respawns()
             this.player = new Player()
+            this.tornado = new Tornado()
             this.interactivePoints = new InteractivePoints()
             this.world = new World()
             this.overlay = new Overlay()

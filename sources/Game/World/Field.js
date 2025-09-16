@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
 import { float, Fn, materialNormal, min, normalWorld, positionLocal, positionWorld, uv, vec3, vec4 } from 'three/tsl'
+import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Field
 {
@@ -9,7 +10,7 @@ export class Field
         this.game = Game.getInstance()
 
         this.geometry = this.game.resources.terrainModel.scene.children[0].geometry
-        this.subdivision = this.game.terrainData.subdivision
+        this.subdivision = this.game.terrain.subdivision
 
         this.setVisual()
         this.setPhysical()
@@ -31,18 +32,21 @@ export class Field
         geometry.rotateX(-Math.PI * 0.5)
         geometry.deleteAttribute('normal')
 
-        // Material
-        const material = new THREE.MeshLambertNodeMaterial({ color: '#000000', wireframe: false })
 
         // Terrain data
-        const terrainData = this.game.terrainData.terrainDataNode(positionWorld.xz)
+        const terrainData = this.game.terrain.terrainNode(positionWorld.xz)
         const terrainDataGrass = terrainData.g.smoothstep(0.4, 0.6)
-        const baseColor = this.game.terrainData.colorNode(terrainData)
+        const baseColor = this.game.terrain.colorNode(terrainData)
 
-        // materialNormal.assign(vec3(0, 1, 0))
-
+        // Material
+        const material = new MeshDefaultMaterial({
+            colorNode: baseColor,
+            normalNode: vec3(0, 1, 0),
+            shadowNode: terrainDataGrass,
+            hasWater: false,
+            hasLightBounce: false
+        })
         // Displacement
-        material.normalNode = vec3(0, 1, 0)
         material.positionNode = Fn(() =>
         {
             const uvDim = min(min(uv().x, uv().y).mul(20), 1)
@@ -53,11 +57,6 @@ export class Field
 
             return newPosition
         })()
-
-        // Output
-        const totalShadow = this.game.lighting.addTotalShadowToMaterial(material).mul(terrainDataGrass.oneMinus())
-        material.outputNode = this.game.lighting.lightOutputNodeBuilder(baseColor.rgb, float(1), material.normalNode, totalShadow, false, false)
-        // material.outputNode = vec4(1, 1, 1, 1)
 
         // Mesh
         this.mesh = new THREE.Mesh(geometry, material)
