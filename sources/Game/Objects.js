@@ -1,6 +1,6 @@
 import { Game } from './Game.js'
 
-export class Entities
+export class Objects
 {
     constructor()
     {
@@ -16,14 +16,14 @@ export class Entities
 
     add(_visualDescription = null, _physicalDescription = null)
     {
-        const entity = { visual: null, physical: null }
+        const object = { visual: null, physical: null }
 
         /**
          * Visual
          */
         if(_visualDescription && _visualDescription.model)
         {
-            entity.visual = _visualDescription.model
+            object.visual = _visualDescription.model
 
             // Default parameters
             const visualDescription = {
@@ -56,7 +56,7 @@ export class Entities
 
             // Add to scene
             if(visualDescription.parent !== null)
-                visualDescription.parent.add(entity.visual)
+                visualDescription.parent.add(object.visual)
         }
 
         /**
@@ -64,26 +64,26 @@ export class Entities
          */
         if(_physicalDescription)
         {
-            entity.physical = this.game.physics.getPhysical(_physicalDescription)
+            object.physical = this.game.physics.getPhysical(_physicalDescription)
         }
 
         /**
          * Save
          */
         this.key++
-        this.list.set(this.key, entity)
+        this.list.set(this.key, object)
 
         // If sleeping, not enabled or fixed apply transform directly
-        if(entity.visual && entity.physical)
+        if(object.visual && object.physical)
         {
-            if(_physicalDescription.sleeping || !_physicalDescription.enabled || entity.physical.type === 'fixed')
+            if(_physicalDescription.sleeping || !_physicalDescription.enabled || object.physical.type === 'fixed')
             {
-                entity.visual.position.copy(entity.physical.body.translation())
-                entity.visual.quaternion.copy(entity.physical.body.rotation())
+                object.visual.position.copy(object.physical.body.translation())
+                object.visual.quaternion.copy(object.physical.body.rotation())
             }
         }
 
-        return entity
+        return object
     }
 
     addFromModel(_model, _visualDescription = {}, _physicalDescription = {})
@@ -152,29 +152,29 @@ export class Entities
 
     reset()
     {
-        this.list.forEach((entity) =>
+        this.list.forEach((object) =>
         {
-            if(entity.physical)
+            if(object.physical)
             {
-                if(entity.physical.type === 'dynamic')
+                if(object.physical.type === 'dynamic')
                 {
-                    entity.physical.body.setTranslation(entity.physical.initialState.position)
-                    entity.physical.body.setRotation(entity.physical.initialState.rotation)
-                    entity.physical.body.setLinvel({ x: 0, y: 0, z: 0 })
-                    entity.physical.body.setAngvel({ x: 0, y: 0, z: 0 })
+                    object.physical.body.setTranslation(object.physical.initialState.position)
+                    object.physical.body.setRotation(object.physical.initialState.rotation)
+                    object.physical.body.setLinvel({ x: 0, y: 0, z: 0 })
+                    object.physical.body.setAngvel({ x: 0, y: 0, z: 0 })
                     
-                    if(entity.physical.initialState.sleeping)
+                    if(object.physical.initialState.sleeping)
                     {
                         requestAnimationFrame(() =>
                         {
-                            entity.physical.body.sleep()
+                            object.physical.body.sleep()
                         })
                     }
                     
-                    if(entity.visual)
+                    if(object.visual)
                     {
-                        entity.visual.position.copy(entity.physical.initialState.position)
-                        entity.visual.quaternion.copy(entity.physical.initialState.rotation)
+                        object.visual.position.copy(object.physical.initialState.position)
+                        object.visual.quaternion.copy(object.physical.initialState.rotation)
                     }
                 }
             }
@@ -183,14 +183,14 @@ export class Entities
 
     update()
     {
-        this.list.forEach((_entity) =>
+        this.list.forEach((_object) =>
         {
-            if(_entity.visual && _entity.physical)
+            if(_object.visual && _object.physical)
             {
-                if(!_entity.physical.body.isSleeping())
+                if(!_object.physical.body.isSleeping())
                 {
-                    _entity.visual.position.copy(_entity.physical.body.translation())
-                    _entity.visual.quaternion.copy(_entity.physical.body.rotation())
+                    _object.visual.position.copy(_object.physical.body.translation())
+                    _object.visual.quaternion.copy(_object.physical.body.rotation())
                 }
             }
         })

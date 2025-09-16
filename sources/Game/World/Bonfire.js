@@ -100,7 +100,7 @@ export class Bonfire
                     this.particles.visible = true
                     this.burn.material = this.game.materials.getFromName('emissiveOrangeRadialGradient')
 
-                    this.game.entities.reset()
+                    this.game.objects.reset()
                 })
             },
             () =>

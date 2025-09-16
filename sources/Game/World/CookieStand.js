@@ -177,7 +177,7 @@ export class CookieStand
         this.cookies.realCount = this.cookies.count + 2
         this.cookies.currentIndex = 0
         this.cookies.mass = 0.02
-        this.cookies.entities = []
+        this.cookies.objects = []
 
         const references = []
 
@@ -200,8 +200,8 @@ export class CookieStand
             }
             references.push(reference)
             
-            // Entity
-            const entity = this.game.entities.add(
+            // Object
+            const object = this.game.objects.add(
                 {
                     model: reference,
                     updateMaterials: false,
@@ -221,7 +221,7 @@ export class CookieStand
                 },
             )
 
-            this.cookies.entities.push(entity)
+            this.cookies.objects.push(object)
         }
 
         const instancedGroup = new InstancedGroup(references, baseCookie, true)
@@ -424,20 +424,20 @@ export class CookieStand
     accept()
     {
         // Cookies
-        const entity = this.cookies.entities[this.cookies.currentIndex]
+        const object = this.cookies.objects[this.cookies.currentIndex]
 
         const spawnPosition = this.cookies.spawnerPosition.clone()
         spawnPosition.z += Math.random() - 0.5
-        entity.physical.body.setTranslation(spawnPosition)
-        entity.physical.body.setEnabled(true)
+        object.physical.body.setTranslation(spawnPosition)
+        object.physical.body.setEnabled(true)
         requestAnimationFrame(() =>
         {
-            entity.physical.body.applyImpulse({
+            object.physical.body.applyImpulse({
                 x: (Math.random() - 0.5) * this.cookies.mass * 2,
                 y: Math.random() * this.cookies.mass * 3,
                 z: this.cookies.mass * 7
             }, true)
-            entity.physical.body.applyTorqueImpulse({ x: 0, y: 0, z: 0 }, true)
+            object.physical.body.applyTorqueImpulse({ x: 0, y: 0, z: 0 }, true)
         })
 
         this.cookies.currentIndex = (this.cookies.currentIndex + 1) % this.cookies.count

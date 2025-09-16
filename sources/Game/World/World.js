@@ -160,7 +160,7 @@ export class World
     setCollisionGroupsTest()
     {
         // // Left (object)
-        // this.game.entities.add(
+        // this.game.objects.add(
         //     {
         //         type: 'dynamic',
         //         position: { x: 4, y: 2, z: 0.1 },
@@ -169,7 +169,7 @@ export class World
         // )
 
         // Right (terrain)
-        this.game.entities.add(
+        this.game.objects.add(
             null,
             {
                 type: 'dynamic',
@@ -179,7 +179,7 @@ export class World
         )
 
         // // Top (bumper)
-        // this.game.entities.add(
+        // this.game.objects.add(
         //     {
         //         type: 'dynamic',
         //         position: { x: 4, y: 4, z: -0.5 },

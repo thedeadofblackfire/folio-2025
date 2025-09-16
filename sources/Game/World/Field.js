@@ -102,7 +102,7 @@ export class Field
             heights[index] = y
         }
 
-        this.game.entities.add(
+        this.game.objects.add(
             null,
             {
                 type: 'fixed',

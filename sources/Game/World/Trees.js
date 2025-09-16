@@ -97,7 +97,7 @@ export class Trees
     {
         for(const treeReference of this.references)
         {
-            this.game.entities.add(
+            this.game.objects.add(
                 null,
                 {
                     type: 'fixed',

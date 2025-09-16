@@ -16,7 +16,7 @@ import { Tracks } from './Tracks.js'
 import { Monitoring } from './Monitoring.js'
 import { Lighting } from './Ligthing.js'
 import { Materials } from './Materials.js'
-import { Entities } from './Entities.js'
+import { Objects } from './Objects.js'
 import { Fog } from './Fog.js'
 import { DayCycles } from './Cycles/DayCycles.js'
 import { Weather } from './Weather.js'
@@ -150,7 +150,7 @@ export class Game
             this.fog = new Fog()
             this.water = new Water()
             this.materials = new Materials()
-            this.entities = new Entities()
+            this.objects = new Objects()
             this.explosions = new Explosions()
             this.physics = new Physics()
             this.wireframe = new PhysicsWireframe()

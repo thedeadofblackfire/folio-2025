@@ -85,7 +85,7 @@ export class Grid
 
     setPhysical()
     {
-        this.game.entities.add(
+        this.game.objects.add(
             null,
             {
                 type: 'fixed',

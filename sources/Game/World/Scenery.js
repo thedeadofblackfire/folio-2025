@@ -31,7 +31,7 @@ export class Scenery
         }
 
         this.setReferences()
-        this.setEntities()
+        this.setObjects()
 
         this.bushes = new Bushes()
         this.birchTrees = new Trees('Birch Tree', this.game.resources.birchTreesVisualModel.scene, this.game.resources.birchTreesReferencesModel.scene.children, '#ff782b')
@@ -133,7 +133,7 @@ export class Scenery
         }
     }
 
-    setEntities()
+    setObjects()
     {
         const model = [...this.game.resources.sceneryModel.scene.children]
         for(const child of model)
@@ -141,8 +141,8 @@ export class Scenery
             // References
             this.references.parse(child)
 
-            // Entities
-            this.game.entities.addFromModel(
+            // Objects
+            this.game.objects.addFromModel(
                 child,
                 {
 

@@ -6,7 +6,7 @@ export class Playground
     {
         this.game = Game.getInstance()
 
-        this.game.entities.addFromModels(
+        this.game.objects.addFromModels(
             this.game.resources.playgroundPhysical.scene,
             this.game.resources.playgroundVisual.scene,
             {

@@ -12,7 +12,7 @@ export class Bricks
         
         for(const reference of references)
         {
-            this.game.entities.add(
+            this.game.objects.add(
                 {
                     model: reference,
                     updateMaterials: false,
@@ -38,7 +38,7 @@ export class Bricks
         model.rotation.set(0, 0, 0)
         model.frustumCulled = false
 
-        this.game.entities.add(
+        this.game.objects.add(
             {
                 model: model,
                 parent: null

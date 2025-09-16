@@ -22,7 +22,7 @@ export class Christmas
 
     setTree()
     {
-        this.game.entities.addFromModels(
+        this.game.objects.addFromModels(
             this.game.resources.christmasTreePhysicalModel.scene,
             this.game.resources.christmasTreeVisualModel.scene,
             {
@@ -39,7 +39,7 @@ export class Christmas
         
         for(const reference of references)
         {
-            this.game.entities.add(
+            this.game.objects.add(
                 reference,
                 {
                     type: 'dynamic',
