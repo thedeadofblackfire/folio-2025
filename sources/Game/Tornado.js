@@ -3,6 +3,7 @@ import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { Line2 } from 'three/addons/lines/webgpu/Line2.js';
 import { Game } from './Game.js'
 import gsap from 'gsap'
+import { remapClamp } from './utilities/maths.js';
 
 export class Tornado
 {
@@ -218,5 +219,22 @@ export class Tornado
             this.previews.target.position.copy(newPosition)
             this.previews.eased.position.copy(this.position)
         }
+
+        // Physics vehicle
+        const toTornado = this.position.clone().sub(this.game.physicalVehicle.position)
+        const distance = toTornado.length()
+        
+        const strength = remapClamp(distance, 20, 2, 0, 1)
+
+        const force = toTornado.clone().normalize()
+
+        const sideAngleStrength = remapClamp(distance, 8, 2, 0, Math.PI * 0.25)
+        force.applyAxisAngle(new THREE.Vector3(0, 1, 0), -sideAngleStrength)
+
+        const flyForce = remapClamp(distance, 8, 2, 0, 1)
+        force.y = flyForce * 2
+
+        force.setLength(strength * this.game.ticker.deltaScaled * this.strength * 30)
+        this.game.physicalVehicle.chassis.physical.body.applyImpulse(force)
     }
 }

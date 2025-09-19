@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { luminance, cos, float, min, time, atan, uniform, pass, PI, PI2, color, positionLocal, oneMinus, sin, texture, Fn, uv, vec2, vec3, vec4, mix, step, max, smoothstep, remap, dashSize, gapSize } from 'three/tsl'
+import { luminance, cos, float, min, atan, uniform, pass, PI, PI2, color, positionLocal, oneMinus, sin, texture, Fn, uv, vec2, vec3, vec4, mix, step, max, smoothstep, remap, dashSize, gapSize } from 'three/tsl'
 import { Game } from '../Game.js'
 
 const skewedUv = Fn(([ uv, skew ]) =>
@@ -69,7 +69,7 @@ export class Tornado
         // Material
         const material = new THREE.MeshBasicNodeMaterial({ transparent: true, side: THREE.DoubleSide, wireframe: false, depthWrite: true, depthTest: true })
 
-        material.positionNode = twistedCylinder(positionLocal, parabolStrength, parabolOffset, parabolAmplitude.sub(0.05), time.mul(timeScale).mul(2))
+        material.positionNode = twistedCylinder(positionLocal, parabolStrength, parabolOffset, parabolAmplitude.sub(0.05), this.game.ticker.elapsedScaledUniform.mul(timeScale).mul(2))
 
         material.outputNode = Fn(() =>
         {

@@ -20,7 +20,7 @@ export class Player
         this.braking = 0
         this.suspensions = ['low', 'low', 'low', 'low']
 
-        const respawn = this.game.respawns.getByName('cookie')
+        const respawn = this.game.respawns.getByName('social')
 
         this.position = respawn.position.clone()
         this.basePosition = this.position.clone()

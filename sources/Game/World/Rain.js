@@ -46,10 +46,10 @@ export class Rain
         this.focusPoint = uniform(vec2())
         this.scale = uniform(0.03)
         this.windFrequency = uniform(0.005)
-        this.windMultiplier = uniform(0.003)
+        this.windMultiplier = uniform(300)
         this.defaultDamping = uniform(0.02)
-        this.weight = uniform(0.1)
-        this.gravity = uniform(0.001)
+        this.weight = uniform(0.01)
+        this.gravity = uniform(9.807)
         
         // Buffers
         this.positionBuffer = instancedArray(this.count, 'vec3')
@@ -116,13 +116,13 @@ export class Rain
             velocity.z.addAssign(this.game.wind.direction.y.mul(windStrength))
 
             // Damping
-            velocity.mulAssign(float(1).sub(this.defaultDamping))
+            velocity.mulAssign(float(1).sub(this.defaultDamping).mul(this.game.ticker.deltaScaledUniform))
 
             // Gravity
             velocity.y = velocity.y.sub(this.gravity.mul(this.weight))
 
             // Apply velocity
-            position.addAssign(velocity)
+            position.addAssign(velocity.mul(this.game.ticker.deltaScaledUniform))
 
             // Horizontal loop
             const halfSize = this.size.mul(0.5)
@@ -150,10 +150,10 @@ export class Rain
             this.debugPanel,
             this.weight,
             'value',
-            { label: 'weight', min: 0, max: 1, step: 0.001 },
+            { label: 'weight', min: 0, max: 0.4, step: 0.0001 },
             () =>
             {
-                return remapClamp(this.game.weather.temperature.value, 5, -5, 1, 0.1)
+                return remapClamp(this.game.weather.temperature.value, 5, -5, 0.15, 0.005)
             }
         )
 
@@ -161,9 +161,9 @@ export class Rain
         {
             this.debugPanel.addBinding(this.scale, 'value', { label: 'scale', min: 0, max: 0.1, step: 0.001 })
             this.debugPanel.addBinding(this.windFrequency, 'value', { label: 'windFrequency', min: 0, max: 0.02, step: 0.00001 })
-            this.debugPanel.addBinding(this.windMultiplier, 'value', { label: 'windMultiplier', min: 0, max: 0.02, step: 0.00001 })
+            this.debugPanel.addBinding(this.windMultiplier, 'value', { label: 'windMultiplier', min: 0, max: 1000, step: 1 })
             this.debugPanel.addBinding(this.defaultDamping, 'value', { label: 'defaultDamping', min: 0, max: 0.05, step: 0.00001 })
-            this.debugPanel.addBinding(this.gravity, 'value', { label: 'gravity', min: 0, max: 0.1, step: 0.00001 })
+            this.debugPanel.addBinding(this.gravity, 'value', { label: 'gravity', min: 0, max: 20, step: 0.01 })
         }
     }
 

@@ -59,10 +59,10 @@ export class MeshDefaultMaterial extends THREE.MeshLambertNodeMaterial
 
             // Normal orientation
             const reorientedNormal = this._normalNode.toVar()
-            // if(this.side === THREE.DoubleSide || this.side === THREE.BackSide)
-            // {
-            //     If(frontFacing.not(), () => { reorientedNormal.mulAssign(-1) })
-            // }
+            if(this.side === THREE.DoubleSide || this.side === THREE.BackSide)
+            {
+                If(frontFacing.not(), () => { reorientedNormal.mulAssign(-1) })
+            }
 
             // Light bounce
             if(this.hasLightBounce)

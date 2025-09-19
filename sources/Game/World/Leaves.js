@@ -15,7 +15,8 @@ export class Leaves
         //     return
 
         const power = Math.round(remap((this.game.yearCycles.properties.leaves.value), 0.25, 1, 7, 12))
-        this.count = Math.pow(2, power)
+        // this.count = Math.pow(2, power)
+        this.count = Math.pow(2, 12)
 
         // Debug
         if(this.game.debug.active)
@@ -59,14 +60,14 @@ export class Leaves
         this.scale = uniform(0.25)
         this.rotationFrequency = uniform(3)
         this.rotationElevationMultiplier = uniform(1)
-        this.pushOutMultiplier = uniform(0.15)
-        this.pushMultiplier = uniform(1)
+        this.pushSidewaysMultiplier = uniform(20)
+        this.pushMultiplier = uniform(100)
         this.windFrequency = uniform(0.005)
-        this.windMultiplier = uniform(0.003)
-        this.upwardMultiplier = uniform(0.4)
-        this.defaultDamping = uniform(0.02)
-        this.waterDamping = uniform(0.01)
-        this.gravity = uniform(0.01)
+        this.windMultiplier = uniform(0.5)
+        this.upwardMultiplier = uniform(1)
+        this.defaultDamping = uniform(1.5)
+        this.waterDamping = uniform(0.75)
+        this.gravity = uniform(9.807)
         this.explosion = uniform(vec4(0))
         this.tornado = uniform(vec4(0))
 
@@ -89,7 +90,7 @@ export class Leaves
         // Weight
         const weightArray = new Float32Array(this.count)
         for(let i = 0; i < this.count; i++)
-            weightArray[i] = Math.random() * 0.5 + 0.5
+            weightArray[i] = Math.random() * 0.1 + 0.1
         const weightBuffer = instancedArray(weightArray, 'float')
 
         // Color buffer
@@ -173,7 +174,6 @@ export class Leaves
             const position = this.positionBuffer.element(instanceIndex)
             const velocity = this.velocityBuffer.element(instanceIndex)
             const weight = weightBuffer.element(instanceIndex)
-            const inverseWeight = weight.oneMinus()
 
             // Terrain
             // const terrainUv = this.game.terrain.worldPositionToUvNode(position.xz)
@@ -182,22 +182,22 @@ export class Leaves
             // Push from vehicle
             const vehicleDelta = position.sub(this.vehiclePosition)
 
-            const pushOut = vec3(vehicleDelta.x, 0, vehicleDelta.z).normalize().mul(this.pushOutMultiplier)
+            const pushSideways = vec3(vehicleDelta.x, 0, vehicleDelta.z).normalize().mul(this.pushSidewaysMultiplier)
 
             const pushVelocity = vec3(this.vehicleVelocity.x, 0, this.vehicleVelocity.z).mul(this.pushMultiplier)
 
             const distanceToVehicle = vehicleDelta.length()
             const vehicleMultiplier = distanceToVehicle.remapClamp(0.5, 2, 1, 0)
             const speedMultiplier = this.vehicleVelocity.length()
-            const vehiclePush = pushVelocity.add(pushOut).mul(speedMultiplier).mul(vehicleMultiplier).mul(inverseWeight)
+            const vehiclePush = pushVelocity.add(pushSideways).mul(speedMultiplier).mul(vehicleMultiplier)//.mul(inverseWeight)
 
             velocity.addAssign(vehiclePush)
 
             // Wind
             const noiseUv = position.xz.mul(this.windFrequency).add(this.game.wind.direction.mul(this.game.wind.localTime)).xy
-            const noise = smoothstep(0.4, 1, texture(this.game.noises.others, noiseUv).r)
+            const noise = texture(this.game.noises.others, noiseUv).r
 
-            const windStrength = this.game.wind.strength.sub(weight).max(0).mul(noise).mul(this.windMultiplier)
+            const windStrength = this.game.wind.strength.sub(noise).mul(weight).mul(this.windMultiplier).max(0)
             velocity.x.addAssign(this.game.wind.direction.x.mul(windStrength))
             velocity.z.addAssign(this.game.wind.direction.y.mul(windStrength))
 
@@ -206,7 +206,7 @@ export class Leaves
             const distanceToExplosion = explosionDelta.length()
             const explosionMultiplier = distanceToExplosion.remapClamp(this.explosion.z.mul(0.5), this.explosion.z.mul(1), 0.2, 0)
             const explosionDirection = vec2(explosionDelta.x, explosionDelta.y)
-            const explosionPush = explosionDirection.mul(explosionMultiplier).mul(this.explosion.a).mul(inverseWeight)
+            const explosionPush = explosionDirection.mul(explosionMultiplier).mul(this.explosion.a)
             
             velocity.addAssign(vec3(explosionPush.x, 0, explosionPush.y))
 
@@ -228,19 +228,20 @@ export class Leaves
             // this.chassis.physical.body.applyImpulse(force)
 
             // Upward fly
-            velocity.y = velocity.xz.length().mul(this.upwardMultiplier)
+            const upwardDim = position.y.remapClamp(0, 6, 1, 0)
+            velocity.y = velocity.xz.length().min(2).mul(this.upwardMultiplier).mul(upwardDim)
 
             // Damping
             const groundDamping = terrainData.b.remapClamp(0.4, 0, this.waterDamping, this.defaultDamping) // Low on water
             const inTheAirDamping = step(0.05, position.y).mul(this.defaultDamping) // High in the air
-            const damping = max(groundDamping, inTheAirDamping)
+            const damping = max(groundDamping, inTheAirDamping).mul(this.game.ticker.deltaScaledUniform)
             velocity.mulAssign(float(1).sub(damping))
 
             // Gravity
-            velocity.y = velocity.y.sub(this.gravity)
+            velocity.y = velocity.y.sub(this.gravity.mul(weight))
 
             // Apply velocity
-            position.addAssign(velocity)
+            position.addAssign(velocity.mul(this.game.ticker.deltaScaledUniform))
 
             // Clamp to floor / water
             const floorY = terrainData.b.remapClamp(0.02, 0.13, 0, this.game.water.elevationUniform).add(0.02).add(weight.mul(0.02))
@@ -259,14 +260,14 @@ export class Leaves
             this.debugPanel.addBinding(this.scale, 'value', { label: 'scale', min: 0, max: 1, step: 0.001 })
             this.debugPanel.addBinding(this.rotationFrequency, 'value', { label: 'rotationFrequency', min: 0, max: 20, step: 0.001 })
             this.debugPanel.addBinding(this.rotationElevationMultiplier, 'value', { label: 'rotationElevationMultiplier', min: 0, max: 2, step: 0.001 })
-            this.debugPanel.addBinding(this.pushOutMultiplier, 'value', { label: 'pushOutMultiplier', min: 0, max: 1, step: 0.001 })
-            this.debugPanel.addBinding(this.pushMultiplier, 'value', { label: 'pushMultiplier', min: 0, max: 1, step: 0.001 })
+            this.debugPanel.addBinding(this.pushSidewaysMultiplier, 'value', { label: 'pushSidewaysMultiplier', min: 0, max: 300, step: 1 })
+            this.debugPanel.addBinding(this.pushMultiplier, 'value', { label: 'pushMultiplier', min: 0, max: 300, step: 1 })
             this.debugPanel.addBinding(this.windFrequency, 'value', { label: 'windFrequency', min: 0, max: 0.02, step: 0.00001 })
-            this.debugPanel.addBinding(this.windMultiplier, 'value', { label: 'windMultiplier', min: 0, max: 0.02, step: 0.00001 })
-            this.debugPanel.addBinding(this.upwardMultiplier, 'value', { label: 'upwardMultiplier', min: 0, max: 1, step: 0.00001 })
-            this.debugPanel.addBinding(this.defaultDamping, 'value', { label: 'defaultDamping', min: 0, max: 0.05, step: 0.00001 })
-            this.debugPanel.addBinding(this.waterDamping, 'value', { label: 'waterDamping', min: 0, max: 0.05, step: 0.00001 })
-            this.debugPanel.addBinding(this.gravity, 'value', { label: 'gravity', min: 0, max: 0.1, step: 0.00001 })
+            this.debugPanel.addBinding(this.windMultiplier, 'value', { label: 'windMultiplier', min: 0, max: 10, step: 0.0001 })
+            this.debugPanel.addBinding(this.upwardMultiplier, 'value', { label: 'upwardMultiplier', min: 0, max: 10, step: 0.01 })
+            this.debugPanel.addBinding(this.defaultDamping, 'value', { label: 'defaultDamping', min: 0, max: 10, step: 0.01 })
+            this.debugPanel.addBinding(this.waterDamping, 'value', { label: 'waterDamping', min: 0, max: 10, step: 0.01 })
+            this.debugPanel.addBinding(this.gravity, 'value', { label: 'gravity', min: 0, max: 20, step: 0.01 })
         }
     }
 
@@ -285,7 +286,7 @@ export class Leaves
         this.explosion.value.x = coordinates.x // X
         this.explosion.value.y = coordinates.z // Z
         this.explosion.value.z = radius // Radius
-        this.explosion.value.w = 1 // Strength
+        this.explosion.value.w = 20 // Strength
     }
 
     update()
@@ -297,5 +298,6 @@ export class Leaves
         this.game.rendering.renderer.computeAsync(this.updateCompute)
 
         this.explosion.value.w = 0 // Reset potential explosion
+
     }
 }

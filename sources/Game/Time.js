@@ -9,7 +9,8 @@ export class Time
     {
         this.game = Game.getInstance()
 
-        this._scale = 2
+        this.defaultScale = 2
+        this._scale = this.defaultScale
         this.game.ticker.scale = this.scale
         gsap.globalTimeline.timeScale(this.scale)
 
@@ -25,10 +26,10 @@ export class Time
         {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '⏱️ Time',
-                expanded: false,
+                expanded: true,
             })
-            this.debugPanel
-                .addBinding(this, 'scale', { min: 0, max: 5, step: 0.01 })
+            this.debugPanel.addBinding(this, 'defaultScale', { min: 0, max: 5, step: 0.01 })
+            this.debugPanel.addButton({ title: 'bullet time' }).on('click', () => { this.bulletTime.activate() })
         }
     }
 
@@ -66,7 +67,7 @@ export class Time
         this.bulletTime.progress += (this.bulletTime.active ? 1 : - 1) * this.game.ticker.delta * speed
         this.bulletTime.progress = clamp(this.bulletTime.progress, 0, 1)
 
-        this.scale = remap(this.bulletTime.progress, 0, 1, 2, this.bulletTime.scale)
+        this.scale = remap(this.bulletTime.progress, 0, 1, this.defaultScale, this.bulletTime.scale)
         // console.log(this.bulletTime.progress)
     }
 
