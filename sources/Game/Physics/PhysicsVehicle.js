@@ -236,6 +236,7 @@ export class PhysicsVehicle
             {
                 if(!this.upsideDown.active)
                 {
+                    console.log('upside down')
                     this.upsideDown.active = true
                     this.events.trigger('upsideDown')
                 }

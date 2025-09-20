@@ -20,7 +20,7 @@ export class Player
         this.braking = 0
         this.suspensions = ['low', 'low', 'low', 'low']
 
-        const respawn = this.game.respawns.getByName('cookie')
+        const respawn = this.game.respawns.getByName('social')
 
         this.position = respawn.position.clone()
         this.basePosition = this.position.clone()
@@ -134,24 +134,34 @@ export class Player
     setUnstuck()
     {
         this.unstuck = {}
-        this.unstuck.duration = 0.5
-        this.unstuck.timeout = null
+        this.unstuck.duration = 4
+        this.unstuck.delay = null
+
+        this.game.physicalVehicle.events.on('rightSideUp', () =>
+        {
+            // Reset delay
+            if(this.unstuck.delay)
+                this.unstuck.delay.kill()
+        })
 
         this.game.physicalVehicle.events.on('upsideDown', () =>
         {
-            // Reset timeout
-            clearTimeout(this.unstuck.timeout)
+            // Reset delay
+            if(this.unstuck.delay)
+                this.unstuck.delay.kill()
 
             // Wait a moment
-            this.unstuck.timeout = setTimeout(() =>
+            this.unstuck.delay = gsap.delayedCall(this.unstuck.duration, () =>
             {
+                this.unstuck.delay = null
+
                 if(this.state !== Player.STATE_DEFAULT)
                     return
 
                 // Still upside down => Flip back
                 if(this.game.physicalVehicle.upsideDown.active)
                     this.game.physicalVehicle.flip()
-            }, this.unstuck.duration * 2000)
+            })
         })
 
         this.game.physicalVehicle.events.on('stuck', () =>

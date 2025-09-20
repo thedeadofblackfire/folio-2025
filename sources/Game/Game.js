@@ -163,7 +163,7 @@ export class Game
             this.world = new World()
             this.overlay = new Overlay()
             this.closingManager = new ClosingManager()
-            // this.monitoring = new Monitoring()
+            this.monitoring = new Monitoring()
 
             this.rendering.renderer.setAnimationLoop((elapsedTime) => { this.ticker.update(elapsedTime) })
         })
