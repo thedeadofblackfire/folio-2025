@@ -407,7 +407,7 @@ export class Whispers
             const element = document.createElement('div')
             element.classList.add('choice')
             element.innerHTML = /* html */`
-                <img class="js-flag flag" src="${imageUrl}">
+                <img class="js-flag flag" src="${imageUrl}" loading="lazy">
                 <span class="label">${_country[0]} (${_country[2]})</span>
             `
 
