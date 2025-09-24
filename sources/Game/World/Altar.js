@@ -266,9 +266,9 @@ export class Altar
     {
         const areaPosition = this.position.clone()
         areaPosition.y -= 1.25
-        this.game.areas.add('altar', areaPosition, 2.5)
+        this.game.zones.add('altar', areaPosition, 2.5)
 
-        this.game.areas.events.on('altar', (area) =>
+        this.game.zones.events.on('altar', (area) =>
         {
             // Inside the area
             if(area.isIn)

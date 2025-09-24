@@ -2,7 +2,7 @@ import * as THREE from 'three/webgpu'
 import { Events } from './Events.js'
 import { Game } from './Game.js'
 
-export class Areas
+export class Zones
 {
     constructor()
     {
@@ -24,7 +24,7 @@ export class Areas
         if(this.game.debug.active)
         {
             this.debugPanel = this.game.debug.panel.addFolder({
-                title: '🌐 Areas',
+                title: '🌐 Zones',
                 expanded: false,
             })
             this.debugPanel.addBinding(this.previewGroup, 'visible', { label: 'previewVisible' })
@@ -46,24 +46,24 @@ export class Areas
 
     update()
     {
-        for(const area of this.items)
+        for(const zone of this.items)
         {
-            const distance = this.game.player.position.distanceTo(area.position)
+            const distance = this.game.player.position.distanceTo(zone.position)
 
-            if(distance < area.radius)
+            if(distance < zone.radius)
             {
-                if(!area.isIn)
+                if(!zone.isIn)
                 {
-                    area.isIn = true
-                    this.events.trigger(area.name, [ area ])
+                    zone.isIn = true
+                    this.events.trigger(zone.name, [ zone ])
                 }
             }
             else
             {
-                if(area.isIn)
+                if(zone.isIn)
                 {
-                    area.isIn = false
-                    this.events.trigger(area.name, [ area ])
+                    zone.isIn = false
+                    this.events.trigger(zone.name, [ zone ])
                 }
             }
         }

@@ -29,7 +29,7 @@ import { Server } from './Server.js'
 import { Modals } from './Modals.js'
 import { PhysicsVehicle } from './Physics/PhysicsVehicle.js'
 import { PhysicsWireframe } from './Physics/PhysicsWireframe.js'
-import { Areas } from './Areas.js'
+import { Zones } from './Zones.js'
 import { Overlay } from './Overlay.js'
 import { Tornado } from './Tornado.js'
 import { InteractivePoints } from './InteractivePoints.js'
@@ -147,7 +147,7 @@ export class Game
             this.physics = new Physics()
             this.wireframe = new PhysicsWireframe()
             this.physicalVehicle = new PhysicsVehicle()
-            this.areas = new Areas()
+            this.zones = new Zones()
             this.respawns = new Respawns()
             this.player = new Player()
             this.tornado = new Tornado()
