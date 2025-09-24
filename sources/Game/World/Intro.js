@@ -16,7 +16,7 @@ export class Intro
         this.game.modals.items.get('intro').events.on('close', () =>
         {
             if(firstTimeIntro)
-                this.game.audio.music.play()
+                this.game.audio?.music.play()
             
             firstTimeIntro = false
             this.interactiveArea.reveal()

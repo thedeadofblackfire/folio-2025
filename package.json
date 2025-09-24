@@ -11,7 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@dimforge/rapier3d-simd-compat": "^0.17.3",
+    "@dimforge/rapier3d": "^0.17.3",
     "@gltf-transform/cli": "^4.1.0",
     "@gltf-transform/core": "^4.1.0",
     "@gltf-transform/extensions": "^4.1.0",
@@ -24,7 +24,6 @@
     "gsap": "^3.12.5",
     "howler": "^2.2.4",
     "meshoptimizer": "^0.23.0",
-    "moment-timezone": "^0.5.48",
     "msgpack-lite": "^0.1.26",
     "normalize-wheel": "^1.0.1",
     "seedrandom": "^3.0.5",
@@ -34,6 +33,8 @@
     "tweakpane": "^4.0.4",
     "uuid": "^11.1.0",
     "vite": "^5.4.8",
-    "vite-plugin-restart": "^0.4.1"
+    "vite-plugin-restart": "^0.4.1",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.5.0"
   }
 }

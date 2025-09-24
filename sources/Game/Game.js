@@ -1,4 +1,4 @@
-import RAPIER from '@dimforge/rapier3d-simd-compat'
+import RAPIER from '@dimforge/rapier3d'
 import * as THREE from 'three/webgpu'
 
 import { Debug } from './Debug.js'
@@ -53,70 +53,62 @@ export class Game
             return Game.instance
 
         Game.instance = this
-        console.log('init')
 
         // Rapier init
-        RAPIER.init().then(() =>
-        {
-            console.log('initiated')
-            console.log(RAPIER)
+        // Load resources
+        this.resourcesLoader = new ResourcesLoader()
+        this.resourcesLoader.load(
+            [
+                [ 'foliageTexture',                        'foliage/foliageSDF.png',                               'texture' ],
+                [ 'bushesReferences',                      'bushes/bushesReferences.glb',                          'gltf'    ],
+                [ 'vehicle',                               'vehicle/default.glb',                                  'gltf'    ],
+                // [ 'vehicle',                               'vehicle/defaultAntenna.glb',                           'gltf'    ],
+                [ 'playgroundVisual',                      'playground/playgroundVisual.glb',                      'gltf'    ],
+                [ 'playgroundPhysical',                    'playground/playgroundPhysical.glb',                    'gltf'    ],
+                // [ 'floorKeysTexture',                      'floor/keys.png',                                       'texture' ],
+                [ 'flowersReferencesModel',                'flowers/flowersReferences.glb',                        'gltf'    ],
+                [ 'bricksReferencesModel',                 'bricks/bricksReferences.glb',                          'gltf'    ],
+                [ 'bricksVisualModel',                     'bricks/bricksVisual.glb',                              'gltf'    ],
+                [ 'cratesModel',                           'crates/crates.glb',                                    'gltf'    ],
+                [ 'terrainTexture',                        'terrain/terrain.png',                                  'texture' ],
+                // [ 'terrainTexture',                        'terrain/flatGrass.png',                                'texture' ],
+                [ 'terrainModel',                          'terrain/terrain.glb',                                  'gltf'    ],
+                [ 'birchTreesVisualModel',                 'birchTrees/birchTreesVisual.glb',                      'gltf'    ],
+                [ 'birchTreesReferencesModel',             'birchTrees/birchTreesReferences.glb',                  'gltf'    ],
+                [ 'oakTreesVisualModel',                   'oakTrees/oakTreesVisual.glb',                          'gltf'    ],
+                [ 'oakTreesReferencesModel',               'oakTrees/oakTreesReferences.glb',                      'gltf'    ],
+                [ 'cherryTreesVisualModel',                'cherryTrees/cherryTreesVisual.glb',                    'gltf'    ],
+                [ 'cherryTreesReferencesModel',            'cherryTrees/cherryTreesReferences.glb',                'gltf'    ],
+                [ 'areasModel',                            'areas/areas.glb',                                      'gltf'    ],
+                [ 'poleLightsVisualModel',                 'poleLights/poleLightsVisual.glb',                      'gltf'    ],
+                [ 'poleLightsPhysicalModel',               'poleLights/poleLightsPhysical.glb',                    'gltf'    ],
+                [ 'whisperFlameTexture',                   'whispers/whisperFlame.png',                            'texture' ],
+                [ 'satanStarTexture',                      'areas/satanStar.png',                                  'texture' ],
+                [ 'tornadoPathModel',                      'tornado/tornadoPath.glb',                              'gltf'    ],
+                [ 'overlayPatternTexture',                 'overlay/overlayPattern.png',                           'texture', (resource) => { resource.wrapS = THREE.RepeatWrapping; resource.wrapT = THREE.RepeatWrapping; resource.magFilter = THREE.NearestFilter; resource.minFilter = THREE.NearestFilter } ],
+                [ 'interactivePointsKeyIconCrossTexture',  'interactivePoints/interactivePointsKeyIconCross.png',  'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
+                [ 'interactivePointsKeyIconEnterTexture',  'interactivePoints/interactivePointsKeyIconEnter.png',  'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
+                [ 'interactivePointsKeyIconATexture',      'interactivePoints/interactivePointsKeyIconA.png',      'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
+                [ 'respawnsModel',                         'respawns/respawns.glb',                                'gltf'    ],
 
-            // Load resources
-            this.resourcesLoader = new ResourcesLoader()
-            this.resourcesLoader.load(
-                [
-                    [ 'foliageTexture',                        'foliage/foliageSDF.png',                               'texture' ],
-                    [ 'bushesReferences',                      'bushes/bushesReferences.glb',                          'gltf'    ],
-                    [ 'vehicle',                               'vehicle/default.glb',                                  'gltf'    ],
-                    // [ 'vehicle',                               'vehicle/defaultAntenna.glb',                           'gltf'    ],
-                    [ 'playgroundVisual',                      'playground/playgroundVisual.glb',                      'gltf'    ],
-                    [ 'playgroundPhysical',                    'playground/playgroundPhysical.glb',                    'gltf'    ],
-                    // [ 'floorKeysTexture',                      'floor/keys.png',                                       'texture' ],
-                    [ 'flowersReferencesModel',                'flowers/flowersReferences.glb',                        'gltf'    ],
-                    [ 'bricksReferencesModel',                 'bricks/bricksReferences.glb',                          'gltf'    ],
-                    [ 'bricksVisualModel',                     'bricks/bricksVisual.glb',                              'gltf'    ],
-                    [ 'cratesModel',                           'crates/crates.glb',                                    'gltf'    ],
-                    [ 'terrainTexture',                        'terrain/terrain.png',                                  'texture' ],
-                    // [ 'terrainTexture',                        'terrain/flatGrass.png',                                'texture' ],
-                    [ 'terrainModel',                          'terrain/terrain.glb',                                  'gltf'    ],
-                    [ 'birchTreesVisualModel',                 'birchTrees/birchTreesVisual.glb',                      'gltf'    ],
-                    [ 'birchTreesReferencesModel',             'birchTrees/birchTreesReferences.glb',                  'gltf'    ],
-                    [ 'oakTreesVisualModel',                   'oakTrees/oakTreesVisual.glb',                          'gltf'    ],
-                    [ 'oakTreesReferencesModel',               'oakTrees/oakTreesReferences.glb',                      'gltf'    ],
-                    [ 'cherryTreesVisualModel',                'cherryTrees/cherryTreesVisual.glb',                    'gltf'    ],
-                    [ 'cherryTreesReferencesModel',            'cherryTrees/cherryTreesReferences.glb',                'gltf'    ],
-                    [ 'areasModel',                            'areas/areas.glb',                                      'gltf'    ],
-                    [ 'poleLightsVisualModel',                 'poleLights/poleLightsVisual.glb',                      'gltf'    ],
-                    [ 'poleLightsPhysicalModel',               'poleLights/poleLightsPhysical.glb',                    'gltf'    ],
-                    [ 'whisperFlameTexture',                   'whispers/whisperFlame.png',                            'texture' ],
-                    [ 'satanStarTexture',                      'areas/satanStar.png',                                  'texture' ],
-                    [ 'tornadoPathModel',                      'tornado/tornadoPath.glb',                              'gltf'    ],
-                    [ 'overlayPatternTexture',                 'overlay/overlayPattern.png',                           'texture', (resource) => { resource.wrapS = THREE.RepeatWrapping; resource.wrapT = THREE.RepeatWrapping; resource.magFilter = THREE.NearestFilter; resource.minFilter = THREE.NearestFilter } ],
-                    [ 'interactivePointsKeyIconCrossTexture',  'interactivePoints/interactivePointsKeyIconCross.png',  'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
-                    [ 'interactivePointsKeyIconEnterTexture',  'interactivePoints/interactivePointsKeyIconEnter.png',  'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
-                    [ 'interactivePointsKeyIconATexture',      'interactivePoints/interactivePointsKeyIconA.png',      'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
-                    [ 'respawnsModel',                         'respawns/respawns.glb',                                'gltf'    ],
+                // [ 'easterEggVisualModel',                 'easter/easterEggVisual.glb',                   'gltf'    ],
+                // [ 'easterEggReferencesModel',             'easter/easterEggReferences.glb',               'gltf'    ],
+                
+                // [ 'christmasTreeVisualModel',     'christmas/christmasTreeVisual.glb',     'gltf' ],
+                // [ 'christmasTreePhysicalModel',   'christmas/christmasTreePhysical.glb',   'gltf' ],
+                // [ 'christmasGiftVisualModel',     'christmas/christmasGiftVisual.glb',     'gltf' ],
+                // [ 'christmasGiftReferencesModel', 'christmas/christmasGiftReferences.glb', 'gltf' ],
+            ],
+            (resources) =>
+            {
+                this.resources = resources
 
-                    // [ 'easterEggVisualModel',                 'easter/easterEggVisual.glb',                   'gltf'    ],
-                    // [ 'easterEggReferencesModel',             'easter/easterEggReferences.glb',               'gltf'    ],
-                    
-                    // [ 'christmasTreeVisualModel',     'christmas/christmasTreeVisual.glb',     'gltf' ],
-                    // [ 'christmasTreePhysicalModel',   'christmas/christmasTreePhysical.glb',   'gltf' ],
-                    // [ 'christmasGiftVisualModel',     'christmas/christmasGiftVisual.glb',     'gltf' ],
-                    // [ 'christmasGiftReferencesModel', 'christmas/christmasGiftReferences.glb', 'gltf' ],
-                ],
-                (resources) =>
-                {
-                    console.log('loaded')
-                    this.resources = resources
+                this.resources.terrainTexture.flipY = false
 
-                    this.resources.terrainTexture.flipY = false
-
-                    // Init
-                    this.init()
-                }
-            )
-        })
+                // Init
+                this.init()
+            }
+        )
     }
 
     init()
@@ -139,7 +131,7 @@ export class Game
         this.rendering = new Rendering(() =>
         {
             this.noises = new Noises()
-            this.audio = new Audio()
+            // this.audio = new Audio()
             this.dayCycles = new DayCycles()
             this.yearCycles = new YearCycles()
             this.weather = new Weather()
