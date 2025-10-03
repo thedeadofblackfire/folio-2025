@@ -28,8 +28,9 @@ export class ExplosiveCrates
                     position: mesh.position,
                     rotation: mesh.quaternion,
                     friction: 0.7,
+                    mass: 0.02,
                     sleeping: true,
-                    colliders: [ { shape: 'cuboid', parameters: [ 0.5, 0.5, 0.5 ], mass: 0.1, category: 'object' } ],
+                    colliders: [ { shape: 'cuboid', parameters: [ 0.5, 0.5, 0.5 ], category: 'object' } ],
                     waterGravityMultiplier: - 1
                 },
             )

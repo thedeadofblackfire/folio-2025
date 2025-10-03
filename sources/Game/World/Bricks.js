@@ -25,8 +25,9 @@ export class Bricks
                     position: reference.position,
                     rotation: reference.quaternion,
                     friction: 0.7,
+                    mass: 0.1,
                     sleeping: true,
-                    colliders: [ { shape: 'cuboid', parameters: [ 0.75 * 0.75, 0.5 * 0.75, 1 * 0.75 ], mass: 0.1, category: 'object' } ],
+                    colliders: [ { shape: 'cuboid', parameters: [ 0.75 * 0.75, 0.5 * 0.75, 1 * 0.75 ], category: 'object' } ],
                     waterGravityMultiplier: - 1
                 },
             )

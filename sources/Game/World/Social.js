@@ -109,9 +109,10 @@ export class Social
                     position: reference.position,
                     rotation: reference.quaternion,
                     friction: 0.7,
+                    mass: this.fans.mass,
                     sleeping: true,
                     enabled: false,
-                    colliders: [ { shape: 'cuboid', parameters: [ 0.45, 0.65, 0.45 ], mass: this.fans.mass, category: 'object' } ],
+                    colliders: [ { shape: 'cuboid', parameters: [ 0.45, 0.65, 0.45 ], category: 'object' } ],
                     waterGravityMultiplier: - 1
                 },
             )

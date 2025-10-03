@@ -82,10 +82,11 @@ export class Bowling
                     sleeping: true,
                     colliders: descriptions[1].colliders,
                     waterGravityMultiplier: - 1,
-                    collidersOverwrite:
-                    {
-                        mass: 0.05
-                    }
+                    mass: 0.02,
+                    // collidersOverwrite:
+                    // {
+                        
+                    // }
                 },
             )
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { Field } from './Field.js'
+import { Floor } from './Floor.js'
 import { Grid } from './Grid.js'
 import { Grass } from './Grass.js'
 import { color, float, Fn, instance, normalWorld, positionLocal, texture, vec3, vec4 } from 'three/tsl'
@@ -31,8 +31,8 @@ export class World
         this.game = Game.getInstance()
 
         this.visualVehicle = new VisualVehicle()
-        this.field = new Field()
-        // this.grid = new Grid()
+        this.floor = new Floor()
+        // this.floor = new Grid()
         this.waterSurface = new WaterSurface()
         this.grass = new Grass()
         this.windLines = new WindLines()

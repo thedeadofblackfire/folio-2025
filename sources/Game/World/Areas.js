@@ -143,15 +143,16 @@ export class Areas
 
                     },
                     {
-                        friction: child.userData.friction ?? 0.5,
-                        restitution: child.userData.restitution ?? 0.1,
+                        // friction: child.userData.friction ?? 0.5,
+                        // restitution: child.userData.restitution ?? 0.1,
                         position: child.position,
                         rotation: child.quaternion,
                         sleeping: true,
-                        collidersOverwrite:
-                        {
-                            mass: child.userData.mass ?? 1
-                        }
+                        mass: child.userData.mass,
+                        // collidersOverwrite:
+                        // {
+                        //     mass: child.userData.mass ?? 1
+                        // }
                     }
                 )
             }

@@ -3,7 +3,7 @@ import { Game } from '../Game.js'
 import { float, Fn, materialNormal, min, normalWorld, positionLocal, positionWorld, uv, vec3, vec4 } from 'three/tsl'
 import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
-export class Field
+export class Floor
 {
     constructor()
     {
@@ -105,8 +105,8 @@ export class Field
             null,
             {
                 type: 'fixed',
-                friction: 0.25,
-                restitution: 0,
+                friction: 0.2,
+                restitution: 0.15,
                 colliders: [
                     { shape: 'heightfield', parameters: [ rowsCount - 1, rowsCount - 1, heights, { x: this.subdivision, y: 1, z: this.subdivision } ], category: 'floor' }
                 ]

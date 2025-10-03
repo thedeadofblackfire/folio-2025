@@ -161,16 +161,25 @@ export class Physics
             if(_colliderDescription.quaternion)
                 colliderDescription = colliderDescription.setRotation(_colliderDescription.quaternion)
                 
-            if(typeof _colliderDescription.mass !== 'undefined')
+            colliderDescription = colliderDescription.setDensity(0.1)
+                
+            if(typeof _colliderDescription.mass !== 'undefined') // From collider description
             {
                 if(typeof _colliderDescription.centerOfMass !== 'undefined')
                     colliderDescription = colliderDescription.setMassProperties(_colliderDescription.mass, _colliderDescription.centerOfMass, { x: 1, y: 1, z: 1 }, new THREE.Quaternion().setFromAxisAngle(new THREE.Euler(0, 1, 0), - Math.PI * 0))
                 else
                     colliderDescription = colliderDescription.setMass(_colliderDescription.mass)
             }
+                
+            if(typeof _physicalDescription.mass !== 'undefined') // From body description
+            {
+                colliderDescription = colliderDescription.setMass(_physicalDescription.mass / _physicalDescription.colliders.length)
+            }
 
             if(typeof _physicalDescription.friction !== 'undefined')
                 colliderDescription = colliderDescription.setFriction(_physicalDescription.friction)
+            else
+                colliderDescription = colliderDescription.setFriction(0.2)
 
             if(typeof _physicalDescription.frictionRule !== 'undefined')
             {
@@ -179,6 +188,8 @@ export class Physics
                 
             if(typeof _physicalDescription.restitution !== 'undefined')
                 colliderDescription = colliderDescription.setRestitution(_physicalDescription.restitution)
+            else
+                colliderDescription = colliderDescription.setRestitution(0.15)
                 
             let category = 'object'
             if(typeof _colliderDescription.category !== 'undefined')
