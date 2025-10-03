@@ -20,7 +20,7 @@ export class Bowling
         {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '🎳 Bowling',
-                expanded: true,
+                expanded: false,
             })
         }
         this.won = false

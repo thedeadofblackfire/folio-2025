@@ -139,6 +139,8 @@ export class Noises
     {
         this.game = Game.getInstance()
         this.quadMesh = new THREE.QuadMesh()
+		
+		this.resolution = 128
 
 		this.setVoronoi()
 		this.setOthers()
@@ -163,10 +165,9 @@ export class Noises
 	setVoronoi()
 	{
 		// Render target
-        const resolution = 128
         const renderTarget = new THREE.RenderTarget(
-            resolution,
-            resolution,
+            this.resolution,
+            this.resolution,
             {
                 depthBuffer: false,
                 type: THREE.HalfFloatType
@@ -200,10 +201,9 @@ export class Noises
 	setOthers()
 	{
 		// Render target
-        const resolution = 128
         const renderTarget = new THREE.RenderTarget(
-            resolution,
-            resolution,
+            this.resolution,
+            this.resolution,
             {
                 depthBuffer: false,
                 type: THREE.HalfFloatType
