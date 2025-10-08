@@ -197,6 +197,11 @@ export class Cycles
         // Progress
         this.progress = newProgress % 1
 
+        // Progress override
+        if(this.override.strength > 0 && this.override.progress !== null)
+            this.progress = lerp(this.progress, this.override.progress, this.override.strength)
+
+        // Properties
         for(const keyframe of this.keyframesList)
         {
             // Indices
@@ -249,9 +254,11 @@ export class Cycles
     {
         this.override = {}
         this.override.strength = 0
+        this.override.progress = null
         
         this.override.start = (values = {}, duration = 5) =>
         {
+            // Properties
             for(const propertyKey in this.properties)
             {
                 const property = this.properties[propertyKey]
@@ -262,6 +269,11 @@ export class Cycles
                     property.overrideValue = null
             }
 
+            // Progress
+            if(typeof values.progress !== 'undefined')
+                this.override.progress = values.progress
+
+            // Transition
             if(duration === 0)
                 this.override.strength = 1
             else
@@ -270,6 +282,7 @@ export class Cycles
 
         this.override.end = (duration = 5) =>
         {
+            // Transition
             if(duration === 0)
                 this.override.strength = 0
             else

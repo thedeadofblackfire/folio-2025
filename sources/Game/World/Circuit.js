@@ -729,13 +729,8 @@ export default class Circuit
             const dayPresetMix = 0.25
             this.game.dayCycles.override.start(
                 {
-                    lightColor: this.game.dayCycles.presets.day.lightColor.clone().lerp(this.game.dayCycles.presets.dawn.lightColor, dayPresetMix),
-                    lightIntensity: lerp(this.game.dayCycles.presets.day.lightIntensity, this.game.dayCycles.presets.dawn.lightIntensity, dayPresetMix),
-                    shadowColor: this.game.dayCycles.presets.day.shadowColor.clone().lerp(this.game.dayCycles.presets.dawn.shadowColor, dayPresetMix),
-                    fogColorA: this.game.dayCycles.presets.day.fogColorA.clone().lerp(this.game.dayCycles.presets.dawn.fogColorA, dayPresetMix),
-                    fogColorB: this.game.dayCycles.presets.day.fogColorB.clone().lerp(this.game.dayCycles.presets.dawn.fogColorB, dayPresetMix),
-                    fogNearRatio: lerp(this.game.dayCycles.presets.day.fogNearRatio, this.game.dayCycles.presets.dawn.fogNearRatio, dayPresetMix),
-                    fogFarRatio: lerp(this.game.dayCycles.presets.day.fogFarRatio, this.game.dayCycles.presets.dawn.fogFarRatio, dayPresetMix)
+                    progress: 0.85,
+                    fogFarRatio: 2
                 },
                 0
             )
