@@ -928,6 +928,9 @@ export default class Circuit
     {
         if(this.state === Circuit.STATE_STARTING)
             return
+
+        // Timer
+        this.timer.end()
             
         // State
         this.state = Circuit.STATE_STARTING
@@ -962,6 +965,8 @@ export default class Circuit
             this.startingLights.reset()
 
             // Checkpoints
+            this.checkpoints.doorReached.mesh.visible = false
+            this.checkpoints.doorTarget.mesh.visible = false
             for(const checkpoint of this.checkpoints.items)
                 checkpoint.reset()
 
@@ -1042,7 +1047,7 @@ export default class Circuit
         this.checkpoints.target = null
         this.checkpoints.doorTarget.mesh.visible = false
 
-        gsap.delayedCall(forced ? 1 : 5, () =>
+        gsap.delayedCall(forced ? 1 : 4, () =>
         {
             // Overlay > Show
             this.game.overlay.show(() =>
