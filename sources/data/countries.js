@@ -255,4 +255,8 @@ export default [
     [ 'Umbrella Corp.', 'Umbrella Corporation', 'ub' ],
     [ 'Kojima Production', 'Kojima Production', 'kj' ],
     [ 'Nerv', 'Nerv', 'nv' ],
+    [ 'Three.js', 'Three.js', 'ts' ],
+    [ 'WebGL', 'WebGL', 'wl' ],
+    [ 'WebGPU', 'WebGPU', 'wu' ],
+    [ 'Three.js Journey', 'Three.js Journey', 'jj' ],
 ]

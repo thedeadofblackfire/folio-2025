@@ -103,6 +103,10 @@ export class Bubble
         const image = new Image()
         image.addEventListener('load', () =>
         {
+            this.imageTexture.colorSpace = THREE.SRGBColorSpace
+            this.imageTexture.magFilter = THREE.NearestFilter
+            this.imageTexture.minFilter = THREE.NearestFilter
+            this.imageTexture.generateMipmaps = false
             this.imageTexture.needsUpdate = true
         })
         this.imageTexture.image = image
