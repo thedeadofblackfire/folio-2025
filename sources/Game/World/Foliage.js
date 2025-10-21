@@ -17,6 +17,7 @@ export class Foliage
         this.references = references
         this.colorNode = colorNode
         this.seeThrough = seeThrough
+        this.seeThroughMultiplier = 1
 
         this.setGeometry()
         this.setMaterial()
@@ -92,14 +93,14 @@ export class Foliage
         this.material.threshold = uniform(0.3)
 
         this.material.seeThroughPosition = uniform(vec2())
-        this.material.seeThroughEdgeMin = uniform(0.25)
-        this.material.seeThroughEdgeMax = uniform(0.5)
+        this.material.seeThroughEdgeMin = uniform(0.11)
+        this.material.seeThroughEdgeMax = uniform(0.57)
 
         const alphaNode = Fn(() =>
         {
             let alpha = float(1)
 
-            // XRay around the vehicle
+            // See through around the vehicle
             if(this.seeThrough)
             {
                 // Distance to vehicle fade
@@ -204,7 +205,7 @@ export class Foliage
     {
         this.material.seeThroughPosition.value.copy(this.game.world.visualVehicle.screenPosition)
 
-        this.material.seeThroughEdgeMin.value = 3 / this.game.view.spherical.radius.current
-        this.material.seeThroughEdgeMax.value = 15 / this.game.view.spherical.radius.current
+        this.material.seeThroughEdgeMin.value = 3 / this.game.view.spherical.radius.current * this.seeThroughMultiplier
+        this.material.seeThroughEdgeMax.value = 15 / this.game.view.spherical.radius.current * this.seeThroughMultiplier
     }
 }

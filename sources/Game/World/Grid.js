@@ -61,7 +61,7 @@ export class Grid
             new THREE.PlaneGeometry(100, 100),
             uvGridMaterial
         )
-        this.mesh.position.y -= 0.02
+        this.mesh.position.y = 0
         this.mesh.rotation.x = - Math.PI * 0.5
 
         const defaultRespawn = this.game.respawns.getDefault()

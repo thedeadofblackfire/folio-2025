@@ -34,7 +34,7 @@ export class ResourcesLoader
         return loader
     }
 
-    load(_files)
+    load(_files, _progressCallback = null)
     {
         return new Promise((resolve, reject) =>
         {
@@ -44,10 +44,17 @@ export class ResourcesLoader
             // Progress
             const progress = () =>
             {
-                toLoad--
-                
-                if(toLoad === 0)
-                    resolve(loadedResources)
+                // // Fake timing
+                // window.setTimeout(() =>
+                // {
+                    toLoad--
+
+                    if(typeof _progressCallback === 'function')
+                        _progressCallback(toLoad, _files.length)
+                    
+                    if(toLoad === 0)
+                        resolve(loadedResources)
+                // }, Math.random() * 1500)
             }
 
             // Save

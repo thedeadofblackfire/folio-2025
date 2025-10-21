@@ -102,6 +102,7 @@ export class Game
         // Load rest of resources
         const resourcesPromise = this.resourcesLoader.load(
             [
+                [ 'introClickTexture',                     'intro/click.png',                                      'texture' ],
                 [ 'foliageTexture',                        'foliage/foliageSDF.png',                               'texture' ],
                 [ 'bushesReferences',                      'bushes/bushesReferences.glb',                          'gltf'    ],
                 [ 'vehicle',                               'vehicle/default.glb',                                  'gltf'    ],
@@ -131,7 +132,11 @@ export class Game
                 [ 'interactivePointsKeyIconEnterTexture',  'interactivePoints/interactivePointsKeyIconEnter.png',  'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
                 [ 'interactivePointsKeyIconATexture',      'interactivePoints/interactivePointsKeyIconA.png',      'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
                 [ 'jukeboxMusicNotes',                     'jukebox/jukeboxMusicNotes.png',                        'texture', (resource) => {  } ],
-            ]
+            ],
+            (toLoad, total) =>
+            {
+                this.world.introLoader.updateProgress(1 - toLoad / total)
+            }
         )
 
         const [ newResources, RAPIER ] = await Promise.all([ resourcesPromise, rapierPromise ])
@@ -153,7 +158,7 @@ export class Game
 
         this.ticker.wait(3, () =>
         {
-            this.reveal.expose()
+            this.reveal.step(0)
         })
     }
 }
