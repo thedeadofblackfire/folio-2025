@@ -232,7 +232,7 @@ export class VisualVehicle
         }
         
         // From achievemnts
-        this.paints.changeTo('fire')
+        this.paints.changeTo(this.game.achievements.rewards.current.name)
 
         this.game.achievements.events.on('rewardActiveChange', (reward) =>
         {
