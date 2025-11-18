@@ -42,6 +42,7 @@ import { KonamiCode } from './KonamiCode.js'
 import { Achievements } from './Achievements.js'
 import { Notifications } from './Notifications.js'
 import { Quality } from './Quality.js'
+import { Menu } from './Menu.js'
 
 export class Game
 {
@@ -88,6 +89,7 @@ export class Game
         this.rayCursor = new RayCursor()
         this.viewport = new Viewport(this.domElement)
         this.modals = new Modals()
+        this.menu = new Menu()
         this.respawns = new Respawns(import.meta.env.VITE_PLAYER_SPAWN || 'landing')
         this.view = new View()
         this.reveal = new Reveal()

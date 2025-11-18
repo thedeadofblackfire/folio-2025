@@ -1,0 +1,256 @@
+
+.menu
+    display none
+    position fixed
+    top 0
+    align-items center
+    justify-content center
+    color #ffffff
+    opacity 0
+    transition opacity 0.3s
+
+    &.is-displayed
+        display flex
+
+    &.is-visible
+        opacity 1
+
+    *::selection
+        color #251f2b
+        background-color #ffffff
+
+    .inner
+        position relative
+        width @css{ min(1000px, calc(100vw - 120px)) }
+        height @css{ min(650px, calc(100vh - 120px)) }
+        
+        @media only screen and (orientation portrait)
+            width 500px
+
+    .container
+        position relative
+        display flex
+        width 100%
+        height 100%
+
+        @media only screen and (orientation portrait)
+            flex-direction column
+
+    /**
+     * Previews
+     */
+    .previews
+        position relative
+        width 50%
+        display flex
+        align-items center
+        justify-content center
+        background radial-gradient(ellipse at top left, #251f2b, #1d1721)
+
+        @media only screen and (orientation portrait)
+            width auto
+            min-height 250px
+
+        &::after
+            content ''
+            position absolute
+            top 3px
+            right 3px
+            bottom 3px
+            left 3px
+            border 1px solid #ffffff
+            opacity 0.35
+
+        .background
+            position absolute
+            top 0
+            left 0
+            width 100%
+            height 100%
+            object-fit cover
+
+        .preview
+            display block
+            position absolute
+            top 0
+            left 0
+            width 100%
+            height 100%
+            opacity 0
+            pointer-events none
+
+            &.is-visible
+                opacity 1
+                pointer-events auto
+
+    /**
+     * Contents
+     */
+    .contents
+        position relative
+        width 50%
+        padding 25px 40px 40px 40px
+        background radial-gradient(ellipse at top left, #251f2b, #1d1721)
+
+        @media only screen and (orientation portrait)
+            width auto
+
+        @media only screen and (max-width 520px)
+            padding 20px 30px 30px 30px
+
+        @media only screen and (max-width 420px)
+            padding 15px 20px 20px 20px
+
+        .content
+            display block
+            position absolute
+            top 0
+            left 0
+            width 100%
+            height 100%
+            opacity 0
+            pointer-events none
+
+            &.is-visible
+                opacity 1
+                pointer-events auto
+
+    /**
+     * Close
+     */
+    .close
+        position absolute
+        left 100%
+        top 10px
+        width 44px
+        height 44px
+
+        --hover-translate 4px
+
+        &:hover
+            .button-inner
+                transform translateX(4px)
+                
+                &::after
+                    opacity 0.8
+
+        .button-inner
+            position absolute
+            top 0
+            right 0
+            width calc(100% + var(--hover-translate))
+            height 100%
+            background radial-gradient(ellipse at top right, #C21515, #46123B)
+            transition transform 0.15s
+
+            &::after
+                content: ''
+                display block
+                position absolute
+                top 3px
+                right 3px
+                bottom 3px
+                left 0
+                border 1px solid #ffffff
+                border-left none
+                opacity 0.35
+                transition opacity 0.15s
+
+            .icon-container
+                display flex
+                position absolute
+                align-items center
+                justify-content center
+                top 3px
+                right 3px
+                bottom 3px
+                left var(--hover-translate)
+
+                .icon
+                    &.is-default
+                        width 18px
+                        height 18px
+
+                        .is-mode-gamepad.is-gamepad-xbox &
+                            display none
+
+                    &.is-xbox
+                        display none
+                        justify-content center
+                        align-items center
+                        vertical-align bottom
+                        border 2px solid #ffffff
+                        // padding-top 2px
+                        width 30px
+                        height 30px
+                        border-radius 15px
+
+                        .is-mode-gamepad.is-gamepad-xbox &
+                            display block
+
+    /**
+     * Navigation
+     */
+    .navigation
+        display flex
+        position absolute
+        left calc(50% + 10px)
+        bottom 100%
+        gap 3px
+
+        @media only screen and (orientation portrait)
+            left 10px
+
+        .item
+            position relative
+            width 44px
+            height 44px
+
+            --hover-translate 4px
+
+            &:hover
+                .button-inner
+                    transform translateY(-4px)
+
+                    &::after
+                        opacity 0.8
+
+            &.is-active
+                .button-inner
+                    background #241e2a
+
+                    .icon-container
+                        color #ffffff
+
+            .button-inner
+                position absolute
+                top 0
+                left 0
+                width 100%
+                height calc(100% + var(--hover-translate))
+                background radial-gradient(ellipse at top right, #251f2b, #1d1721)
+                transition transform 0.15s
+
+                &::after
+                    content: ''
+                    display block
+                    position absolute
+                    top 3px
+                    right 3px
+                    bottom 0
+                    left 3px
+                    border 1px solid #ffffff
+                    border-bottom none
+                    opacity 0.35
+                    transition opacity 0.15s
+
+                .icon-container
+                    display flex
+                    position absolute
+                    align-items center
+                    justify-content center
+                    top 3px
+                    right 3px
+                    bottom var(--hover-translate)
+                    left 3px
+                    color #ffceca
