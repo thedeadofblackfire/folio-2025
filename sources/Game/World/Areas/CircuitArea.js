@@ -1184,7 +1184,7 @@ export class CircuitArea extends Area
         this.menu.resetTimeElement = this.menu.instance.contentElement.querySelector('.js-reset-time')
         this.menu.leaderboardContainerElement = this.menu.instance.contentElement.querySelector('.js-leaderboard-container')
         this.menu.leaderboardElement = this.menu.leaderboardContainerElement.querySelector('.js-leaderboard tbody')
-        this.menu.runningButtons = this.menu.instance.contentElement.querySelector('.js-running-buttons')
+        this.menu.racingButtons = this.menu.instance.contentElement.querySelector('.js-racing-buttons')
         this.menu.leaderboardNeedsUpdate = false
 
         this.menu.instance.events.on('open', () =>
@@ -1405,7 +1405,7 @@ export class CircuitArea extends Area
         this.game.overlay.show(() =>
         {
             // Menu buttons
-            this.menu.runningButtons.classList.add('is-active')
+            this.menu.racingButtons.classList.add('is-active')
 
             // Update physical vehicle
             this.game.physicalVehicle.moveTo(
@@ -1565,7 +1565,7 @@ export class CircuitArea extends Area
                 this.state = CircuitArea.STATE_PENDING
 
                 // Menu buttons
-                this.menu.runningButtons.classList.remove('is-active')
+                this.menu.racingButtons.classList.remove('is-active')
 
                 // Interactive point
                 this.interactivePoint.show()
