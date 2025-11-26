@@ -133,11 +133,12 @@ export class Intro
             if(!texture)
             {
                 const resourceName = `introLabel${name}`
-                const resourcePath = `intro/${name}Label.png`
+                const resourcePath = `intro/${name}Label.ktx`
                 const resources = await this.game.resourcesLoader.load([
-                    [ resourceName, resourcePath, 'texture' ],
+                    [ resourceName, resourcePath, 'textureKtx' ],
                 ])
                 texture = resources[resourceName]
+                texture.flipY = true
                 textures.set(name, texture)
             }
 

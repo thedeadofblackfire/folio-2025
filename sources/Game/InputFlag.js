@@ -63,7 +63,7 @@ export class InputFlag
     {
         for(const _country of countriesData)
         {
-            const imageUrl = `ui/flags/${_country[2]}.png`
+            const imageUrl = `ui/flags/${_country[2]}.webp`
             const element = document.createElement('div')
             element.classList.add('choice')
             element.innerHTML = /* html */`

@@ -2,6 +2,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { spawn } from 'node:child_process'
 import { glob } from 'glob'
+import sharp from 'sharp'
 
 /**
  * Models
@@ -109,5 +110,25 @@ import { glob } from 'glob'
         ktx2Command.on('close', code =>
         {
         })
+    }
+}
+
+/**
+ * UI images
+ */
+{
+    // Get the current directory of the script.
+    const directory = path.join(path.dirname(path.join(fileURLToPath(import.meta.url), '..')), process.argv[2])
+    const files = await glob(
+        `${directory}/ui/**/*.{png,jpg}`
+    )
+
+    for(const inputFile of files)
+    {
+        const webpFile = inputFile.replace(/\.(png|jpg)$/, '.webp')
+
+        await sharp(inputFile)
+            .webp({ quality: 80 })
+            .toFile(webpFile)
     }
 }
