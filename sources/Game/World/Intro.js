@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { atan, Fn, PI, PI2, positionGeometry, texture, uniform, vec3, vec4 } from 'three/tsl'
+import { atan, float, Fn, PI, PI2, positionGeometry, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
 import gsap from 'gsap'
 import { Inputs } from '../Inputs/Inputs.js'
 
@@ -129,30 +129,46 @@ export class Intro
             }
 
             // Load, set and save texture
-            let texture = textures.get(name)
-            if(!texture)
+            let cachedTexture = textures.get(name)
+            if(!cachedTexture)
             {
-                const resourceName = `introLabel${name}`
+                const loader = this.game.resourcesLoader.getLoader('textureKtx')
+                
                 const resourcePath = `intro/${name}Label.ktx`
-                const resources = await this.game.resourcesLoader.load([
-                    [ resourceName, resourcePath, 'textureKtx' ],
-                ])
-                texture = resources[resourceName]
-                texture.flipY = true
-                textures.set(name, texture)
+                loader.load(
+                    resourcePath,
+                    (loadedTexture) =>
+                    {
+                        textures.set(name, loadedTexture)
+
+                        // Update material and mesh
+                        material.outputNode = Fn(() =>
+                        {
+                            texture(loadedTexture, vec2(uv().x, uv().y.oneMinus())).r.lessThan(0.5).discard()
+                            return vec4(1)
+                        })()
+                        material.needsUpdate = true
+                        mesh.visible = true
+                    }
+                )
+            }
+            else
+            {
+                // Update material and mesh
+                material.outputNode = Fn(() =>
+                {
+                    texture(cachedTexture, vec2(uv().x, uv().y.oneMinus())).r.lessThan(0.5).discard()
+                    return vec4(1)
+                })()
+                material.needsUpdate = true
             }
 
-            // Update material and mesh
-            material.alphaMap = texture
-            material.needsUpdate = true
-            mesh.visible = true
         }
 
         updateTexture()
 
         // Material
         const material = new THREE.MeshBasicNodeMaterial({
-            alphaTest: 0.5,
             transparent: true
         })
 
