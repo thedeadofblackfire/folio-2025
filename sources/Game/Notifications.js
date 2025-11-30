@@ -82,12 +82,13 @@ export class Notifications
             this.hide()
         }, { once: true })
 
-        item.element.addEventListener('mouseenter', (event) =>
+        item.element.addEventListener('pointerenter', (event) =>
         {
-            this.timeHold = true
+            if(event.pointerType !== 'touch')
+                this.timeHold = true
         })
 
-        item.element.addEventListener('mouseleave', (event) =>
+        item.element.addEventListener('pointerleave', (event) =>
         {
             this.timeHold = false
         })
