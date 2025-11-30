@@ -25,7 +25,7 @@ export class Materials
         this.createPalette()
 
         this.createEmissiveGradient('emissiveOrangeRadialGradient', '#ff8641', '#ff3e00', 1.7, true, this.debugPanel?.addFolder({ title: 'emissiveOrangeRadialGradient' }))
-        this.createEmissiveGradient('emissivePurpleRadialGradient', '#b65fff', '#ff3243', 1.7, true, this.debugPanel?.addFolder({ title: 'emissivePurpleRadialGradient' }))
+        this.createEmissiveGradient('emissivePurpleRadialGradient', '#454bbc', '#ff2eb4', 1.7, true, this.debugPanel?.addFolder({ title: 'emissivePurpleRadialGradient' }))
         this.createEmissiveGradient('emissiveBlueRadialGradient', '#91f0ff', '#128fff', 1.7, true, this.debugPanel?.addFolder({ title: 'emissiveBlueRadialGradient' }))
         this.createEmissiveGradient('emissiveGreenRadialGradient', '#f8ffa6', '#74ff00', 1.5, true, this.debugPanel?.addFolder({ title: 'emissiveGreenRadialGradient' }))
         this.createEmissiveGradient('emissiveWhiteRadialGradient', '#ffffff', '#666666', 2.7, false, this.debugPanel?.addFolder({ title: 'emissiveWhiteRadialGradient' }))
@@ -38,7 +38,6 @@ export class Materials
         const material = new MeshDefaultMaterial({
             colorNode: texture(this.game.resources.paletteTexture).rgb
         })
-        // material.shadowSide = THREE.BackSide
         
         this.save('palette', material)
 

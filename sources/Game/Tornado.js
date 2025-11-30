@@ -146,7 +146,7 @@ export class Tornado
         this.game.weather.override.start(
             {
                 humidity: 1,
-                electricField: 1,
+                electricField: 0.5,
                 clouds: 1,
                 wind: 1
             },

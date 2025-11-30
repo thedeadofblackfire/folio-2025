@@ -67,12 +67,6 @@ export default
         1
     ],
     [
-        'backWheel',
-        'Look mom! No hand!',
-        'Do a back wheel for <strong>5s</strong>.',
-        1
-    ],
-    [
         'frontFlip',
         'Teeth first',
         'Do a front flip and land on your 4 wheels.',

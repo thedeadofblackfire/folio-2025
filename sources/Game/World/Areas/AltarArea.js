@@ -24,6 +24,7 @@ export class AltarArea extends Area
 
         this.color = uniform(color('#ff544d'))
         this.emissive = uniform(8)
+        this.progressUniform = uniform(0)
 
         this.setSounds()
         this.setBeam()
@@ -31,17 +32,16 @@ export class AltarArea extends Area
         this.setGlyphs()
         this.setCounter()
         this.setDeathZone()
-        this.setSkullEyes()
         this.setData()
         this.setAchievement()
 
         // Offline counter
         if(!this.game.server.connected)
-            this.updateValue('...')
+            this.updateText('...')
             
         this.game.server.events.on('disconnected', () =>
         {
-            this.updateValue('...')
+            this.updateText('...')
         })
 
         // Debug
@@ -294,6 +294,9 @@ export class AltarArea extends Area
             return scale.mul(0.2)
         })()
 
+        const emissiveAMaterial = this.game.materials.getFromName('emissiveBlueRadialGradient')
+        const emissiveBMaterial = this.game.materials.getFromName('emissiveOrangeRadialGradient')
+
         material.outputNode = Fn(() =>
         {
             // Glyph
@@ -303,8 +306,14 @@ export class AltarArea extends Area
             const glyph = texture(this.game.resources.achievementsGlyphsTexture, glyphUv).r
             glyph.lessThan(0.5).discard()
 
-            // return emissiveMaterial.outputNode
-            return vec4(this.color.mul(this.emissive), 1)
+            // Emissive
+            const emissiveOutput = mix(
+                emissiveBMaterial.outputNode,
+                emissiveAMaterial.outputNode,
+                float(instanceIndex).div(count).step(this.progressUniform)
+            )
+
+            return emissiveOutput
         })()
 
         const geometry = new THREE.PlaneGeometry(1, 1)
@@ -392,7 +401,7 @@ export class AltarArea extends Area
                 this.animateBeam()
                 this.animateBeamParticles()
                 this.data.insert()
-                this.updateValue(this.value + 1)
+                this.updateText(this.value + 1)
                 this.game.player.die()
                 this.sounds.deathBell2.play()
                 gsap.delayedCall(2.2, () =>
@@ -421,39 +430,20 @@ export class AltarArea extends Area
             // Init and insert
             if(data.type === 'init' || data.type === 'cataclysmUpdate')
             {
-                this.updateValue(data.cataclysmCount)
-                this.updateSkullEyes(data.cataclysmProgress)
+                this.updateText(data.cataclysmCount)
+                this.progressUniform.value = data.cataclysmProgress
             }
         })
 
         // Init message already received
         if(this.game.server.initData)
         {
-            this.updateValue(this.game.server.initData.cataclysmCount)
-            this.updateSkullEyes(this.game.server.initData.cataclysmProgress)
+            this.updateText(this.game.server.initData.cataclysmCount)
+            this.progressUniform.value = this.game.server.initData.cataclysmProgress
         }
     }
 
-    setSkullEyes()
-    {
-        this.skullEyes = this.references.items.get('skullEyes')
-        for(const skullEyes of this.skullEyes)
-            skullEyes.visible = true
-    }
-
-    updateSkullEyes(progress)
-    {
-        const count = Math.min(Math.floor(progress * 6), 5)
-        let i = 0
-        for(const skullEyes of this.skullEyes)
-        {
-            skullEyes.visible = i < count
-
-            i++
-        }
-    }
-
-    updateValue(value)
+    updateText(value)
     {
         let formatedValue = null
 
