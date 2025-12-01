@@ -478,6 +478,9 @@ export class BowlingArea extends Area
             InteractivePoints.STATE_CONCEALED,
             () =>
             {
+                if(this.game.audio.muteToggle.active)
+                    this.game.audio.muteToggle.deactivate()
+
                 this.game.audio.playlist.next()
             },
             () =>

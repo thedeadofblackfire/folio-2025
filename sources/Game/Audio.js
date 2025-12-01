@@ -148,11 +148,11 @@ export class Audio
         this.playlist.songs = [
             {
                 path: 'sounds/musics/Portfolio BS - Track 2 V1.mp3',
-                name: 'Track 2'
+                name: 'Baguira.mp3'
             },
             {
                 path: 'sounds/musics/Portfolio BS - Track 4 V1.mp3',
-                name: 'Track 4'
+                name: 'Boy.mp3'
             },
         ]
         this.playlist.index = (Math.floor(Date.now() / 1000 / 60 / 3) % this.playlist.songs.length) // Different music every X minutes
@@ -209,6 +209,22 @@ export class Audio
                 }
 
                 this.playlist.current.sound.play()
+
+                // Notification
+                const html = /* html */`
+                    <div class="top">
+                        <div class="title">Now playing<br /><span class="song-name">${this.playlist.current.name}</span></div>
+                        <div class="music-note-icon"></div>
+                    </div>
+                `
+
+                this.game.notifications.show(
+                    html,
+                    'song',
+                    5,
+                    // () => {
+                    // }
+                )
                 
                 this.playlist.switching = false
             })

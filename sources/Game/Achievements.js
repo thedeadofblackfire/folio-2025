@@ -454,6 +454,7 @@ export class Achievements
 
                     this.game.notifications.show(
                         html,
+                        'achievement',
                         4,
                         () => {
                             this.game.inputs.interactiveButtons.clearItems()

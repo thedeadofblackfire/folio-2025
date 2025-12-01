@@ -51,53 +51,79 @@
             transform-origin 100% 0
             will-change transform
 
-        .top
-            display flex
-            justify-content space-between
-            align-items center
-            margin-bottom 5px
+        &.is-achievement
+            // padding 12px 20px 15px 15px
 
-            .title
-                text-align left
-                color #d5ff95
-                font-size 1.7rem
-                margin-right 10px
-                margin-bottom 0
-                line-height 1em
-                margin-bottom 0.25em
-
-            .progress
+            .top
                 display flex
+                justify-content space-between
                 align-items center
-                font-weight 700
-                color #d5ff95
+                margin-bottom 5px
 
-                .check-icon
-                    display block
-                    width 17px
-                    height 13px
+                .title
+                    text-align left
+                    color #d5ff95
+                    font-size 1.7rem
                     margin-right 10px
-                    background url(../ui/achievements/check.svg)
+                    margin-bottom 0
+                    line-height 1em
+                    margin-bottom 0.25em
 
-        .bottom
-            display flex
-            justify-content space-between
-            align-items flex-start
+                .progress
+                    display flex
+                    align-items center
+                    font-weight 700
+                    color #d5ff95
 
-            .description
-                margin-right 10px
-                margin-bottom 0
-                color #ffffff
-                line-height 1em
-                font-size 16px
-            
-            .open-icon
-                display block
-                position relative
-                top 1px
-                width 19px
-                height 19px
-                background url('../ui/actions/actions-icon-open.webp')
-                background-size 19px 19px
-                opacity 0
-                transition opacity 0.1s
+                    .check-icon
+                        display block
+                        width 17px
+                        height 13px
+                        margin-right 10px
+                        background url(../ui/achievements/check.svg)
+
+            .bottom
+                display flex
+                justify-content space-between
+                align-items flex-start
+
+                .description
+                    margin-right 10px
+                    margin-bottom 0
+                    color #ffffff
+                    line-height 1em
+                    font-size 16px
+                
+                .open-icon
+                    display block
+                    position relative
+                    top 1px
+                    width 19px
+                    height 19px
+                    background url('../ui/actions/actions-icon-open.webp')
+                    background-size 19px 19px
+                    opacity 0
+                    transition opacity 0.1s
+
+
+        &.is-song
+            .top
+                display flex
+                justify-content space-between
+                align-items center
+
+                .title
+                    text-align left
+                    color #ffc67b
+                    font-size 1.7rem
+                    margin-bottom 0
+                    line-height 1em
+
+                    .song-name
+                        color #ffffff
+
+                .music-note-icon
+                    display block
+                    width 16px
+                    height 18px
+                    background url(../ui/music-note.svg)

@@ -54,7 +54,7 @@ export class Notifications
         // }
     }
 
-    show(html = '', duration = 3, clickCallback = null)
+    show(html = '', type = '', duration = 3, clickCallback = null)
     {
         // Pending
         if(this.current)
@@ -69,6 +69,10 @@ export class Notifications
 
         item.element = document.createElement('div')
         item.element.classList.add('notification')
+
+        if(type)
+            item.element.classList.add(`is-${type}`)
+            
         item.element.innerHTML = html
 
         item.timeBar = document.createElement('div')
