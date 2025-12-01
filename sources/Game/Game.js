@@ -43,6 +43,7 @@ import { Achievements } from './Achievements.js'
 import { Notifications } from './Notifications.js'
 import { Quality } from './Quality.js'
 import { Menu } from './Menu.js'
+import { Title } from './Title.js'
 
 export class Game
 {
@@ -178,6 +179,7 @@ export class Game
         this.closingManager = new ClosingManager()
         this.konamiCode = new KonamiCode()
         this.achievements = new Achievements()
+        this.title = new Title()
         // this.monitoring = new Monitoring()
         this.world.init(1)
 
