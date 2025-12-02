@@ -73,7 +73,7 @@ export class PhysicsVehicle
         this.setStop()
         this.setUpsideDown()
         this.setStuck()
-        this.setBackWheel()
+        // this.setBackWheel()
         this.setFlip()
 
         this.game.ticker.events.on('tick', () =>
@@ -315,33 +315,33 @@ export class PhysicsVehicle
         }
     }
 
-    setBackWheel()
-    {
-        this.backWheel = {}
-        this.backWheel.active = false
-        this.backWheel.test = () =>
-        {
-            if(
-                this.zRotation > 1 && this.zRotation < 1.7 &&
-                this.wheels.items[2].inContact && this.wheels.items[3].inContact
-            )
-            {
-                if(!this.backWheel.active)
-                {
-                    this.backWheel.active = true
-                    this.events.trigger('backWheel', [ this.backWheel.active ])
-                }
-            }
-            else
-            {
-                if(this.backWheel.active)
-                {
-                    this.backWheel.active = false
-                    this.events.trigger('backWheel', [ this.backWheel.active ])
-                }
-            }
-        }
-    }
+    // setBackWheel()
+    // {
+    //     this.backWheel = {}
+    //     this.backWheel.active = false
+    //     this.backWheel.test = () =>
+    //     {
+    //         if(
+    //             this.zRotation > 1 && this.zRotation < 1.7 &&
+    //             this.wheels.items[2].inContact && this.wheels.items[3].inContact
+    //         )
+    //         {
+    //             if(!this.backWheel.active)
+    //             {
+    //                 this.backWheel.active = true
+    //                 this.events.trigger('backWheel', [ this.backWheel.active ])
+    //             }
+    //         }
+    //         else
+    //         {
+    //             if(this.backWheel.active)
+    //             {
+    //                 this.backWheel.active = false
+    //                 this.events.trigger('backWheel', [ this.backWheel.active ])
+    //             }
+    //         }
+    //     }
+    // }
 
     setFlip()
     {
@@ -568,7 +568,7 @@ export class PhysicsVehicle
         this.stop.test()
         this.upsideDown.test()
         this.stuck.test()
-        this.backWheel.test()
+        // this.backWheel.test()
         this.flip.test()
     }
 

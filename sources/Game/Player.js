@@ -32,7 +32,7 @@ export class Player
         this.setInputs()
         this.setDistanceDriven()
         this.setUnstuck()
-        this.setBackWheel()
+        // this.setBackWheel()
         this.setFlip()
         this.setTimePlayed()
         this.setRespawn()
@@ -402,37 +402,37 @@ export class Player
         })
     }
 
-    setBackWheel()
-    {
-        let delay = null
-        let startTime = null
+    // setBackWheel()
+    // {
+    //     let delay = null
+    //     let startTime = null
 
-        this.game.physicalVehicle.events.on('backWheel', (_active) =>
-        {
-            if(_active)
-            {
-                startTime = this.game.ticker.elapsed
+    //     this.game.physicalVehicle.events.on('backWheel', (_active) =>
+    //     {
+    //         if(_active)
+    //         {
+    //             startTime = this.game.ticker.elapsed
 
-                if(delay)
-                {
-                    delay.kill()
-                    delay = null
-                }
-            }
-            else
-            {
-                delay = gsap.delayedCall(0.1, () =>
-                {
-                    delay = null
+    //             if(delay)
+    //             {
+    //                 delay.kill()
+    //                 delay = null
+    //             }
+    //         }
+    //         else
+    //         {
+    //             delay = gsap.delayedCall(0.1, () =>
+    //             {
+    //                 delay = null
 
-                    const duration = this.game.ticker.elapsed - startTime
+    //                 const duration = this.game.ticker.elapsed - startTime
 
-                    if(duration > 5)
-                        this.game.achievements.setProgress('backWheel', 1)
-                })
-            }
-        })
-    }
+    //                 if(duration > 5)
+    //                     this.game.achievements.setProgress('backWheel', 1)
+    //             })
+    //         }
+    //     })
+    // }
 
     setFlip()
     {

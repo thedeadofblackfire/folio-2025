@@ -27,7 +27,6 @@ export class Weather
             40,
             () =>
             {
-                return -15
                 const yearValue = this.game.yearCycles.properties.temperature.value
                 const dayValue = this.game.dayCycles.properties.temperature.value
 
@@ -46,7 +45,6 @@ export class Weather
             1,
             () =>
             {
-                return 1
                 const yearValue = this.game.yearCycles.properties.humidity.value
 
                 const frequency = 0.36
@@ -81,7 +79,6 @@ export class Weather
             1,
             () =>
             {
-                return 1
                 const frequency = 0.44
                 const amplitude = 1
                 const variation = this.noise(this.game.dayCycles.absoluteProgress * frequency) * amplitude
