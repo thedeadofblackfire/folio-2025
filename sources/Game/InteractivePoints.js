@@ -454,6 +454,7 @@ export class InteractivePoints
                 material.depthTest = false
                 material.needsUpdate = true
             }
+            this.keyIcon.material.depthTest = false
 
             // Reveal
             this.sounds.reveal.play()
@@ -490,6 +491,7 @@ export class InteractivePoints
                     material.depthTest = true
                     material.needsUpdate = true
                 }
+                this.keyIcon.material.depthTest = true
             } })
 
             if(this.activeItem === item)
