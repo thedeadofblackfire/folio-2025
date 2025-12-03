@@ -732,7 +732,7 @@ export class Audio
                 }
 
                 // Rate (apply global too)
-                item.howl.rate(item.rate * this.globalRate)
+                item.howl.rate(clamp(item.rate * this.globalRate, 0.5, 4))
 
                 // Volume
                 const volume = item.volume * distanceFadeMultiplier
