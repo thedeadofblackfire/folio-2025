@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { attribute, cameraPosition, cameraProjectionMatrix, cameraViewMatrix, color, cross, float, floor, Fn, instancedArray, min, modelWorldMatrix, mul, positionGeometry, remapClamp, step, uniform, varying, vec3, vec4, vertexIndex } from 'three/tsl'
+import { attribute, cameraPosition, cameraProjectionMatrix, cameraViewMatrix, color, cross, float, floor, Fn, instancedArray, luminance, min, mix, modelWorldMatrix, mul, positionGeometry, positionWorld, remapClamp, step, uniform, varying, vec3, vec4, vertexIndex } from 'three/tsl'
 import { LineGeometry } from '../Geometries/LineGeometry.js'
 import gsap from 'gsap'
 import { alea } from 'seedrandom'
@@ -19,13 +19,16 @@ export class Lightnings
         {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '⚡️ Lightnings',
-                expanded: false,
+                expanded: true,
             })
         }
 
         this.frequency = 2
         this.hitChances = 0
         this.currentSecond = Math.floor(Date.now() / 1000)
+        this.colorA = uniform(color('#ff4c00'))
+        this.colorB = uniform(color('#5180ff'))
+        this.intensity = uniform(3)
 
         // Debug
         this.hitChancesBinding = this.game.debug.addManualBinding(
@@ -35,7 +38,7 @@ export class Lightnings
             { label: 'hitChances', min: 0, max: 1, step: 0.001 },
             () =>
             {
-                // return 1
+                return 1
                 return Math.max(0, this.game.weather.clouds.value) * Math.max(0, this.game.weather.electricField.value) * this.game.weather.humidity.value
             }
         )
@@ -43,9 +46,10 @@ export class Lightnings
         if(this.game.debug.active)
         {
             this.debugPanel.addBinding(this, 'frequency', { min: 0.1, max: 10, step: 0.1 })
+            this.game.debug.addThreeColorBinding(this.debugPanel, this.colorA.value, 'colorA')
+            this.game.debug.addThreeColorBinding(this.debugPanel, this.colorB.value, 'colorB')
+            this.debugPanel.addBinding(this.intensity, 'value', { label: 'intensity', min: 0, max: 10, step: 0.01 })
         }
-
-        this.materialReference = this.game.materials.createEmissive('lightnings', '#4c8bff', 4, this.debugPanel)
 
         this.setSounds()
         this.setAnticipationParticles()
@@ -191,8 +195,8 @@ export class Lightnings
             const startTime = uniform(this.game.ticker.elapsedScaled)
             
             // Material
-            const material = new THREE.SpriteNodeMaterial()
-            material.colorNode = this.materialReference.colorNode
+            const material = new THREE.SpriteNodeMaterial({ transparent: true })
+            material.colorNode = this.colorB.div(luminance(this.colorB)).mul(this.intensity)
             material.positionNode = this.anticipationParticles.positionNode(startTime)
             material.scaleNode = this.anticipationParticles.scaleNode(startTime)
             
@@ -200,6 +204,7 @@ export class Lightnings
             mesh.position.copy(coordinates)
             mesh.rotation.y = rng() * Math.PI * 2
             mesh.count = this.anticipationParticles.count
+            mesh.renderOrder = 2
             this.game.scene.add(mesh)
 
             return mesh
@@ -283,13 +288,19 @@ export class Lightnings
             const startTime = uniform(this.game.ticker.elapsedScaled)
 
             // Material
-            const material = new THREE.MeshBasicNodeMaterial({ wireframe: false })
-            material.colorNode = this.materialReference.colorNode
+            const material = new THREE.MeshBasicNodeMaterial({ transparent: true })
+
+            const mixStrength = positionWorld.sub(vec3(coordinates.x, coordinates.y, coordinates.z)).length().div(8).min(1)
+            const mixedColor = mix(this.colorA, this.colorB, mixStrength)
+            material.colorNode = mixedColor.div(luminance(mixedColor)).mul(this.intensity)
+            material.fog = false
+    
             material.vertexNode = this.arc.vertexNode(startTime)
 
             const mesh = new THREE.Mesh(this.arc.geometry, material)
             mesh.position.copy(coordinates)
             mesh.rotation.y = rng() * Math.PI * 2
+            mesh.renderOrder = 2
             this.game.scene.add(mesh)
             
             return mesh
@@ -369,8 +380,12 @@ export class Lightnings
         {
             const startTime = uniform(this.game.ticker.elapsedScaled)
         
-            const material = new THREE.SpriteNodeMaterial()
-            material.colorNode = this.materialReference.colorNode
+            const material = new THREE.SpriteNodeMaterial({ transparent: true })
+
+            const mixStrength = positionWorld.sub(vec3(coordinates.x, coordinates.y, coordinates.z)).length().div(4).min(1)
+            const mixedColor = mix(this.colorA, this.colorB, mixStrength)
+            material.colorNode = mixedColor.div(luminance(mixedColor)).mul(this.intensity)
+            material.fog = false
             material.positionNode = this.explosionParticles.positionNode(startTime)
             material.scaleNode = this.explosionParticles.scaleNode(startTime)
             
@@ -378,6 +393,7 @@ export class Lightnings
             mesh.position.copy(coordinates)
             mesh.count = this.explosionParticles.count
             mesh.rotation.y = rng() * Math.PI * 2
+            mesh.renderOrder = 2
             this.game.scene.add(mesh)
 
             gsap.to(mesh.position, { y: - this.explosionParticles.fallAmplitude, duration: this.explosionParticles.duration })
@@ -401,9 +417,9 @@ export class Lightnings
         const focusPointPosition = this.game.view.focusPoint.position
         this.create(
             new THREE.Vector3(
-                focusPointPosition.x + (rng() - 0.5) * this.game.view.optimalArea.radius * 2,
+                focusPointPosition.x + (rng() - 0.5) * this.game.view.optimalArea.radius * 1,
                 0,
-                focusPointPosition.z + (rng() - 0.5) * this.game.view.optimalArea.radius * 2
+                focusPointPosition.z + (rng() - 0.5) * this.game.view.optimalArea.radius * 1
             ),
             rng
         )
