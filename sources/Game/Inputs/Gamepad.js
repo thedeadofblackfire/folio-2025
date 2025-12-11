@@ -126,27 +126,38 @@ export class Gamepad
 
                     if(map.action === 'buttonRaw')
                     {
-                        button.value = gamepad.buttons[map.index].value
+                        const mapButton = gamepad.buttons[map.index]
+
+                        if(mapButton)
+                            button.value = mapButton.value
                     }
 
                     else if(map.action === 'axisToTrigger')
                     {
-                        button.value = gamepad.axes[map.index] * 0.5 + 0.5
+                        const mapAxes = gamepad.axes[map.index]
+
+                        if(mapAxes)
+                            button.value = mapAxes * 0.5 + 0.5
                     }
 
                     else if(map.action === 'axisToArrow')
                     {
-                        const arrowAngle = gamepad.axes[map.index]
-                        let isInAngles = false
+                        const mapAxes = gamepad.axes[map.index]
 
-                        for(const angle of map.angles)
+                        if(mapAxes)
                         {
-                            if(Math.abs(angle - arrowAngle) < 0.1)
-                                isInAngles = true
+                            const arrowAngle = mapAxes
+                            let isInAngles = false
+
+                            for(const angle of map.angles)
+                            {
+                                if(Math.abs(angle - arrowAngle) < 0.1)
+                                    isInAngles = true
+                            }
+                            
+                            if(isInAngles)
+                                button.value = 1
                         }
-                        
-                        if(isInAngles)
-                            button.value = 1
                     }
 
                     button.pressed = button.value > buttonPressedZone
