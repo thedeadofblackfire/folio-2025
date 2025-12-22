@@ -130,6 +130,7 @@ export class Whispers
             else
             {
                 console.warn('can\'t find available item')
+                return null
             }
         }
 
@@ -185,21 +186,21 @@ export class Whispers
             {
                 item = this.data.findAvailable()
 
-                const dummy = { value: 0 }
-                gsap.to(
-                    dummy,
-                    {
-                        value: 1,
-                        onUpdate: () =>
-                        {
-                            this.revealArray[item.index] = dummy.value
-                            this.revealBufferNeedsUpdate = true
-                        }
-                    }
-                )
-
                 if(item)
                 {
+                    const dummy = { value: 0 }
+                    gsap.to(
+                        dummy,
+                        {
+                            value: 1,
+                            onUpdate: () =>
+                            {
+                                this.revealArray[item.index] = dummy.value
+                                this.revealBufferNeedsUpdate = true
+                            }
+                        }
+                    )
+
                     item.id = input.id
                     item.available = false
                     item.message = input.message,

@@ -21,7 +21,10 @@ export class Server
         this.initData = null
         this.events = new Events()
         document.documentElement.classList.add('is-server-offline')
+    }
 
+    start()
+    {
         if(import.meta.env.VITE_SERVER_URL)
         {
             // First connect attempt

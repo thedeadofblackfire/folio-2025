@@ -211,10 +211,13 @@ export class Reveal
         else if(step === 2)
         {
             this.game.interactivePoints.recover()
+            
             this.game.world.step(2)
             this.game.world.grid.destroy()
             this.game.world.intro.destroy()
             this.game.world.intro = null
+
+            this.game.server.start()
 
             this.game.ticker.events.off('tick', this.update)
         }
